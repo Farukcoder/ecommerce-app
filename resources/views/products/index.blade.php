@@ -215,11 +215,11 @@
                     </td>
                     <td>
                         <div style="font-size:0.9375rem; font-weight:600; color:var(--foreground);">
-                            ${{ number_format($product->base_price, 2) }}
+                            ৳{{ number_format($product->base_price, 2) }}
                         </div>
                         @if($product->sale_price)
                             <div style="font-size:0.8125rem; color:var(--success);">
-                                Sale: ${{ number_format($product->sale_price, 2) }}
+                                Sale: ৳{{ number_format($product->sale_price, 2) }}
                             </div>
                         @endif
                     </td>
@@ -246,7 +246,7 @@
                     </td>
                     <td>
                         <div class="action-buttons" style="justify-content:flex-end;">
-                            <a href="{{ route('products.create') }}" class="action-btn" title="Edit">
+                            <a href="{{ route('products.edit', $product) }}" class="action-btn" title="Edit">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                 </svg>

@@ -21,6 +21,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Share $dashboardRoute with all views so custom views that extend
+        // tyro-dashboard layouts (e.g. products/index, products/create) can
+        // call $dashboardRoute::name() and $dashboardRoute::pattern() helpers.
+        View::share('dashboardRoute', DashboardRoute::class);
     }
 }

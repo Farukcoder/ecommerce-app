@@ -42,12 +42,24 @@
                 </svg>
                 My Profile
             </a>
-            <a href="{{ route('dashboard.products') }}" class="sidebar-link {{ request()->routeIs('dashboard.products') ? 'active' : '' }}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-title" style="display:flex;align-items:center;gap:0.5rem;text-transform:none;font-size:0.9375rem;font-weight:500;color:var(--sidebar-foreground);opacity:1;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;opacity:0.7;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V11" />
                 </svg>
                 Products
+            </div>
+            <a href="{{ route('products.index') }}" class="sidebar-link {{ request()->routeIs('products.index') ? 'active' : '' }}" style="padding-left:2.75rem;">
+                All Products
             </a>
+            <a href="{{ route('products.create') }}" class="sidebar-link {{ request()->routeIs('products.create') ? 'active' : '' }}" style="padding-left:2.75rem;">
+                Add New Product
+            </a>
+        </div>
+
+        <div class="sidebar-section">
             @if(config('tyro-dashboard.features.invitation_system', true))
             <a href="{{ route($dashboardRoute::name('invitations.index')) }}" class="sidebar-link {{ request()->routeIs($dashboardRoute::pattern('invitations.index')) ? 'active' : '' }}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

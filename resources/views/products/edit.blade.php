@@ -1,13 +1,13 @@
 @extends('tyro-dashboard::layouts.user')
 
-@section('title', 'Add Product')
+@section('title', 'Edit Product')
 
 @section('breadcrumb')
 <a href="{{ route($dashboardRoute::name('index')) }}">Dashboard</a>
 <span class="breadcrumb-separator">/</span>
 <a href="{{ route('products.index') }}">Products</a>
 <span class="breadcrumb-separator">/</span>
-<span>Add Product</span>
+<span>Edit Product</span>
 @endsection
 
 @push('styles')
@@ -40,8 +40,8 @@
 <div class="page-header">
     <div class="page-header-row">
         <div>
-            <h1 class="page-title">Add Product</h1>
-            <p class="page-description">Fill in the details below to add a new product to your catalog.</p>
+            <h1 class="page-title">Edit Product</h1>
+            <p class="page-description">Update the details below to modify the product.</p>
         </div>
         <div style="display:flex; gap:0.625rem; flex-wrap:wrap;">
             <a href="{{ route('products.index') }}" class="btn btn-secondary">
@@ -60,9 +60,10 @@
     </div>
 </div>
 
-<form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" id="product-form">
+<form action="{{ route('products.update', $product) }}" method="POST" enctype="multipart/form-data" id="product-form">
 @csrf
-<input type="hidden" name="status" id="form-status" value="draft">
+@method('PUT')
+<input type="hidden" name="status" id="form-status" value="{{ old('status', $product->status) }}">
 
 <div class="product-layout">
 
@@ -81,7 +82,7 @@
                 <div class="form-group">
                     <label for="name" class="form-label">Product Name <span style="color:var(--destructive);">*</span></label>
                     <input type="text" id="name" name="name" class="form-input @error('name') is-invalid @enderror"
-                           value="{{ old('name') }}" placeholder="e.g. Premium Wireless Headphones" required
+                           value="{{ old('name', $product->name) }}" placeholder="e.g. Premium Wireless Headphones" required
                            oninput="generateSlug(this.value)">
                     @error('name')<span class="form-error">{{ $message }}</span>@enderror
                 </div>
@@ -91,7 +92,7 @@
                         <label for="slug" class="form-label">Slug <span class="form-label-optional">(auto-generated)</span></label>
                         <div style="position:relative;">
                             <input type="text" id="slug" name="slug" class="form-input @error('slug') is-invalid @enderror"
-                                   value="{{ old('slug') }}" placeholder="premium-wireless-headphones" style="padding-left:2.75rem;">
+                                   value="{{ old('slug', $product->slug) }}" placeholder="premium-wireless-headphones" style="padding-left:2.75rem;">
                             <span style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--muted-foreground);font-size:0.875rem;">/</span>
                         </div>
                         @error('slug')<span class="form-error">{{ $message }}</span>@enderror
@@ -99,7 +100,7 @@
                     <div class="form-group">
                         <label for="sku" class="form-label">SKU <span class="form-label-optional">(optional)</span></label>
                         <input type="text" id="sku" name="sku" class="form-input @error('sku') is-invalid @enderror"
-                               value="{{ old('sku') }}" placeholder="e.g. WH-1000XM4">
+                               value="{{ old('sku', $product->sku) }}" placeholder="e.g. WH-1000XM4">
                         @error('sku')<span class="form-error">{{ $message }}</span>@enderror
                     </div>
                 </div>
@@ -107,7 +108,7 @@
                 <div class="form-group">
                     <label for="short_description" class="form-label">Short Description</label>
                     <textarea id="short_description" name="short_description" class="form-textarea @error('short_description') is-invalid @enderror"
-                              rows="2" placeholder="Brief product summary shown in listings…" maxlength="500">{{ old('short_description') }}</textarea>
+                              rows="2" placeholder="Brief product summary shown in listings…" maxlength="500">{!! old('short_description', $product->short_description) !!}</textarea>
                     <div class="form-hint" id="short-desc-count">0 / 500 characters</div>
                     @error('short_description')<span class="form-error">{{ $message }}</span>@enderror
                 </div>
@@ -124,11 +125,11 @@
                             </button>
                             @endforeach
                         </div>
-                        <div id="description-editor" contenteditable="true"
+                        <div id="description-editor" contenteditable="true" data-initial="{!! htmlspecialchars($product->description, ENT_QUOTES) !!}"
                              style="min-height:160px; padding:0.875rem 1rem; font-size:0.9375rem; color:var(--foreground); line-height:1.7; outline:none; background:var(--background);"
                              placeholder="Enter detailed product description…"></div>
                     </div>
-                    <textarea name="description" id="description" style="display:none;">{{ old('description') }}</textarea>
+                    <textarea name="description" id="description" style="display:none;">{!! old('description', $product->description) !!}</textarea>
                     @error('description')<span class="form-error">{{ $message }}</span>@enderror
                 </div>
             </div>
@@ -147,14 +148,14 @@
                 <div class="form-row" style="grid-template-columns:1fr 1fr; margin-bottom:1.25rem;">
                     <div class="form-group" style="margin-bottom:0;">
                         <label class="form-label">Thumbnail</label>
-                        <div class="drop-zone" id="thumbnail-zone" onclick="document.getElementById('thumbnail-input').click()">
+                                                <div class="drop-zone" id="thumbnail-zone" onclick="document.getElementById('thumbnail-input').click()" style="{{ $product->thumbnail ? 'display:none;' : '' }}">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                             <p style="font-size:0.875rem; color:var(--muted-foreground); margin-bottom:0.25rem;">Click or drag to upload</p>
                             <p style="font-size:0.75rem; color:var(--muted-foreground);">PNG, JPG, WebP · Max 2MB</p>
                             <input type="file" id="thumbnail-input" name="thumbnail" accept="image/*" style="display:none;" onchange="previewThumbnail(this)">
                         </div>
-                        <div id="thumbnail-preview" style="display:none; margin-top:0.75rem; position:relative; width:100%; aspect-ratio:1; border-radius:8px; overflow:hidden; border:1px solid var(--border);">
-                            <img id="thumbnail-img" src="" alt="Thumbnail" style="width:100%;height:100%;object-fit:cover;">
+                        <div id="thumbnail-preview" style="{{ $product->thumbnail ? '' : 'display:none;' }} margin-top:0.75rem; position:relative; width:100%; aspect-ratio:1; border-radius:8px; overflow:hidden; border:1px solid var(--border);">
+                            <img id="thumbnail-img" src="{{ $product->thumbnail ? asset('storage/'.$product->thumbnail) : '' }}" alt="Thumbnail" style="width:100%;height:100%;object-fit:cover;">
                             <button type="button" onclick="clearThumbnail()" style="position:absolute;top:6px;right:6px; background:rgba(0,0,0,0.65); border:none; border-radius:5px; color:#fff; cursor:pointer; padding:4px 6px; font-size:0.75rem;">Remove</button>
                         </div>
                     </div>
@@ -248,9 +249,9 @@
                 <div class="form-group">
                     <label for="sidebar-status" class="form-label">Status</label>
                     <select name="_sidebar_status" id="sidebar-status" class="form-select" onchange="document.getElementById('form-status').value=this.value">
-                        <option value="draft" {{ old('status','draft')==='draft' ? 'selected' : '' }}>Draft</option>
-                        <option value="published" {{ old('status')==='published' ? 'selected' : '' }}>Published</option>
-                        <option value="archived" {{ old('status')==='archived' ? 'selected' : '' }}>Archived</option>
+                        <option value="draft" {{ old('status', $product->status)==='draft' ? 'selected' : '' }}>Draft</option>
+                        <option value="published" {{ old('status', $product->status)==='published' ? 'selected' : '' }}>Published</option>
+                        <option value="archived" {{ old('status', $product->status)==='archived' ? 'selected' : '' }}>Archived</option>
                     </select>
                 </div>
                 <div class="toggle-row">
@@ -259,7 +260,7 @@
                         <div style="font-size:0.8125rem;color:var(--muted-foreground);">Show in featured sections</div>
                     </div>
                     <label class="toggle-label" style="margin-bottom:0;">
-                        <input type="checkbox" name="featured" value="1" class="toggle-input" id="featured-toggle" {{ old('featured') ? 'checked' : '' }}>
+                        <input type="checkbox" name="featured" value="1" class="toggle-input" id="featured-toggle" {{ old('featured', $product->featured) ? 'checked' : '' }}>
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -289,7 +290,7 @@
                     @forelse($categories as $cat)
                     <label style="display:flex;align-items:center;gap:0.625rem;cursor:pointer;padding:0.375rem 0.5rem;border-radius:6px;transition:background 0.1s;" onmouseover="this.style.background='var(--muted)'" onmouseout="this.style.background=''">
                         <input type="checkbox" name="categories[]" value="{{ $cat->id }}" class="checkbox-input category-checkbox"
-                               {{ in_array($cat->id, old('categories', [])) ? 'checked' : '' }}>
+                               {{ in_array($cat->id, old('categories', $product->categories->pluck('id')->toArray())) ? 'checked' : '' }}>
                         <span style="font-size:0.875rem;color:var(--foreground);">{{ $cat->name }}</span>
                     </label>
                     @empty
@@ -310,7 +311,7 @@
                     <select name="brand_id" id="brand_id" class="form-select">
                         <option value="">— Select Brand —</option>
                         @foreach($brands as $brand)
-                        <option value="{{ $brand->id }}" {{ old('brand_id') == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
+                        <option value="{{ $brand->id }}" {{ old('brand_id', $product->brand_id) == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
                         @endforeach
                     </select>
                     @error('brand_id')<span class="form-error">{{ $message }}</span>@enderror
@@ -333,7 +334,7 @@
                         <div style="position:relative;">
                             <span style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--muted-foreground);font-weight:500;">৳</span>
                             <input type="number" id="base_price" name="base_price" class="form-input @error('base_price') is-invalid @enderror"
-                                   value="{{ old('base_price') }}" placeholder="0.00" step="0.01" min="0" required style="padding-left:1.75rem;">
+                                   value="{{ old('base_price', $product->base_price) }}" placeholder="0.00" step="0.01" min="0" required style="padding-left:1.75rem;">
                         </div>
                         @error('base_price')<span class="form-error">{{ $message }}</span>@enderror
                     </div>
@@ -342,7 +343,7 @@
                         <div style="position:relative;">
                             <span style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--muted-foreground);font-weight:500;">৳</span>
                             <input type="number" id="sale_price" name="sale_price" class="form-input @error('sale_price') is-invalid @enderror"
-                                   value="{{ old('sale_price') }}" placeholder="0.00" step="0.01" min="0" style="padding-left:1.75rem;">
+                                   value="{{ old('sale_price', $product->sale_price) }}" placeholder="0.00" step="0.01" min="0" style="padding-left:1.75rem;">
                         </div>
                         @error('sale_price')<span class="form-error">{{ $message }}</span>@enderror
                     </div>
@@ -352,15 +353,15 @@
                         <label for="discount_type" class="form-label">Discount Type</label>
                         <select id="discount_type" name="discount_type" class="form-select">
                             <option value="">None</option>
-                            <option value="percentage" {{ old('discount_type')==='percentage' ? 'selected' : '' }}>Percentage (%)</option>
-                            <option value="fixed" {{ old('discount_type')==='fixed' ? 'selected' : '' }}>Fixed (৳)</option>
+                            <option value="percentage" {{ old('discount_type', $product->discount_type)==='percentage' ? 'selected' : '' }}>Percentage (%)</option>
+                            <option value="fixed" {{ old('discount_type', $product->discount_type)==='fixed' ? 'selected' : '' }}>Fixed (৳)</option>
                         </select>
                         @error('discount_type')<span class="form-error">{{ $message }}</span>@enderror
                     </div>
                     <div class="form-group" style="margin-bottom:0;">
                         <label for="discount_value" class="form-label">Discount Value</label>
                         <input type="number" id="discount_value" name="discount_value" class="form-input @error('discount_value') is-invalid @enderror"
-                               value="{{ old('discount_value') }}" placeholder="0" step="0.01" min="0">
+                               value="{{ old('discount_value', $product->discount_value) }}" placeholder="0" step="0.01" min="0">
                         @error('discount_value')<span class="form-error">{{ $message }}</span>@enderror
                     </div>
                 </div>
@@ -379,13 +380,13 @@
                 <div class="form-group">
                     <label for="meta_title" class="form-label">Meta Title</label>
                     <input type="text" id="meta_title" name="meta_title" class="form-input"
-                           value="{{ old('meta_title') }}" placeholder="SEO page title…" maxlength="255">
+                           value="{{ old('meta_title', $product->meta_title) }}" placeholder="SEO page title…" maxlength="255">
                     <div class="form-hint" id="meta-title-count">0 / 60 recommended</div>
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
                     <label for="meta_description" class="form-label">Meta Description</label>
                     <textarea id="meta_description" name="meta_description" class="form-textarea"
-                              rows="3" placeholder="Brief description for search engines…" maxlength="500">{{ old('meta_description') }}</textarea>
+                              rows="3" placeholder="Brief description for search engines…" maxlength="500">{!! old('meta_description', $product->meta_description) !!}</textarea>
                     <div class="form-hint" id="meta-desc-count">0 / 160 recommended</div>
                 </div>
             </div>
@@ -446,7 +447,11 @@ function execCmd(cmd) {
     }
     document.getElementById('description-editor').focus();
 }
-document.getElementById('description-editor').addEventListener('input', () => {
+// Initialize description editor
+const descEditor = document.getElementById('description-editor');
+if(descEditor.dataset.initial) { descEditor.innerHTML = descEditor.dataset.initial; }
+
+descEditor.addEventListener('input', () => {
     document.getElementById('description').value = document.getElementById('description-editor').innerHTML;
 });
 

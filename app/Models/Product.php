@@ -2,17 +2,24 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
+    use HasUuids;
+
     protected $fillable = [
+        'uuid',
         'brand_id',
         'name',
         'slug',
         'sku',
+        'thumbnail',
         'short_description',
         'description',
+        'meta_title',
+        'meta_description',
         'base_price',
         'sale_price',
         'discount_type',
@@ -20,6 +27,16 @@ class Product extends Model
         'featured',
         'status'
     ];
+
+    /**
+     * Get the columns that should receive a unique identifier.
+     *
+     * @return array<int, string>
+     */
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
+    }
 
     public function brand()
     {
