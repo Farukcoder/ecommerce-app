@@ -57,6 +57,15 @@
             <a href="{{ route('products.create') }}" class="sidebar-link {{ request()->routeIs('products.create') ? 'active' : '' }}" style="padding-left:2.75rem;">
                 Add New Product
             </a>
+            <a href="{{ route('attributes.index') }}" class="sidebar-link {{ request()->routeIs('attributes.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
+                Attributes
+            </a>
+            <a href="{{ route('brands.index') }}" class="sidebar-link {{ request()->routeIs('brands.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
+                Brands
+            </a>
+            <a href="{{ route('categories.index') }}" class="sidebar-link {{ request()->routeIs('categories.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
+                Categories
+            </a>
         </div>
 
         <div class="sidebar-section">

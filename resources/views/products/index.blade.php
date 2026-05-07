@@ -47,7 +47,7 @@
         </div>
         <div class="stat-content">
             <div class="stat-label">Published</div>
-            <div class="stat-value" style="font-size:1.5rem;">{{ $products->getCollection()->where('status','published')->count() }}</div>
+            <div class="stat-value" style="font-size:1.5rem;">{{ $products->getCollection()->where('status','Published')->count() }}</div>
         </div>
     </div>
     <div class="stat-card">
@@ -58,7 +58,7 @@
         </div>
         <div class="stat-content">
             <div class="stat-label">Drafts</div>
-            <div class="stat-value" style="font-size:1.5rem;">{{ $products->getCollection()->where('status','draft')->count() }}</div>
+            <div class="stat-value" style="font-size:1.5rem;">{{ $products->getCollection()->where('status','Draft')->count() }}</div>
         </div>
     </div>
     <div class="stat-card">
@@ -69,7 +69,7 @@
         </div>
         <div class="stat-content">
             <div class="stat-label">Archived</div>
-            <div class="stat-value" style="font-size:1.5rem;">{{ $products->getCollection()->where('status','archived')->count() }}</div>
+            <div class="stat-value" style="font-size:1.5rem;">{{ $products->getCollection()->where('status','Archived')->count() }}</div>
         </div>
     </div>
 </div>
@@ -89,9 +89,9 @@
                     <label class="filter-label">Status:</label>
                     <select name="status" class="form-select" style="min-width: 140px;">
                         <option value="">All Status</option>
-                        <option value="published" {{ ($filters['status'] ?? '') === 'published' ? 'selected' : '' }}>Published</option>
-                        <option value="draft"     {{ ($filters['status'] ?? '') === 'draft'     ? 'selected' : '' }}>Draft</option>
-                        <option value="archived"  {{ ($filters['status'] ?? '') === 'archived'  ? 'selected' : '' }}>Archived</option>
+                        <option value="Published" {{ ($filters['status'] ?? '') === 'Published' ? 'selected' : '' }}>Published</option>
+                        <option value="Draft"     {{ ($filters['status'] ?? '') === 'Draft'     ? 'selected' : '' }}>Draft</option>
+                        <option value="Archived"  {{ ($filters['status'] ?? '') === 'Archived'  ? 'selected' : '' }}>Archived</option>
                     </select>
                 </div>
                 <div class="filter-group">
@@ -224,9 +224,9 @@
                         @endif
                     </td>
                     <td>
-                        @if($product->status === 'published')
+                        @if($product->status === 'Published')
                             <span class="badge badge-success">Published</span>
-                        @elseif($product->status === 'draft')
+                        @elseif($product->status === 'Draft')
                             <span class="badge badge-warning">Draft</span>
                         @else
                             <span class="badge badge-secondary">Archived</span>

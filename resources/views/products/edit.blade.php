@@ -48,11 +48,11 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                 Back
             </a>
-            <button type="button" class="btn btn-secondary" onclick="submitProductForm('draft')">
+            <button type="button" class="btn btn-secondary" onclick="submitProductForm('Draft')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
                 Save Draft
             </button>
-            <button type="button" class="btn btn-primary" onclick="submitProductForm('published')">
+            <button type="button" class="btn btn-primary" onclick="submitProductForm('Published')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                 Publish
             </button>
@@ -108,7 +108,7 @@
                 <div class="form-group">
                     <label for="short_description" class="form-label">Short Description</label>
                     <textarea id="short_description" name="short_description" class="form-textarea @error('short_description') is-invalid @enderror"
-                              rows="2" placeholder="Brief product summary shown in listings…" maxlength="500">{!! old('short_description', $product->short_description) !!}</textarea>
+                              rows="2" placeholder="Brief product summary shown in listings…" maxlength="500">{{ old('short_description', $product->short_description) }}</textarea>
                     <div class="form-hint" id="short-desc-count">0 / 500 characters</div>
                     @error('short_description')<span class="form-error">{{ $message }}</span>@enderror
                 </div>
@@ -125,11 +125,11 @@
                             </button>
                             @endforeach
                         </div>
-                        <div id="description-editor" contenteditable="true" data-initial="{!! htmlspecialchars($product->description, ENT_QUOTES) !!}"
+                            <div id="description-editor" contenteditable="true" data-initial="{{ e(old('description', $product->description)) }}"
                              style="min-height:160px; padding:0.875rem 1rem; font-size:0.9375rem; color:var(--foreground); line-height:1.7; outline:none; background:var(--background);"
                              placeholder="Enter detailed product description…"></div>
                     </div>
-                    <textarea name="description" id="description" style="display:none;">{!! old('description', $product->description) !!}</textarea>
+                    <textarea name="description" id="description" style="display:none;">{{ old('description', $product->description) }}</textarea>
                     @error('description')<span class="form-error">{{ $message }}</span>@enderror
                 </div>
             </div>
@@ -170,8 +170,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="image-grid" id="gallery-grid"></div>
-                <p style="font-size:0.8125rem; color:var(--muted-foreground); margin-top:0.5rem;" id="gallery-hint" style="display:none;">Click an image to set it as the primary image.</p>
+                <div class="image-grid" id="gallery-grid">
+                    @foreach($product->images as $img)
+                    <div class="image-thumb" data-existing-id="{{ $img->id }}" title="Click ✕ to remove">
+                        <img src="{{ asset('storage/'.$img->image) }}" alt="">
+                        <button type="button" class="remove-btn" onclick="removeExistingImage(this, {{ $img->id }})">✕</button>
+                        @if($img->is_primary)<span class="primary-badge">Primary</span>@endif
+                    </div>
+                    @endforeach
+                </div>
+                <div id="delete-images-inputs"></div>
+                <p style="font-size:0.8125rem; color:var(--muted-foreground); margin-top:0.5rem;" id="gallery-hint" style="{{ $product->images->count() ? '' : 'display:none;' }}">Existing images shown above. Click ✕ to remove one.</p>
             </div>
         </div>
 
@@ -249,9 +258,9 @@
                 <div class="form-group">
                     <label for="sidebar-status" class="form-label">Status</label>
                     <select name="_sidebar_status" id="sidebar-status" class="form-select" onchange="document.getElementById('form-status').value=this.value">
-                        <option value="draft" {{ old('status', $product->status)==='draft' ? 'selected' : '' }}>Draft</option>
-                        <option value="published" {{ old('status', $product->status)==='published' ? 'selected' : '' }}>Published</option>
-                        <option value="archived" {{ old('status', $product->status)==='archived' ? 'selected' : '' }}>Archived</option>
+                        <option value="Draft" {{ old('status', $product->status) === 'Draft' ? 'selected' : '' }}>Draft</option>
+                        <option value="Published" {{ old('status', $product->status) === 'Published' ? 'selected' : '' }}>Published</option>
+                        <option value="Archived" {{ old('status', $product->status) === 'Archived' ? 'selected' : '' }}>Archived</option>
                     </select>
                 </div>
                 <div class="toggle-row">
@@ -266,11 +275,11 @@
                 </div>
             </div>
             <div class="card-footer" style="display:flex;gap:0.625rem;">
-                <button type="button" class="btn btn-primary" style="flex:1;" onclick="submitProductForm('published')">
+                <button type="button" class="btn btn-primary" style="flex:1;" onclick="submitProductForm('Published')">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                     Publish
                 </button>
-                <button type="button" class="btn btn-secondary" onclick="submitProductForm('draft')">
+                <button type="button" class="btn btn-secondary" onclick="submitProductForm('Draft')">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
                     Draft
                 </button>
@@ -495,11 +504,13 @@ function addGalleryImages(input) {
 function renderGallery() {
     const grid = document.getElementById('gallery-grid');
     const hint = document.getElementById('gallery-hint');
-    grid.innerHTML = '';
+    // Wipe only the *new* (non-existing) thumbs, leave existing server-rendered ones
+    grid.querySelectorAll('.image-thumb[data-new-index]').forEach(el => el.remove());
     galleryFiles.forEach((file, i) => {
         const url   = URL.createObjectURL(file);
         const thumb = document.createElement('div');
         thumb.className = 'image-thumb';
+        thumb.dataset.newIndex = i;
         thumb.title = 'Click to set as primary';
         thumb.onclick = () => { primaryIndex = i; renderGallery(); };
         thumb.innerHTML = `<img src="${url}">
@@ -507,12 +518,21 @@ function renderGallery() {
             ${i===primaryIndex ? '<span class="primary-badge">Primary</span>' : ''}`;
         grid.appendChild(thumb);
     });
-    if (hint) hint.style.display = galleryFiles.length ? 'block' : 'none';
+    if (hint) hint.style.display = (galleryFiles.length || grid.querySelector('[data-existing-id]')) ? 'block' : 'none';
 }
 function removeGallery(i) {
     galleryFiles.splice(i,1);
     if (primaryIndex >= galleryFiles.length) primaryIndex = 0;
     renderGallery();
+}
+function removeExistingImage(btn, id) {
+    btn.closest('.image-thumb').remove();
+    const wrap = document.getElementById('delete-images-inputs');
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'delete_images[]';
+    input.value = id;
+    wrap.appendChild(input);
 }
 
 // ── Drag & drop ──────────────────────────────────────────────────────────────

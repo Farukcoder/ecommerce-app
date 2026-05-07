@@ -10,7 +10,6 @@ use App\Models\ProductImage;
 use App\Models\ProductStock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -77,9 +76,9 @@ class ProductController extends Controller
             'description'       => 'nullable|string',
             'base_price'        => 'required|numeric|min:0',
             'sale_price'        => 'nullable|numeric|min:0',
-            'discount_type'     => 'nullable|in:percentage,fixed',
+            'discount_type'     => 'nullable|in:fixed,percentage',
             'discount_value'    => 'nullable|numeric|min:0',
-            'status'            => 'required|in:draft,published,archived',
+            'status'            => 'required|in:Draft,Published,Archived',
             'featured'          => 'boolean',
             'brand_id'          => 'nullable|exists:brands,id',
             'categories'        => 'array',
@@ -132,36 +131,10 @@ class ProductController extends Controller
             }
         }
 
-        // Handle stock variants
-        if ($request->has('variants')) {
-            foreach ($request->input('variants') as $variant) {
-                if (empty($variant['sku'])) {
-                    continue; // skip rows without a SKU
-                }
-                ProductStock::create([
-                    'product_id' => $product->id,
-                    'sku'        => $variant['sku'],
-                    'quantity'   => (int) ($variant['quantity'] ?? 0),
-                ]);
-            }
-        }
+        $this->syncStocks($product, $request->input('variants', []));
 
         return redirect()->route('products.index')
             ->with('success', "Product \"{$product->name}\" created successfully.");
-    }
-
-    /**
-     * Show the form for editing the specified product.
-     */
-    public function edit(Product $product)
-    {
-        $product->load(['brand', 'categories', 'images', 'stocks']);
-
-        $categories = Category::orderBy('name')->get();
-        $brands     = Brand::orderBy('name')->get();
-        $attributes = Attribute::with('values')->orderBy('name')->get();
-
-        return view('products.edit', compact('product', 'categories', 'brands', 'attributes'));
     }
 
     /**
@@ -177,9 +150,9 @@ class ProductController extends Controller
             'description'       => 'nullable|string',
             'base_price'        => 'required|numeric|min:0',
             'sale_price'        => 'nullable|numeric|min:0',
-            'discount_type'     => 'nullable|in:percentage,fixed',
+            'discount_type'     => 'nullable|in:fixed,percentage',
             'discount_value'    => 'nullable|numeric|min:0',
-            'status'            => 'required|in:draft,published,archived',
+            'status'            => 'required|in:Draft,Published,Archived',
             'featured'          => 'boolean',
             'brand_id'          => 'nullable|exists:brands,id',
             'categories'        => 'array',
@@ -190,15 +163,13 @@ class ProductController extends Controller
             'gallery.*'         => 'nullable|image|max:2048',
         ]);
 
-        // Handle new thumbnail upload
         $thumbnailPath = $product->thumbnail;
         if ($request->hasFile('thumbnail')) {
-            // Delete old thumbnail
             if ($product->thumbnail) {
                 Storage::disk('public')->delete($product->thumbnail);
             }
-            $thumbnailPath = $request->file('thumbnail')
-                ->store('products/thumbnails', 'public');
+
+            $thumbnailPath = $request->file('thumbnail')->store('products/thumbnails', 'public');
         }
 
         $product->update([
@@ -219,10 +190,19 @@ class ProductController extends Controller
             'brand_id'          => $validated['brand_id'] ?? null,
         ]);
 
-        // Sync categories
         $product->categories()->sync($validated['categories'] ?? []);
 
-        // Handle new gallery images
+        if ($ids = $request->input('delete_images', [])) {
+            $toDelete = ProductImage::where('product_id', $product->id)
+                ->whereIn('id', $ids)
+                ->get();
+
+            foreach ($toDelete as $img) {
+                Storage::disk('public')->delete($img->image);
+                $img->delete();
+            }
+        }
+
         if ($request->hasFile('gallery')) {
             foreach ($request->file('gallery') as $file) {
                 $path = $file->store('products/gallery', 'public');
@@ -234,8 +214,58 @@ class ProductController extends Controller
             }
         }
 
+        $this->syncStocks($product, $request->input('variants', []));
+
         return redirect()->route('products.index')
             ->with('success', "Product \"{$product->name}\" updated successfully.");
+    }
+
+    protected function syncStocks(Product $product, array $variants): void
+    {
+        $rows = collect($variants)->filter(
+            fn ($v) => isset($v['sku']) || isset($v['quantity'])
+        )->values();
+
+        if ($rows->isEmpty()) {
+            ProductStock::updateOrCreate(
+                ['product_id' => $product->id, 'sku' => $product->sku ?: "PRD-{$product->id}"],
+                ['quantity' => 0]
+            );
+            return;
+        }
+
+        $keepIds = [];
+
+        foreach ($rows as $i => $variant) {
+            $sku = trim((string) ($variant['sku'] ?? '')) ?:
+                ($product->sku ? "{$product->sku}-V" . ($i + 1) : "PRD-{$product->id}-V" . ($i + 1));
+
+            $stock = ProductStock::updateOrCreate(
+                ['product_id' => $product->id, 'sku' => $sku],
+                ['quantity' => max(0, (int) ($variant['quantity'] ?? 0))]
+            );
+
+            $keepIds[] = $stock->id;
+        }
+
+        // Remove stock rows that are no longer in the submitted set
+        ProductStock::where('product_id', $product->id)
+            ->whereNotIn('id', $keepIds)
+            ->delete();
+    }
+
+    /**
+     * Show the form for editing the specified product.
+     */
+    public function edit(Product $product)
+    {
+        $product->load(['brand', 'categories', 'images', 'stocks']);
+
+        $categories = Category::orderBy('name')->get();
+        $brands     = Brand::orderBy('name')->get();
+        $attributes = Attribute::with('values')->orderBy('name')->get();
+
+        return view('products.edit', compact('product', 'categories', 'brands', 'attributes'));
     }
 
     /**

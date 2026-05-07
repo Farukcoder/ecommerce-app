@@ -10,7 +10,6 @@ class Product extends Model
     use HasUuids;
 
     protected $fillable = [
-        'uuid',
         'brand_id',
         'name',
         'slug',
@@ -26,6 +25,13 @@ class Product extends Model
         'discount_value',
         'featured',
         'status'
+    ];
+
+    protected $casts = [
+        'featured' => 'boolean',
+        'base_price' => 'decimal:2',
+        'sale_price' => 'decimal:2',
+        'discount_value' => 'decimal:2',
     ];
 
     /**
@@ -45,7 +51,7 @@ class Product extends Model
 
     public function categories()
     {
-        return $this->belongsToMany(Category::class);
+        return $this->belongsToMany(Category::class, 'category_product');
     }
 
     public function images()
@@ -55,7 +61,7 @@ class Product extends Model
 
     public function colors()
     {
-        return $this->belongsToMany(Color::class);
+        return $this->belongsToMany(Color::class, 'product_color');
     }
 
     public function stocks()
@@ -65,6 +71,6 @@ class Product extends Model
 
     public function attributeValues()
     {
-        return $this->belongsToMany(AttributeValue::class);
+        return $this->belongsToMany(AttributeValue::class, 'product_attribute_value');
     }
 }
