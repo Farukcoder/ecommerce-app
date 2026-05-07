@@ -416,7 +416,7 @@ let primaryIndex = 0;
 function submitProductForm(status) {
     document.getElementById('form-status').value = status;
     document.getElementById('sidebar-status').value = status;
-    
+
     // Reattach the galleryFiles array to the hidden input so they get submitted
     const dt = new DataTransfer();
     galleryFiles.forEach(file => dt.items.add(file));
