@@ -48,11 +48,11 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                 Back
             </a>
-            <button type="button" class="btn btn-secondary" onclick="submitProductForm('Draft')">
+            <button type="button" class="btn btn-secondary" onclick="submitProductForm('draft')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
                 Save Draft
             </button>
-            <button type="button" class="btn btn-primary" onclick="submitProductForm('Published')">
+            <button type="button" class="btn btn-primary" onclick="submitProductForm('published')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                 Publish
             </button>
@@ -62,7 +62,8 @@
 
 <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" id="product-form">
 @csrf
-<input type="hidden" name="status" id="form-status" value="{{ old('status', 'Draft') }}">
+<input type="hidden" name="status" id="form-status" value="{{ strtolower(old('status', 'draft')) }}">
+<input type="hidden" name="attributes_payload" id="attributes-payload" value="">
 
 <div class="product-layout">
 
@@ -248,9 +249,9 @@
                 <div class="form-group">
                     <label for="sidebar-status" class="form-label">Status</label>
                     <select name="_sidebar_status" id="sidebar-status" class="form-select" onchange="document.getElementById('form-status').value=this.value">
-                        <option value="Draft" {{ old('status', 'Draft') === 'Draft' ? 'selected' : '' }}>Draft</option>
-                        <option value="Published" {{ old('status') === 'Published' ? 'selected' : '' }}>Published</option>
-                        <option value="Archived" {{ old('status') === 'Archived' ? 'selected' : '' }}>Archived</option>
+                        <option value="draft" {{ strtolower(old('status', 'draft')) === 'draft' ? 'selected' : '' }}>Draft</option>
+                        <option value="published" {{ strtolower(old('status', 'draft')) === 'published' ? 'selected' : '' }}>Published</option>
+                        <option value="archived" {{ strtolower(old('status', 'draft')) === 'archived' ? 'selected' : '' }}>Archived</option>
                     </select>
                 </div>
                 <div class="toggle-row">
@@ -265,11 +266,11 @@
                 </div>
             </div>
             <div class="card-footer" style="display:flex;gap:0.625rem;">
-                <button type="button" class="btn btn-primary" style="flex:1;" onclick="submitProductForm('Published')">
+                <button type="button" class="btn btn-primary" style="flex:1;" onclick="submitProductForm('published')">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                     Publish
                 </button>
-                <button type="button" class="btn btn-secondary" onclick="submitProductForm('Draft')">
+                <button type="button" class="btn btn-secondary" onclick="submitProductForm('draft')">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
                     Draft
                 </button>
@@ -416,6 +417,14 @@ let primaryIndex = 0;
 function submitProductForm(status) {
     document.getElementById('form-status').value = status;
     document.getElementById('sidebar-status').value = status;
+    document.getElementById('attributes-payload').value = JSON.stringify(
+        attrRows
+            .filter(row => row.attrId && row.values.length)
+            .map(row => ({
+                attrId: Number(row.attrId),
+                values: row.values.map(v => String(v).trim()).filter(Boolean),
+            }))
+    );
 
     // Reattach the galleryFiles array to the hidden input so they get submitted
     const dt = new DataTransfer();
@@ -537,7 +546,7 @@ function addAttributeRow() {
     document.getElementById('no-attrs').style.display = 'none';
     document.getElementById('generate-section').style.removeProperty('display');
     const id = Date.now();
-    attrRows.push({id, attrId: '', values: []});
+    attrRows.push({id, attrId: '', values: [], uiOpen: false});
     renderAttrRows();
 }
 function removeAttrRow(id) {
@@ -559,9 +568,17 @@ function renderAttrRows() {
         const attrOpts = ATTRIBUTES.map(a =>
             `<option value="${a.id}" ${row.attrId==a.id?'selected':''}>${a.name}</option>`
         ).join('');
-        const valueTagsHtml = row.values.map(v =>
-            `<span class="variant-badge">${v}<span class="x" onclick="removeAttrValue(${row.id},'${v}')">✕</span></span>`
-        ).join('');
+        const attr = ATTRIBUTES.find(a => String(a.id) === String(row.attrId));
+        const valuesOptions = attr ? attr.values.map(v => {
+            const checked = row.values.includes(v.value) ? 'checked' : '';
+            return `
+                <label style="display:flex;align-items:center;gap:0.5rem;padding:0.45rem 0.6rem;border-radius:6px;cursor:pointer;">
+                    <input type="checkbox" value="${v.value}" ${checked} onchange="toggleAttrValue(${row.id}, this.value, this.checked)">
+                    <span style="font-size:0.875rem;color:var(--foreground);">${v.value}</span>
+                </label>`;
+        }).join('') : '';
+        const selectedLabel = row.values.length ? `${row.values.length} selected` : 'Select values';
+
         div.innerHTML = `
             <div class="form-group" style="margin:0;">
                 <label class="form-label" style="font-size:0.8125rem;">Attribute</label>
@@ -571,11 +588,19 @@ function renderAttrRows() {
             </div>
             <div class="form-group" style="margin:0;">
                 <label class="form-label" style="font-size:0.8125rem;">Values</label>
-                <div style="display:flex;flex-wrap:wrap;gap:4px;min-height:38px;border:1px solid var(--input);border-radius:8px;padding:5px 8px;background:var(--background);" id="vals-${row.id}">
-                    ${valueTagsHtml}
-                    <input type="text" placeholder="Type & press Enter…" style="border:none;outline:none;font-size:0.875rem;color:var(--foreground);background:transparent;flex:1;min-width:80px;"
-                        onkeydown="addAttrValue(event,${row.id})" id="val-input-${row.id}">
-                </div>
+                ${ attr ? `
+                    <div style="position:relative;">
+                        <button type="button" class="form-select" onclick="toggleAttrMenu(${row.id})" style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;width:100%;text-align:left;">
+                            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${selectedLabel}</span>
+                            <span style="font-size:0.75rem;color:var(--muted-foreground);">▾</span>
+                        </button>
+                        <div id="vals-menu-${row.id}" style="display:${row.uiOpen ? 'block' : 'none'};position:absolute;z-index:20;left:0;right:0;margin-top:0.35rem;border:1px solid var(--input);border-radius:8px;background:var(--background);box-shadow:0 10px 30px rgba(0,0,0,0.12);max-height:220px;overflow:auto;padding:0.35rem;">
+                            ${valuesOptions}
+                        </div>
+                    </div>
+                ` : `
+                    <div style="min-height:38px;display:flex;align-items:center;color:var(--muted-foreground);border:1px solid var(--input);border-radius:8px;padding:8px;background:var(--background);">Select an attribute to choose values</div>
+                ` }
             </div>
             <div style="padding-top:1.5rem;">
                 <button type="button" class="action-btn action-btn-danger" title="Remove attribute" onclick="removeAttrRow(${row.id})">
@@ -588,21 +613,34 @@ function renderAttrRows() {
 }
 function setAttr(rowId, attrId) {
     const row = attrRows.find(r => r.id === rowId);
-    if (row) { row.attrId = attrId; row.values = []; renderAttrRows(); }
+    if (!row) return;
+    row.attrId = attrId;
+    row.uiOpen = false;
+    // If an attribute was selected, keep only values that belong to it; otherwise clear
+    const attr = ATTRIBUTES.find(a => String(a.id) === String(attrId));
+    if (attr) {
+        row.values = (row.values || []).filter(v => attr.values.some(av => String(av.value) === String(v)));
+    } else {
+        row.values = [];
+    }
+    renderAttrRows();
 }
-function addAttrValue(e, rowId) {
-    if (e.key !== 'Enter' && e.key !== ',') return;
-    e.preventDefault();
-    const input = e.target;
-    const val   = input.value.trim();
-    if (!val) return;
+
+function toggleAttrMenu(rowId) {
     const row = attrRows.find(r => r.id === rowId);
-    if (row && !row.values.includes(val)) { row.values.push(val); renderAttrRows(); }
-    setTimeout(() => { const inp = document.getElementById(`val-input-${rowId}`); if(inp) inp.focus(); }, 0);
+    if (!row) return;
+    row.uiOpen = !row.uiOpen;
+    renderAttrRows();
 }
-function removeAttrValue(rowId, val) {
+
+function toggleAttrValue(rowId, value, checked) {
     const row = attrRows.find(r => r.id === rowId);
-    if (row) { row.values = row.values.filter(v => v !== val); renderAttrRows(); }
+    if (!row) return;
+    row.values = checked
+        ? Array.from(new Set([...(row.values || []), value]))
+        : (row.values || []).filter(v => v !== value);
+    row.uiOpen = true;
+    renderAttrRows();
 }
 function updateGenBtn() {
     const btn = document.getElementById('gen-btn');

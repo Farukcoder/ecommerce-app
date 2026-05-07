@@ -47,7 +47,7 @@
         </div>
         <div class="stat-content">
             <div class="stat-label">Published</div>
-            <div class="stat-value" style="font-size:1.5rem;">{{ $products->getCollection()->where('status','Published')->count() }}</div>
+            <div class="stat-value" style="font-size:1.5rem;">{{ $products->getCollection()->where('status', 'published')->count() }}</div>
         </div>
     </div>
     <div class="stat-card">
@@ -58,7 +58,7 @@
         </div>
         <div class="stat-content">
             <div class="stat-label">Drafts</div>
-            <div class="stat-value" style="font-size:1.5rem;">{{ $products->getCollection()->where('status','Draft')->count() }}</div>
+            <div class="stat-value" style="font-size:1.5rem;">{{ $products->getCollection()->where('status', 'draft')->count() }}</div>
         </div>
     </div>
     <div class="stat-card">
@@ -69,7 +69,7 @@
         </div>
         <div class="stat-content">
             <div class="stat-label">Archived</div>
-            <div class="stat-value" style="font-size:1.5rem;">{{ $products->getCollection()->where('status','Archived')->count() }}</div>
+            <div class="stat-value" style="font-size:1.5rem;">{{ $products->getCollection()->where('status', 'archived')->count() }}</div>
         </div>
     </div>
 </div>
@@ -89,9 +89,9 @@
                     <label class="filter-label">Status:</label>
                     <select name="status" class="form-select" style="min-width: 140px;">
                         <option value="">All Status</option>
-                        <option value="Published" {{ ($filters['status'] ?? '') === 'Published' ? 'selected' : '' }}>Published</option>
-                        <option value="Draft"     {{ ($filters['status'] ?? '') === 'Draft'     ? 'selected' : '' }}>Draft</option>
-                        <option value="Archived"  {{ ($filters['status'] ?? '') === 'Archived'  ? 'selected' : '' }}>Archived</option>
+                        <option value="published" {{ strtolower($filters['status'] ?? '') === 'published' ? 'selected' : '' }}>Published</option>
+                        <option value="draft"     {{ strtolower($filters['status'] ?? '') === 'draft' ? 'selected' : '' }}>Draft</option>
+                        <option value="archived"  {{ strtolower($filters['status'] ?? '') === 'archived' ? 'selected' : '' }}>Archived</option>
                     </select>
                 </div>
                 <div class="filter-group">
@@ -171,11 +171,17 @@
                     </td>
                     <td>
                         <div style="display:flex; align-items:center; gap:0.75rem;">
-                            {{-- Product Thumbnail Placeholder --}}
+                            @php
+                                $listImage = $product->thumbnail ?: optional($product->images->sortByDesc('is_primary')->first())->image;
+                            @endphp
                             <div style="width:44px; height:44px; border-radius:8px; background:var(--muted); border:1px solid var(--border); flex-shrink:0; display:flex; align-items:center; justify-content:center; color:var(--muted-foreground); overflow:hidden;">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:20px;height:20px;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                </svg>
+                                @if($listImage)
+                                    <img src="{{ asset('storage/' . $listImage) }}" alt="{{ $product->name }}" style="width:100%;height:100%;object-fit:cover;">
+                                @else
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:20px;height:20px;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                @endif
                             </div>
                             <div>
                                 <div style="font-weight:500; font-size:0.9375rem; color:var(--foreground);">{{ $product->name }}</div>
@@ -224,9 +230,9 @@
                         @endif
                     </td>
                     <td>
-                        @if($product->status === 'Published')
+                        @if($product->status === 'published')
                             <span class="badge badge-success">Published</span>
-                        @elseif($product->status === 'Draft')
+                        @elseif($product->status === 'draft')
                             <span class="badge badge-warning">Draft</span>
                         @else
                             <span class="badge badge-secondary">Archived</span>
@@ -251,7 +257,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                 </svg>
                             </a>
-                            <a href="#" class="action-btn" title="Preview" target="_blank">
+                            <a href="{{ route('products.show', $product) }}" class="action-btn" title="Preview" target="_blank">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                 </svg>

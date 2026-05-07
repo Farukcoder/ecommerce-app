@@ -30,7 +30,7 @@ class ProductResource extends JsonResource
             'discount_type' => $this->discount_type,
             'discount_value' => $this->discount_value ? (float) $this->discount_value : null,
             'featured' => (bool) $this->featured,
-            'status' => (bool) $this->status,
+            'status' => $this->status,
             'brand' => [
                 'id' => $this->brand?->id,
                 'name' => $this->brand?->name,
