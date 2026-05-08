@@ -64,6 +64,8 @@
 @csrf
 <input type="hidden" name="status" id="form-status" value="{{ strtolower(old('status', 'draft')) }}">
 <input type="hidden" name="attributes_payload" id="attributes-payload" value="">
+<input type="hidden" name="_attributes_state" id="attributes-state" value="{{ old('_attributes_state', '') }}">
+<input type="hidden" name="_variants_state" id="variants-state" value="{{ old('_variants_state', '') }}">
 
 <div class="product-layout">
 
@@ -413,6 +415,56 @@ let attrRows    = [];
 let galleryFiles = [];
 let primaryIndex = 0;
 
+// ── Restore state from old values on page load ───────────────────────────────
+function restoreStateFromOldValues() {
+    const attrStateStr = document.getElementById('attributes-state').value;
+    const variantsStateStr = document.getElementById('variants-state').value;
+
+    if (attrStateStr) {
+        try {
+            const savedAttrRows = JSON.parse(attrStateStr);
+            attrRows = savedAttrRows;
+            document.getElementById('no-attrs').style.display = 'none';
+            document.getElementById('generate-section').style.removeProperty('display');
+            renderAttrRows();
+        } catch (e) {
+            console.error('Failed to restore attribute state:', e);
+        }
+    }
+
+    if (variantsStateStr) {
+        try {
+            const savedVariants = JSON.parse(variantsStateStr);
+            const tbody = document.getElementById('variants-tbody');
+            const noRow = document.getElementById('no-variants-row');
+            if (noRow) noRow.remove();
+            tbody.innerHTML = '';
+
+            savedVariants.forEach((variant, i) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span style="font-size:0.875rem;font-weight:500;color:var(--foreground);">Variant ${i + 1}</span></td>
+                    <td><input type="text" name="variants[${i}][sku]" class="form-input" style="font-size:0.8125rem;padding:0.375rem 0.625rem;" placeholder="SKU-${i+1}" value="${variant.sku || ''}"></td>
+                    <td><div style="position:relative;"><span style="position:absolute;left:0.625rem;top:50%;transform:translateY(-50%);color:var(--muted-foreground);font-size:0.8125rem;">৳</span>
+                        <input type="number" name="variants[${i}][price]" class="form-input" style="font-size:0.8125rem;padding:0.375rem 0.625rem 0.375rem 1.375rem;" placeholder="0.00" step="0.01" min="0" value="${variant.price || ''}"></div></td>
+                    <td><input type="number" name="variants[${i}][quantity]" class="form-input" style="font-size:0.8125rem;padding:0.375rem 0.625rem;" placeholder="0" min="0" value="${variant.quantity || '0'}"></td>
+                    <td><select name="variants[${i}][status]" class="form-select" style="font-size:0.8125rem;padding:0.375rem 1.5rem 0.375rem 0.625rem;">
+                        <option value="in_stock" ${variant.status === 'in_stock' ? 'selected' : ''}>In Stock</option>
+                        <option value="out_of_stock" ${variant.status === 'out_of_stock' ? 'selected' : ''}>Out of Stock</option>
+                        <option value="backorder" ${variant.status === 'backorder' ? 'selected' : ''}>Backorder</option>
+                    </select></td>
+                    <td><button type="button" class="action-btn action-btn-danger" title="Remove" onclick="this.closest('tr').remove();updateVariantBadge();">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button></td>`;
+                tbody.appendChild(tr);
+            });
+            updateVariantBadge();
+        } catch (e) {
+            console.error('Failed to restore variants state:', e);
+        }
+    }
+}
+
 // ── Status helper ────────────────────────────────────────────────────────────
 function submitProductForm(status) {
     document.getElementById('form-status').value = status;
@@ -425,6 +477,28 @@ function submitProductForm(status) {
                 values: row.values.map(v => String(v).trim()).filter(Boolean),
             }))
     );
+
+    // Save current attributes state for error recovery
+    document.getElementById('attributes-state').value = JSON.stringify(
+        attrRows.map(row => ({
+            id: row.id,
+            attrId: row.attrId,
+            values: row.values,
+            uiOpen: row.uiOpen
+        }))
+    );
+
+    // Save variants table state
+    const variants = [];
+    document.querySelectorAll('#variants-tbody tr:not(#no-variants-row)').forEach((tr, i) => {
+        variants.push({
+            sku: tr.querySelector(`input[name="variants[${i}][sku]"]`)?.value || '',
+            price: tr.querySelector(`input[name="variants[${i}][price]"]`)?.value || '',
+            quantity: tr.querySelector(`input[name="variants[${i}][quantity]"]`)?.value || '0',
+            status: tr.querySelector(`select[name="variants[${i}][status]"]`)?.value || 'in_stock'
+        });
+    });
+    document.getElementById('variants-state').value = JSON.stringify(variants);
 
     // Reattach the galleryFiles array to the hidden input so they get submitted
     const dt = new DataTransfer();
@@ -462,6 +536,14 @@ if (descEditor.dataset.initial) {
 document.getElementById('description-editor').addEventListener('input', () => {
     document.getElementById('description').value = document.getElementById('description-editor').innerHTML;
 });
+
+// Restore state on page load
+window.addEventListener('DOMContentLoaded', restoreStateFromOldValues);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', restoreStateFromOldValues);
+} else {
+    restoreStateFromOldValues();
+}
 
 // ── Character counters ───────────────────────────────────────────────────────
 function charCounter(inputId, countId, limit) {

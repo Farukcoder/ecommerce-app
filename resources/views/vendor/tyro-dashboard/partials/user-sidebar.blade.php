@@ -46,20 +46,17 @@
 
         <div class="sidebar-section">
             <div class="sidebar-section-title">Products</div>
-            <a href="{{ route('products.index') }}" class="sidebar-link {{ request()->routeIs('products.index') ? 'active' : '' }}" style="padding-left:2.75rem;">
+            <a href="{{ route('products.index') }}" class="sidebar-link {{ request()->routeIs('products.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
                 All Products
             </a>
-            <a href="{{ route('products.create') }}" class="sidebar-link {{ request()->routeIs('products.create') ? 'active' : '' }}" style="padding-left:2.75rem;">
-                Add New Product
+            <a href="{{ route('categories.index') }}" class="sidebar-link {{ request()->routeIs('categories.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
+                Categories
             </a>
             <a href="{{ route('attributes.index') }}" class="sidebar-link {{ request()->routeIs('attributes.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
                 Attributes
             </a>
             <a href="{{ route('brands.index') }}" class="sidebar-link {{ request()->routeIs('brands.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
                 Brands
-            </a>
-            <a href="{{ route('categories.index') }}" class="sidebar-link {{ request()->routeIs('categories.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
-                Categories
             </a>
         </div>
 
