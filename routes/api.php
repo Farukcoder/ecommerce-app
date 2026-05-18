@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CustomerAuthController;
 use Illuminate\Http\Request;
@@ -9,10 +10,12 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::prefix('customer')->name('customer.')->group(function () {
-    Route::get('/categories', [CategoryController::class, 'index'])
-        ->name('categories.index');
+Route::prefix('home')->name('home.')->group(function () {
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::get('/brands', [BrandController::class, 'index'])->name('brands.index');
+});
 
+Route::prefix('customer')->name('customer.')->group(function () {
     Route::post('/register', [CustomerAuthController::class, 'register'])
         ->middleware('throttle:10,1')
         ->name('register');
