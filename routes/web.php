@@ -4,6 +4,8 @@ use App\Http\Controllers\AttributeController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\HeaderSettingController;
+use App\Http\Controllers\SystemSettingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -52,4 +54,22 @@ Route::middleware(['auth'])->prefix('dashboard')->name('categories.')->group(fun
     Route::get('/categories/{category}/edit',      [CategoryController::class, 'edit'])->name('edit');
     Route::put('/categories/{category}',           [CategoryController::class, 'update'])->name('update');
     Route::delete('/categories/{category}',        [CategoryController::class, 'destroy'])->name('destroy');
+});
+
+// System Setting routes
+Route::middleware(['auth'])->prefix('dashboard')->name('system-settings.')->group(function () {
+    Route::get('/system-settings',                 [SystemSettingController::class, 'index'])->name('index');
+    Route::get('/system-settings/create',          [SystemSettingController::class, 'create'])->name('create');
+    Route::post('/system-settings',                [SystemSettingController::class, 'store'])->name('store');
+    Route::get('/system-settings/{systemSetting}/edit', [SystemSettingController::class, 'edit'])->name('edit');
+    Route::put('/system-settings/{systemSetting}',  [SystemSettingController::class, 'update'])->name('update');
+});
+
+// Header Setting routes
+Route::middleware(['auth'])->prefix('dashboard')->name('header-settings.')->group(function () {
+    Route::get('/header-settings',                 [HeaderSettingController::class, 'index'])->name('index');
+    Route::get('/header-settings/create',          [HeaderSettingController::class, 'create'])->name('create');
+    Route::post('/header-settings',                [HeaderSettingController::class, 'store'])->name('store');
+    Route::get('/header-settings/{headerSetting}/edit', [HeaderSettingController::class, 'edit'])->name('edit');
+    Route::put('/header-settings/{headerSetting}',  [HeaderSettingController::class, 'update'])->name('update');
 });

@@ -42,7 +42,7 @@
                 </svg>
                 My Profile
             </a>
-            
+
             @if(!empty($commonMenuItems))
                 @foreach($commonMenuItems as $item)
                     <a href="{{ route($item['route'] ?? '#') }}" class="sidebar-link {{ request()->routeIs($item['route'] ?? '') ? 'active' : '' }}">
@@ -139,6 +139,24 @@
                 @endforeach
             @endif
 
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Settings</div>
+                <a href="{{ route('system-settings.index') }}" class="sidebar-link {{ request()->routeIs('system-settings.*') ? 'active' : '' }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15.5A3.5 3.5 0 1012 8a3.5 3.5 0 000 7.5z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a7.97 7.97 0 000-6l1.7-1.1-1.9-3.2-1.9.7a7.96 7.96 0 00-5.3-3.1L11.6 0h-3.2l-.4 2.3a7.96 7.96 0 00-5.3 3.1l-1.9-.7-1.9 3.2L0.6 9a7.97 7.97 0 000 6l-1.7 1.1 1.9 3.2 1.9-.7a7.96 7.96 0 005.3 3.1l.4 2.3h3.2l.4-2.3a7.96 7.96 0 005.3-3.1l1.9.7 1.9-3.2-1.7-1.1z" />
+                    </svg>
+                    System Setting
+                </a>
+                <a href="{{ route('header-settings.index') }}" class="sidebar-link {{ request()->routeIs('header-settings.*') ? 'active' : '' }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 7v10M12 7v10M17 7v10" />
+                    </svg>
+                    Header Setting
+                </a>
 
         </div>
 
@@ -173,7 +191,7 @@
                         }
                     }
                 @endphp
-                
+
                 @if($canAccess)
                 <a href="{{ route($dashboardRoute::name('resources.index'), $key) }}" class="sidebar-link {{ request()->is('*resources/'.$key.'*') ? 'active' : '' }}">
                     @if(isset($resource['icon']))
