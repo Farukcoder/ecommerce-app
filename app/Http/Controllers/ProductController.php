@@ -10,8 +10,12 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductStock;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class ProductController extends Controller
 {
@@ -66,6 +70,217 @@ class ProductController extends Controller
         $attributes = Attribute::with('values')->orderBy('name')->get();
 
         return view('products.create', compact('categories', 'brands', 'attributes'));
+    }
+
+    /**
+     * Show the bulk import form.
+     */
+    public function importForm()
+    {
+        return view('products.import');
+    }
+
+    /**
+     * Download a CSV sample for product import.
+     */
+    public function downloadImportSample()
+    {
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="product-import-sample.csv"',
+        ];
+
+        $columns = [
+            'name',
+            'slug',
+            'sku',
+            'short_description',
+            'description',
+            'base_price',
+            'sale_price',
+            'discount_type',
+            'discount_value',
+            'status',
+            'featured',
+            'brand_id',
+            'category_ids',
+            'meta_title',
+            'meta_description',
+            'thumbnail_path',
+            'gallery_paths',
+        ];
+
+        $rows = [
+            [
+                'Sample Product',
+                'sample-product',
+                'SKU-1001',
+                'Short description here',
+                'Full product description goes here',
+                '1200',
+                '999',
+                'fixed',
+                '200',
+                'published',
+                'yes',
+                '1',
+                '2,3',
+                'Meta title sample',
+                'Meta description sample',
+                'images/sample-thumb.jpg',
+                'images/sample-1.jpg,images/sample-2.jpg',
+            ],
+        ];
+
+        $callback = function () use ($columns, $rows) {
+            $output = fopen('php://output', 'w');
+            fputcsv($output, $columns);
+            foreach ($rows as $row) {
+                fputcsv($output, $row);
+            }
+            fclose($output);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Handle bulk product import from spreadsheet.
+     */
+    public function importStore(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
+            'base_path' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $basePath = trim((string) $request->input('base_path'));
+        if ($basePath === '') {
+            $basePath = storage_path('app/imports');
+        }
+
+        $rows = $this->readSpreadsheetRows($request->file('file')->getRealPath());
+
+        if (empty($rows)) {
+            return back()->withErrors(['file' => 'The spreadsheet is empty.']);
+        }
+
+        $errors = [];
+        $preparedRows = [];
+
+        foreach ($rows as $rowIndex => $row) {
+            $rowNumber = $rowIndex + 2;
+            $data = $this->normalizeImportRow($row);
+
+            $validator = validator($data, [
+                'name' => ['required', 'string', 'max:255'],
+                'slug' => ['nullable', 'string', 'max:255', 'unique:products,slug'],
+                'sku' => ['nullable', 'string', 'max:100', 'unique:products,sku'],
+                'short_description' => ['nullable', 'string', 'max:500'],
+                'description' => ['nullable', 'string'],
+                'base_price' => ['required', 'numeric', 'min:0'],
+                'sale_price' => ['nullable', 'numeric', 'min:0'],
+                'discount_type' => ['nullable', 'in:fixed,percentage'],
+                'discount_value' => ['nullable', 'numeric', 'min:0'],
+                'status' => ['nullable', 'in:draft,published,archived,Draft,Published,Archived'],
+                'featured' => ['nullable'],
+                'brand_id' => ['nullable', 'exists:brands,id'],
+                'category_ids' => ['nullable', 'string'],
+                'meta_title' => ['nullable', 'string', 'max:255'],
+                'meta_description' => ['nullable', 'string', 'max:500'],
+                'thumbnail_path' => ['nullable', 'string'],
+                'gallery_paths' => ['nullable', 'string'],
+            ]);
+
+            if ($validator->fails()) {
+                $errors[] = "Row {$rowNumber}: " . implode(' ', $validator->errors()->all());
+                continue;
+            }
+
+            $data['slug'] = $data['slug'] ?: $this->generateUniqueSlug($data['name']);
+            $data['status'] = $this->normalizeStatus($data['status'] ?? 'draft') ?? 'draft';
+            $data['featured'] = $this->normalizeBoolean($data['featured'] ?? false);
+
+            $categoryIds = $this->parseCategoryIds($data['category_ids'] ?? '');
+            if (!empty($categoryIds)) {
+                $found = Category::whereIn('id', $categoryIds)->pluck('id')->all();
+                $missing = array_diff($categoryIds, $found);
+                if (!empty($missing)) {
+                    $errors[] = "Row {$rowNumber}: Unknown category IDs - " . implode(', ', $missing);
+                    continue;
+                }
+            }
+
+            $thumbnailPath = trim((string) ($data['thumbnail_path'] ?? ''));
+            if ($thumbnailPath !== '' && !$this->importImageExists($thumbnailPath, $basePath)) {
+                $errors[] = "Row {$rowNumber}: Thumbnail path not found - {$thumbnailPath}";
+                continue;
+            }
+
+            $galleryPaths = $this->splitList($data['gallery_paths'] ?? '');
+            $missingGallery = array_filter($galleryPaths, fn ($path) => !$this->importImageExists($path, $basePath));
+            if (!empty($missingGallery)) {
+                $errors[] = "Row {$rowNumber}: Gallery paths not found - " . implode(', ', $missingGallery);
+                continue;
+            }
+
+            $preparedRows[] = [
+                'data' => $data,
+                'category_ids' => $categoryIds,
+                'thumbnail_path' => $thumbnailPath,
+                'gallery_paths' => $galleryPaths,
+            ];
+        }
+
+        if (!empty($errors)) {
+            return back()->with('import_errors', $errors)->withInput();
+        }
+
+        DB::transaction(function () use ($preparedRows, $basePath) {
+            foreach ($preparedRows as $row) {
+                $data = $row['data'];
+
+                $thumbnailStoredPath = null;
+                if ($row['thumbnail_path'] !== '') {
+                    $thumbnailStoredPath = $this->storeImportImage($row['thumbnail_path'], $basePath, 'products/thumbnails');
+                }
+
+                $product = Product::create([
+                    'name' => $data['name'],
+                    'slug' => $data['slug'],
+                    'sku' => $data['sku'] ?? null,
+                    'thumbnail' => $thumbnailStoredPath,
+                    'short_description' => $data['short_description'] ?? null,
+                    'description' => $data['description'] ?? null,
+                    'meta_title' => $data['meta_title'] ?? null,
+                    'meta_description' => $data['meta_description'] ?? null,
+                    'base_price' => (float) $data['base_price'],
+                    'sale_price' => $data['sale_price'] !== '' ? (float) $data['sale_price'] : null,
+                    'discount_type' => $data['discount_type'] ?? null,
+                    'discount_value' => $data['discount_value'] !== '' ? (float) $data['discount_value'] : null,
+                    'status' => $data['status'],
+                    'featured' => $data['featured'],
+                    'brand_id' => $data['brand_id'] ?? null,
+                ]);
+
+                if (!empty($row['category_ids'])) {
+                    $product->categories()->sync($row['category_ids']);
+                }
+
+                foreach ($row['gallery_paths'] as $index => $path) {
+                    $storedPath = $this->storeImportImage($path, $basePath, 'products/gallery');
+
+                    ProductImage::create([
+                        'product_id' => $product->id,
+                        'image' => $storedPath,
+                        'is_primary' => $index === 0,
+                    ]);
+                }
+            }
+        });
+
+        return redirect()->route('products.index')
+            ->with('success', 'Products imported successfully.');
     }
 
     /**
@@ -350,6 +565,162 @@ class ProductController extends Controller
         $normalized = strtolower(trim($status));
 
         return in_array($normalized, self::ALLOWED_STATUSES, true) ? $normalized : null;
+    }
+
+    private function normalizeImportRow(array $row): array
+    {
+        $normalized = [];
+
+        foreach ($row as $key => $value) {
+            $normalized[$key] = is_string($value) ? trim($value) : $value;
+        }
+
+        return $normalized;
+    }
+
+    private function readSpreadsheetRows(string $path): array
+    {
+        $reader = IOFactory::createReaderForFile($path);
+        $spreadsheet = $reader->load($path);
+        $sheet = $spreadsheet->getActiveSheet();
+        $rawRows = $sheet->toArray(null, true, true, true);
+
+        if (count($rawRows) < 2) {
+            return [];
+        }
+
+        $headerRow = array_shift($rawRows);
+        $headerMap = [];
+        $allowedHeaders = [
+            'name',
+            'slug',
+            'sku',
+            'short_description',
+            'description',
+            'base_price',
+            'sale_price',
+            'discount_type',
+            'discount_value',
+            'status',
+            'featured',
+            'brand_id',
+            'category_ids',
+            'meta_title',
+            'meta_description',
+            'thumbnail_path',
+            'gallery_paths',
+        ];
+
+        foreach ($headerRow as $col => $header) {
+            $key = strtolower(trim((string) $header));
+            if (in_array($key, $allowedHeaders, true)) {
+                $headerMap[$col] = $key;
+            }
+        }
+
+        if (empty($headerMap)) {
+            return [];
+        }
+
+        $rows = [];
+        foreach ($rawRows as $row) {
+            $mapped = [];
+            foreach ($headerMap as $col => $key) {
+                $mapped[$key] = $row[$col] ?? null;
+            }
+
+            if (count(array_filter($mapped, fn ($value) => $value !== null && $value !== '')) === 0) {
+                continue;
+            }
+
+            $rows[] = $mapped;
+        }
+
+        return $rows;
+    }
+
+    private function generateUniqueSlug(string $name): string
+    {
+        $base = Str::slug($name);
+        $slug = $base;
+        $suffix = 1;
+
+        while (Product::where('slug', $slug)->exists()) {
+            $slug = $base . '-' . $suffix;
+            $suffix++;
+        }
+
+        return $slug;
+    }
+
+    private function normalizeBoolean(mixed $value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        $value = strtolower(trim((string) $value));
+
+        return in_array($value, ['1', 'true', 'yes', 'y'], true);
+    }
+
+    private function parseCategoryIds(string $value): array
+    {
+        return array_values(array_filter(array_map(
+            fn ($item) => is_numeric($item) ? (int) $item : null,
+            $this->splitList($value)
+        )));
+    }
+
+    private function splitList(string $value): array
+    {
+        if (trim($value) === '') {
+            return [];
+        }
+
+        return array_values(array_filter(array_map('trim', explode(',', $value))));
+    }
+
+    private function importImageExists(string $path, string $basePath): bool
+    {
+        $resolved = $this->resolveImportPath($path, $basePath);
+
+        return $resolved !== '' && File::exists($resolved);
+    }
+
+    private function storeImportImage(string $path, string $basePath, string $directory): string
+    {
+        $resolved = $this->resolveImportPath($path, $basePath);
+
+        $extension = pathinfo($resolved, PATHINFO_EXTENSION);
+        $filename = Str::uuid()->toString() . ($extension ? '.' . $extension : '');
+        $targetDir = storage_path('app/public/' . $directory);
+
+        File::ensureDirectoryExists($targetDir);
+
+        File::copy($resolved, $targetDir . DIRECTORY_SEPARATOR . $filename);
+
+        return $directory . '/' . $filename;
+    }
+
+    private function resolveImportPath(string $path, string $basePath): string
+    {
+        $path = trim($path);
+
+        if ($path === '') {
+            return '';
+        }
+
+        if ($this->isAbsolutePath($path)) {
+            return $path;
+        }
+
+        return rtrim($basePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($path, '/\\');
+    }
+
+    private function isAbsolutePath(string $path): bool
+    {
+        return (bool) preg_match('/^[a-zA-Z]:\\\\|^\//', $path);
     }
 
     private function syncAttributeValues(Product $product, mixed $attributesPayload): void

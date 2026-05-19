@@ -19,6 +19,9 @@ Route::redirect('dashboard/products', '/dashboard/products', 301)->name('dashboa
 Route::middleware(['auth'])->prefix('dashboard')->name('products.')->group(function () {
     Route::get('/products',                    [ProductController::class, 'index'])->name('index');
     Route::get('/products/create',             [ProductController::class, 'create'])->name('create');
+    Route::get('/products/import',             [ProductController::class, 'importForm'])->name('import.form');
+    Route::get('/products/import/sample',      [ProductController::class, 'downloadImportSample'])->name('import.sample');
+    Route::post('/products/import',            [ProductController::class, 'importStore'])->name('import.store');
     Route::post('/products',                   [ProductController::class, 'store'])->name('store');
     Route::get('/products/{product}',          [ProductController::class, 'show'])->name('show');
     Route::get('/products/{product}/edit',     [ProductController::class, 'edit'])->name('edit');

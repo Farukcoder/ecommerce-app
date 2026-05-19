@@ -17,12 +17,20 @@
             <h1 class="page-title">Products</h1>
             <p class="page-description">Manage your product catalog, inventory and pricing.</p>
         </div>
-        <a href="{{ route('products.create') }}" class="btn btn-primary">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            Add Product
-        </a>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <a href="{{ route('products.import.form') }}" class="btn btn-secondary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l-3-3m3 3l3-3M5 21h14" />
+                </svg>
+                Bulk Upload
+            </a>
+            <a href="{{ route('products.create') }}" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add Product
+            </a>
+        </div>
     </div>
 </div>
 
