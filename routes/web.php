@@ -3,6 +3,7 @@
 use App\Http\Controllers\AttributeController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\HeaderSettingController;
 use App\Http\Controllers\SystemSettingController;
@@ -27,6 +28,18 @@ Route::middleware(['auth'])->prefix('dashboard')->name('products.')->group(funct
     Route::get('/products/{product}/edit',     [ProductController::class, 'edit'])->name('edit');
     Route::put('/products/{product}',          [ProductController::class, 'update'])->name('update');
     Route::delete('/products/{product}',       [ProductController::class, 'destroy'])->name('destroy');
+});
+
+// Order management routes
+Route::middleware(['auth'])->prefix('dashboard')->name('orders.')->group(function () {
+    Route::get('/orders', [OrderController::class, 'index'])->name('index');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('show');
+    Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('status');
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('cancel');
+    Route::post('/orders/{order}/refund', [OrderController::class, 'refund'])->name('refund');
+    Route::patch('/orders/{order}/note', [OrderController::class, 'updateAdminNote'])->name('note');
+    Route::post('/orders/bulk-status', [OrderController::class, 'bulkUpdateStatus'])->name('bulk-status');
+    Route::get('/orders/{order}/invoice', [OrderController::class, 'invoice'])->name('invoice');
 });
 
 // Attribute CRUD routes

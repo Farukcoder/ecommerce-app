@@ -3,6 +3,8 @@
 use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CustomerAuthController;
+use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Api\Admin\RefundController as AdminRefundController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\SystemSettingController;
 use Illuminate\Http\Request;
@@ -34,3 +36,18 @@ Route::prefix('customer')->name('customer.')->group(function () {
         Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
     });
 });
+
+Route::prefix('customer')
+    ->middleware(['auth:sanctum'])
+    ->name('customer.')
+    ->group(function () {
+        Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
+        Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
+        Route::post('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])->name('orders.cancel');
+        Route::post('/orders/{order}/refund', [AdminOrderController::class, 'refund'])->name('orders.refund');
+        Route::patch('/orders/{order}/note', [AdminOrderController::class, 'updateAdminNote'])->name('orders.note');
+        Route::get('/orders/{order}/invoice', [AdminOrderController::class, 'invoice'])->name('orders.invoice');
+
+        Route::patch('/refunds/{refund}', [AdminRefundController::class, 'update'])->name('refunds.update');
+    });

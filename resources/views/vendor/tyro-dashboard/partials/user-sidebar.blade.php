@@ -45,6 +45,13 @@
         </div>
 
         <div class="sidebar-section">
+            <div class="sidebar-section-title">Order Management</div>
+            <a href="{{ route('orders.index') }}" class="sidebar-link {{ request()->routeIs('orders.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
+                Orders
+            </a>
+        </div>
+
+        <div class="sidebar-section">
             <div class="sidebar-section-title">Products</div>
             <a href="{{ route('products.index') }}" class="sidebar-link {{ request()->routeIs('products.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
                 All Products
