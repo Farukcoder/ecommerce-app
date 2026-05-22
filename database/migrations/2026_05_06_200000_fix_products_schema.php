@@ -16,6 +16,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         // PostgreSQL doesn't support ALTER COLUMN for enums directly,
         // so we use raw SQL to drop & recreate the columns cleanly.
 
@@ -50,6 +54,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         Schema::table('products', function (Blueprint $table) {
             $table->dropColumn(['thumbnail', 'meta_title', 'meta_description']);
             $table->string('sku')->nullable(false)->change();

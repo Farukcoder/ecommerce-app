@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CustomerAuthController;
+use App\Http\Controllers\Api\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Api\Admin\RefundController as AdminRefundController;
 use App\Http\Controllers\Api\ProductController;
@@ -34,12 +35,20 @@ Route::prefix('customer')->name('customer.')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/me', [CustomerAuthController::class, 'me'])->name('me');
         Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
+
+        Route::get('/checkout/options', [CustomerOrderController::class, 'options'])->name('checkout.options');
+        Route::post('/checkout/quote', [CustomerOrderController::class, 'quote'])->name('checkout.quote');
+
+        Route::get('/orders', [CustomerOrderController::class, 'index'])->name('orders.index');
+        Route::post('/orders', [CustomerOrderController::class, 'store'])->name('orders.store');
+        Route::get('/orders/track/{orderIdentifier}', [CustomerOrderController::class, 'track'])->name('orders.track');
+        Route::get('/orders/{order}', [CustomerOrderController::class, 'show'])->name('orders.show');
     });
 });
 
-Route::prefix('customer')
+Route::prefix('admin')
     ->middleware(['auth:sanctum'])
-    ->name('customer.')
+    ->name('admin.')
     ->group(function () {
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');

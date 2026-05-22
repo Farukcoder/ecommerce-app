@@ -84,7 +84,7 @@ class ProductController extends Controller
      */
     public function show(Product $product): ProductResource
     {
-        abort_if($product->status !== 'Published', 404);
+        abort_if(strtolower($product->status) !== 'published', 404);
 
         return new ProductResource(
             $product->load([
