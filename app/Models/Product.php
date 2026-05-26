@@ -34,6 +34,13 @@ class Product extends Model
         'discount_value' => 'decimal:2',
     ];
 
+    protected $appends = [
+        'price',
+        'qty',
+        'stock_status',
+        'variety',
+    ];
+
     /**
      * Get the columns that should receive a unique identifier.
      *
@@ -72,5 +79,39 @@ class Product extends Model
     public function attributeValues()
     {
         return $this->belongsToMany(AttributeValue::class, 'product_attribute_value');
+    }
+
+    public function getPriceAttribute(): float
+    {
+        return (float) ($this->sale_price ?? $this->base_price ?? 0);
+    }
+
+    public function getQtyAttribute(): int
+    {
+        return (int) ($this->attributes['qty'] ?? $this->stocks->sum('quantity'));
+    }
+
+    public function getStockStatusAttribute(): string
+    {
+        $qty = $this->qty;
+
+        if ($qty <= 0) {
+            return 'out';
+        }
+
+        if ($qty <= 5) {
+            return 'low';
+        }
+
+        return 'in';
+    }
+
+    public function getVarietyAttribute(): ?string
+    {
+        $varietyValues = $this->relationLoaded('stocks')
+            ? $this->stocks->map(fn (ProductStock $stock) => $stock->attributeValue?->value)
+            : $this->attributeValues->pluck('value');
+
+        return $varietyValues->filter()->unique()->values()->first();
     }
 }

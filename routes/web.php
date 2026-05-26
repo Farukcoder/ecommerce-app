@@ -3,9 +3,12 @@
 use App\Http\Controllers\AttributeController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\HeaderSettingController;
+use App\Http\Controllers\SalesReportController;
+use App\Http\Controllers\StockReportController;
 use App\Http\Controllers\SystemSettingController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,6 +43,18 @@ Route::middleware(['auth'])->prefix('dashboard')->name('orders.')->group(functio
     Route::patch('/orders/{order}/note', [OrderController::class, 'updateAdminNote'])->name('note');
     Route::post('/orders/bulk-status', [OrderController::class, 'bulkUpdateStatus'])->name('bulk-status');
     Route::get('/orders/{order}/invoice', [OrderController::class, 'invoice'])->name('invoice');
+});
+
+// Customer management routes
+Route::middleware(['auth'])->prefix('dashboard')->name('customers.')->group(function () {
+    Route::get('/customers', [CustomerController::class, 'index'])->name('index');
+});
+
+// Report routes
+Route::middleware(['auth'])->prefix('dashboard/reports')->name('reports.')->group(function () {
+    Route::get('/sales', [SalesReportController::class, 'index'])->name('sales');
+    Route::get('/sales/pdf', [SalesReportController::class, 'download'])->name('sales.pdf');
+    Route::get('/stock', [StockReportController::class, 'index'])->name('stock');
 });
 
 // Attribute CRUD routes

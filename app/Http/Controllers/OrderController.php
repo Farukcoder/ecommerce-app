@@ -7,6 +7,7 @@ use App\Services\InvoiceService;
 use App\Services\OrderWorkflowService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrderController extends Controller
 {
@@ -152,6 +153,15 @@ class OrderController extends Controller
 
     public function invoice(Order $order, InvoiceService $invoiceService)
     {
-        return view('orders.invoice', $invoiceService->buildInvoiceData($order));
+        $data = $invoiceService->buildInvoiceData($order);
+        $fileName = sprintf('invoice-%s-%s.pdf', $order->order_number, now()->format('Ymd-His'));
+
+        $pdf = Pdf::loadView('orders.invoice', $data)
+            ->setPaper('a4', 'portrait')
+            ->output();
+
+        return response($pdf)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="' . $fileName . '"');
     }
 }

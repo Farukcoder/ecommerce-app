@@ -18,7 +18,7 @@
             <p class="page-description">Placed on {{ $order->created_at?->format('M d, Y h:i A') }}</p>
         </div>
         <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-            <a href="{{ route('orders.invoice', $order) }}" class="btn btn-secondary">Print Invoice</a>
+            <a href="{{ route('orders.invoice', $order) }}" target="_blank" class="btn btn-secondary">Invoice</a>
             <a href="{{ route('orders.index') }}" class="btn btn-ghost">Back</a>
         </div>
     </div>

@@ -173,7 +173,7 @@
                             </td>
                             <td style="text-align:right;">
                                 <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-secondary">View</a>
-                                <a href="{{ route('orders.invoice', $order) }}" class="btn btn-sm btn-ghost">Invoice</a>
+                                <a href="{{ route('orders.invoice', $order) }}" target="_blank" class="btn btn-sm btn-ghost">Invoice</a>
                             </td>
                         </tr>
                     @empty

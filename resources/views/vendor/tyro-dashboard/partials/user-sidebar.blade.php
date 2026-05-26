@@ -29,19 +29,19 @@
         data-sidebar-accordion-compact="{{ config('tyro-dashboard.branding.sidebar_accordion_compact', false) ? 'true' : 'false' }}">
         <!-- Main Menu -->
         <div class="sidebar-section">
-            <div class="sidebar-section-title">Menu</div>
+            {{-- <div class="sidebar-section-title">Menu</div> --}}
             <a href="{{ route($dashboardRoute::name('index')) }}" class="sidebar-link {{ request()->routeIs($dashboardRoute::pattern('index')) ? 'active' : '' }}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
                 Dashboard
             </a>
-            <a href="{{ route($dashboardRoute::name('profile')) }}" class="sidebar-link {{ request()->routeIs($dashboardRoute::pattern('profile*')) ? 'active' : '' }}">
+            {{-- <a href="{{ route($dashboardRoute::name('profile')) }}" class="sidebar-link {{ request()->routeIs($dashboardRoute::pattern('profile*')) ? 'active' : '' }}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
                 My Profile
-            </a>
+            </a> --}}
         </div>
 
         <div class="sidebar-section">
@@ -52,7 +52,7 @@
         </div>
 
         <div class="sidebar-section">
-            <div class="sidebar-section-title">Products</div>
+            <div class="sidebar-section-title">Product Management</div>
             <a href="{{ route('products.index') }}" class="sidebar-link {{ request()->routeIs('products.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
                 All Products
             </a>
@@ -67,6 +67,41 @@
             </a>
         </div>
 
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Customer Management</div>
+            <a href="{{ route('customers.index') }}" class="sidebar-link {{ request()->routeIs('customers.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
+                Customers
+            </a>
+        </div>
+
+         <div class="sidebar-section">
+            <div class="sidebar-section-title">Report Management</div>
+            <a href="{{ route('reports.sales') }}" class="sidebar-link {{ request()->routeIs('reports.sales') ? 'active' : '' }}" style="padding-left:2.75rem;">
+                Sales Report
+            </a>
+            <a href="{{ route('reports.stock') }}" class="sidebar-link {{ request()->routeIs('reports.stock') ? 'active' : '' }}" style="padding-left:2.75rem;">
+                Stock Report
+            </a>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Marketing & Promotions</div>
+            <a href="" class="sidebar-link" style="padding-left:2.75rem;">
+                Promotion & Offers
+            </a>
+            <a href="" class="sidebar-link" style="padding-left:2.75rem;">
+                Marketing Analytics
+            </a>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Communication</div>
+            <a href="" class="sidebar-link" style="padding-left:2.75rem;">
+                Support & Communication
+            </a>
+        </div>
+
+{{--
         <div class="sidebar-section">
             @if(config('tyro-dashboard.features.invitation_system', true))
             <a href="{{ route($dashboardRoute::name('invitations.index')) }}" class="sidebar-link {{ request()->routeIs($dashboardRoute::pattern('invitations.index')) ? 'active' : '' }}">
@@ -106,7 +141,7 @@
                     </a>
                 @endforeach
             @endif
-        </div>
+        </div> --}}
 
         @php
             // Filter resources to only those user can access
@@ -160,7 +195,7 @@
         </div>
         @endif
 
-        @if(!config('tyro-dashboard.disable_examples', false) && !app()->environment('production'))
+        {{-- @if(!config('tyro-dashboard.disable_examples', false) && !app()->environment('production'))
         <div class="sidebar-section">
             <div class="sidebar-section-title">Examples</div>
             <a href="{{ route($dashboardRoute::name('components')) }}" class="sidebar-link {{ (request()->routeIs($dashboardRoute::pattern('components')) || request()->routeIs($dashboardRoute::pattern('examples.components'))) ? 'active' : '' }}">
@@ -192,6 +227,6 @@
             </a>
             @endif
         </div>
-        @endif
+        @endif --}}
     </nav>
 </aside>
