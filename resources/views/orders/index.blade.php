@@ -9,6 +9,10 @@
 @endsection
 
 @section('content')
+@push('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+@endpush
+
 <div class="page-header">
     <div class="page-header-row">
         <div>
@@ -84,11 +88,11 @@
                 </div>
                 <div class="filter-group">
                     <label class="filter-label">From:</label>
-                    <input type="date" name="date_from" class="form-input" value="{{ $filters['date_from'] ?? '' }}">
+                    <input type="text" name="date_from" class="form-input" value="{{ $filters['date_from'] ?? '' }}" data-calendar-field data-placeholder="Pick a start date" autocomplete="off">
                 </div>
                 <div class="filter-group">
                     <label class="filter-label">To:</label>
-                    <input type="date" name="date_to" class="form-input" value="{{ $filters['date_to'] ?? '' }}">
+                    <input type="text" name="date_to" class="form-input" value="{{ $filters['date_to'] ?? '' }}" data-calendar-field data-placeholder="Pick an end date" autocomplete="off">
                 </div>
                 <button type="submit" class="btn btn-secondary">Filter</button>
                 @if(array_filter($filters))
@@ -228,6 +232,29 @@
 
     checkboxes.forEach((checkbox) => {
         checkbox.addEventListener('change', updateSelectedCount);
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const fields = document.querySelectorAll('[data-calendar-field]');
+
+        if (!fields.length || typeof flatpickr === 'undefined') {
+            return;
+        }
+
+        flatpickr(fields, {
+            dateFormat: 'Y-m-d',
+            altInput: true,
+            altFormat: 'M j, Y',
+            allowInput: true,
+            disableMobile: true,
+            onReady: function (_, __, instance) {
+                if (instance.altInput) {
+                    instance.altInput.setAttribute('placeholder', instance.input.dataset.placeholder || 'Select a date');
+                }
+            }
+        });
     });
 </script>
 @endpush

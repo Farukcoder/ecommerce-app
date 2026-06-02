@@ -64,12 +64,14 @@
         @endphp
         <form action="{{ route('reports.sales') }}" method="GET">
             <div class="filters-bar">
-                <input type="hidden" id="range-input" name="range" value="{{ $filters['range'] ?? 'monthly' }}">
-                <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-                    <a href="{{ route('reports.sales', ['range' => 'daily', 'status' => $filters['status'] ?? '']) }}" class="btn btn-sm {{ ($filters['range'] ?? 'monthly') === 'daily' ? 'btn-primary' : 'btn-ghost' }}">Daily</a>
-                    <a href="{{ route('reports.sales', ['range' => 'monthly', 'status' => $filters['status'] ?? '']) }}" class="btn btn-sm {{ ($filters['range'] ?? 'monthly') === 'monthly' ? 'btn-primary' : 'btn-ghost' }}">Monthly</a>
-                    <a href="{{ route('reports.sales', ['range' => 'yearly', 'status' => $filters['status'] ?? '']) }}" class="btn btn-sm {{ ($filters['range'] ?? 'monthly') === 'yearly' ? 'btn-primary' : 'btn-ghost' }}">Yearly</a>
-                    <button type="button" class="btn btn-sm {{ ($filters['range'] ?? 'monthly') === 'custom' ? 'btn-primary' : 'btn-ghost' }}" onclick="document.getElementById('range-input').value='custom';">Custom</button>
+                <div class="filter-group">
+                    <label class="filter-label">Range:</label>
+                    <select name="range" class="form-select" style="min-width: 160px;" onchange="this.form.submit();">
+                        <option value="daily" {{ ($filters['range'] ?? 'monthly') === 'daily' ? 'selected' : '' }}>Daily</option>
+                        <option value="monthly" {{ ($filters['range'] ?? 'monthly') === 'monthly' ? 'selected' : '' }}>Monthly</option>
+                        <option value="yearly" {{ ($filters['range'] ?? 'monthly') === 'yearly' ? 'selected' : '' }}>Yearly</option>
+                        <option value="custom" {{ ($filters['range'] ?? 'monthly') === 'custom' ? 'selected' : '' }}>Custom</option>
+                    </select>
                 </div>
                 <div class="filter-group">
                     <label class="filter-label">From:</label>

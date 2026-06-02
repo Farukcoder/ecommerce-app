@@ -46,6 +46,7 @@ Route::middleware(['auth'])->prefix('dashboard')->name('orders.')->group(functio
 });
 
 // Customer management routes
+
 Route::middleware(['auth'])->prefix('dashboard')->name('customers.')->group(function () {
     Route::get('/customers', [CustomerController::class, 'index'])->name('index');
 });
