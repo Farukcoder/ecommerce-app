@@ -2,12 +2,16 @@
 
 namespace App\Providers;
 
-use App\Models\Order;
 use App\Models\User;
+use App\Models\Order;
+use Illuminate\Auth\Events\Login;
 use HasinHayder\TyroDashboard\Support\DashboardRoute;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\ValidationException;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,10 +33,28 @@ class AppServiceProvider extends ServiceProvider
         // call $dashboardRoute::name() and $dashboardRoute::pattern() helpers.
         View::share('dashboardRoute', DashboardRoute::class);
 
+        Event::listen(Login::class, function (Login $event): void {
+            if ($event->guard !== config('auth.defaults.guard', 'web')) {
+                return;
+            }
+
+            if (! $event->user instanceof User) {
+                return;
+            }
+
+            if ($this->isCustomerOnlyAccount($event->user)) {
+                Auth::guard($event->guard)->logout();
+
+                throw ValidationException::withMessages([
+                    'email' => 'Customer accounts must sign in through the website panel.',
+                ]);
+            }
+        });
+
         View::composer('tyro-dashboard::dashboard.user', function ($view): void {
             $view->with('stats', $this->buildUserDashboardStats(
                 $view->getData()['stats'] ?? [],
-                auth()->user()
+                Auth::user()
             ));
         });
     }
@@ -185,5 +207,43 @@ class AppServiceProvider extends ServiceProvider
             'unpaid' => 'badge-secondary',
             default => 'badge-secondary',
         };
+    }
+
+    private function isCustomerOnlyAccount(User $user): bool
+    {
+        if ($this->userHasAnyAdminRole($user)) {
+            return false;
+        }
+
+        if (method_exists($user, 'hasRole')) {
+            return $user->hasRole('customer');
+        }
+
+        if (! method_exists($user, 'roles')) {
+            return false;
+        }
+
+        return $user->roles()->where('slug', 'customer')->exists();
+    }
+
+    private function userHasAnyAdminRole(User $user): bool
+    {
+        $adminRoles = (array) config('tyro-dashboard.admin_roles', ['admin', 'super-admin']);
+
+        if (method_exists($user, 'hasRole')) {
+            foreach ($adminRoles as $role) {
+                if ($user->hasRole($role)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        if (! method_exists($user, 'roles')) {
+            return false;
+        }
+
+        return $user->roles()->whereIn('slug', $adminRoles)->exists();
     }
 }
