@@ -69,6 +69,7 @@ class SystemSettingController extends Controller
             'system_logo_black' => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif,webp,svg', 'max:4096'],
             'flash_deal_page_banner_large' => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif,webp,svg', 'max:4096'],
             'flash_deal_page_banner_small' => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif,webp,svg', 'max:4096'],
+            'product_default_image' => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif,webp,svg', 'max:4096'],
         ]);
 
         $fileFields = [
@@ -77,6 +78,7 @@ class SystemSettingController extends Controller
             'system_logo_black' => 'settings/logos',
             'flash_deal_page_banner_large' => 'settings/banners',
             'flash_deal_page_banner_small' => 'settings/banners',
+            'product_default_image' => 'settings/products',
         ];
 
         foreach ($fileFields as $field => $directory) {

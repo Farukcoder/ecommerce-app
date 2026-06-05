@@ -44,6 +44,22 @@
                     <p class="form-hint">SVG and GIF files will not be converted.</p>
                     @error('uploaded_image_format')<span class="form-error">{{ $message }}</span>@enderror
                 </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="product_default_image">Product Default Image</label>
+                    <input type="file" id="product_default_image" name="product_default_image" class="form-input @error('product_default_image') is-invalid @enderror" style="padding:0.5rem;" accept="image/*,.svg">
+                    <p class="form-hint">Shown when a product has no thumbnail or gallery image.</p>
+                    @error('product_default_image')<span class="form-error">{{ $message }}</span>@enderror
+
+                    @if(!empty($systemSetting->product_default_image))
+                        <div style="margin-top:0.75rem; display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+                            <div style="border:1px solid var(--border); border-radius:10px; padding:0.5rem; background:var(--background);">
+                                <img src="{{ $systemSetting->product_default_image_url }}" alt="Product Default Image" style="max-height: 84px; max-width: 260px; object-fit: contain;">
+                            </div>
+                            <span class="badge badge-secondary">Current image</span>
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
 

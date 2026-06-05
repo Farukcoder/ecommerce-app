@@ -20,6 +20,7 @@ class SystemSetting extends Model
         'website_secondary_base_hover_color',
         'flash_deal_page_banner_large',
         'flash_deal_page_banner_small',
+        'product_default_image',
     ];
 
     public function getSiteIconUrlAttribute(): ?string
@@ -45,6 +46,11 @@ class SystemSetting extends Model
     public function getFlashDealPageBannerSmallUrlAttribute(): ?string
     {
         return $this->assetUrl($this->flash_deal_page_banner_small);
+    }
+
+    public function getProductDefaultImageUrlAttribute(): ?string
+    {
+        return $this->assetUrl($this->product_default_image);
     }
 
     protected function assetUrl(?string $path): ?string

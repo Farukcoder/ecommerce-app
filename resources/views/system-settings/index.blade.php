@@ -116,6 +116,15 @@
                         <p class="form-hint">No black logo uploaded yet.</p>
                     @endif
                 </div>
+
+                <div class="form-group" style="margin-bottom:0; margin-top:1.25rem; padding-top:1.25rem; border-top:1px solid var(--border);">
+                    <label class="form-label">Product Default Image</label>
+                    @if($systemSetting->product_default_image_url)
+                        <img src="{{ $systemSetting->product_default_image_url }}" alt="Product Default Image" style="max-width: 120px; max-height: 120px; object-fit: contain; border: 1px solid var(--border); border-radius: 10px; padding: 0.5rem; background: var(--background);">
+                    @else
+                        <p class="form-hint">No product default image uploaded yet.</p>
+                    @endif
+                </div>
             </div>
         </div>
 
