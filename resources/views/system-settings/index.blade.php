@@ -125,6 +125,25 @@
                         <p class="form-hint">No product default image uploaded yet.</p>
                     @endif
                 </div>
+                @if($systemSetting->flash_deal_page_banner_large_url || $systemSetting->flash_deal_page_banner_small_url)
+                    <div style="margin-top: 1.25rem;">
+                        <h4 style="font-size: 0.9375rem; margin-bottom: 0.75rem; color: var(--foreground);">Flash Deal / About Banners</h4>
+                        <div class="grid-2">
+                            @if($systemSetting->flash_deal_page_banner_large_url)
+                                <div style="border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem; background: var(--background);">
+                                    <div style="font-size: 0.8125rem; color: var(--muted-foreground); margin-bottom: 0.5rem;">Large Banner</div>
+                                    <img src="{{ $systemSetting->flash_deal_page_banner_large_url }}" alt="Flash Deal Large Banner" style="width: 100%; max-width: 100%; height: auto; border-radius: 8px; object-fit: cover;">
+                                </div>
+                            @endif
+                            @if($systemSetting->flash_deal_page_banner_small_url)
+                                <div style="border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem; background: var(--background);">
+                                    <div style="font-size: 0.8125rem; color: var(--muted-foreground); margin-bottom: 0.5rem;">Small Banner</div>
+                                    <img src="{{ $systemSetting->flash_deal_page_banner_small_url }}" alt="Flash Deal Small Banner" style="width: 100%; max-width: 100%; height: auto; border-radius: 8px; object-fit: cover;">
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -149,6 +168,18 @@
                                 <td>{{ $systemSetting->site_motto ?: '—' }}</td>
                             </tr>
                             <tr>
+                                <th>Homepage Hero Badge</th>
+                                <td>{{ $systemSetting->hero_badge_text ?: '—' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Homepage Hero Heading</th>
+                                <td>{{ $systemSetting->hero_heading ?: '—' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Homepage Hero Description</th>
+                                <td>{{ $systemSetting->hero_description ?: '—' }}</td>
+                            </tr>
+                            <tr>
                                 <th>Uploaded Image Format</th>
                                 <td>{{ strtoupper($systemSetting->uploaded_image_format) }}</td>
                             </tr>
@@ -171,26 +202,44 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
 
-                @if($systemSetting->flash_deal_page_banner_large_url || $systemSetting->flash_deal_page_banner_small_url)
-                    <div style="margin-top: 1.25rem;">
-                        <h4 style="font-size: 0.9375rem; margin-bottom: 0.75rem; color: var(--foreground);">Flash Deal Banners</h4>
-                        <div class="grid-2">
-                            @if($systemSetting->flash_deal_page_banner_large_url)
-                                <div style="border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem; background: var(--background);">
-                                    <div style="font-size: 0.8125rem; color: var(--muted-foreground); margin-bottom: 0.5rem;">Large Banner</div>
-                                    <img src="{{ $systemSetting->flash_deal_page_banner_large_url }}" alt="Flash Deal Large Banner" style="width: 100%; max-width: 100%; height: auto; border-radius: 8px; object-fit: cover;">
-                                </div>
-                            @endif
-                            @if($systemSetting->flash_deal_page_banner_small_url)
-                                <div style="border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem; background: var(--background);">
-                                    <div style="font-size: 0.8125rem; color: var(--muted-foreground); margin-bottom: 0.5rem;">Small Banner</div>
-                                    <img src="{{ $systemSetting->flash_deal_page_banner_small_url }}" alt="Flash Deal Small Banner" style="width: 100%; max-width: 100%; height: auto; border-radius: 8px; object-fit: cover;">
-                                </div>
-                            @endif
-                        </div>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">About Us Section</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                @if($systemSetting->about_hero_heading || $systemSetting->about_mission_heading)
+                    <div class="table-container">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <th style="width: 45%;">About Hero Heading</th>
+                                    <td>{{ $systemSetting->about_hero_heading ?: '—' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>About Hero Description</th>
+                                    <td>{{ \Illuminate\Support\Str::limit($systemSetting->about_hero_description, 120) ?: '—' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Mission Heading</th>
+                                    <td>{{ $systemSetting->about_mission_heading ?: '—' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Values</th>
+                                    <td>{{ count($systemSetting->about_values ?? []) }} item(s)</td>
+                                </tr>
+                                <tr>
+                                    <th>Team Members</th>
+                                    <td>{{ count($systemSetting->about_team_members ?? []) }} member(s)</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 @endif
+                </div>
             </div>
         </div>
     </div>
