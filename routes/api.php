@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Customer\OrderController as CustomerOrderController
 use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Api\Admin\RefundController as AdminRefundController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\SupportTicketController;
 use App\Http\Controllers\Api\SystemSettingController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,10 @@ Route::prefix('home')->name('home.')->group(function () {
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
     Route::get('/system-settings', [SystemSettingController::class, 'show'])->name('system-settings.show');
+    Route::get('/support-tickets/subjects', [SupportTicketController::class, 'subjects'])->name('support-tickets.subjects');
+    Route::post('/support-tickets', [SupportTicketController::class, 'store'])
+        ->middleware('throttle:10,1')
+        ->name('support-tickets.store');
 });
 
 Route::prefix('customer')->name('customer.')->group(function () {

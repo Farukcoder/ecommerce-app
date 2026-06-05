@@ -41,6 +41,7 @@ class SystemSettingController extends Controller
                 'about_team_heading' => $setting->about_team_heading,
                 'about_team_subheading' => $setting->about_team_subheading,
                 'about_team_members' => $setting->about_team_members_with_urls,
+                'contact_information' => $setting->contact_information ?? [],
                 'about_mission_image_url' => $setting->about_mission_image_url,
                 'uploaded_image_format' => $setting->uploaded_image_format,
                 'website_base_color' => $setting->website_base_color,

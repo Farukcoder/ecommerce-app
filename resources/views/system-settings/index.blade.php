@@ -242,6 +242,36 @@
                 </div>
             </div>
         </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Contact Information</h3>
+            </div>
+            <div class="card-body">
+                @if(!empty($systemSetting->contact_information))
+                    <div class="table-container">
+                        <table class="table">
+                            <tbody>
+                                @foreach($systemSetting->contact_information as $item)
+                                    <tr>
+                                        <th style="width: 45%;">{{ $item['title'] ?? '—' }}</th>
+                                        <td>
+                                            @if(!empty($item['details']))
+                                                {{ implode(' · ', $item['details']) }}
+                                            @else
+                                                —
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <p class="form-hint" style="margin: 0;">No contact information configured.</p>
+                @endif
+            </div>
+        </div>
     </div>
 @else
     <div class="card">

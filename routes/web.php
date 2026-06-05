@@ -9,6 +9,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\HeaderSettingController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\StockReportController;
+use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\SystemSettingController;
 use Illuminate\Support\Facades\Route;
 
@@ -86,6 +87,14 @@ Route::middleware(['auth'])->prefix('dashboard')->name('categories.')->group(fun
     Route::get('/categories/{category}/edit',      [CategoryController::class, 'edit'])->name('edit');
     Route::put('/categories/{category}',           [CategoryController::class, 'update'])->name('update');
     Route::delete('/categories/{category}',        [CategoryController::class, 'destroy'])->name('destroy');
+});
+
+// Support ticket routes
+Route::middleware(['auth'])->prefix('dashboard')->name('support-tickets.')->group(function () {
+    Route::get('/support-tickets', [SupportTicketController::class, 'index'])->name('index');
+    Route::get('/support-tickets/{supportTicket}', [SupportTicketController::class, 'show'])->name('show');
+    Route::patch('/support-tickets/{supportTicket}/status', [SupportTicketController::class, 'updateStatus'])->name('status');
+    Route::patch('/support-tickets/{supportTicket}/note', [SupportTicketController::class, 'updateAdminNote'])->name('note');
 });
 
 // System Setting routes

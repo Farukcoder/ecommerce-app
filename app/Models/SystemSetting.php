@@ -26,6 +26,7 @@ class SystemSetting extends Model
         'about_team_heading',
         'about_team_subheading',
         'about_team_members',
+        'contact_information',
         'site_icon',
         'system_logo_white',
         'system_logo_black',
@@ -42,6 +43,7 @@ class SystemSetting extends Model
     protected $casts = [
         'about_values' => 'array',
         'about_team_members' => 'array',
+        'contact_information' => 'array',
     ];
 
     public function getSiteIconUrlAttribute(): ?string

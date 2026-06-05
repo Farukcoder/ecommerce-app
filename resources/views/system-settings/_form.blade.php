@@ -16,6 +16,20 @@
             ['name' => '', 'role' => '', 'image' => null],
         ];
     }
+
+    $contactInformation = old('contact_information', $systemSetting->contact_information ?? []);
+    if (!is_array($contactInformation) || empty($contactInformation)) {
+        $contactInformation = [
+            ['icon' => 'email', 'title' => 'Email', 'details' => []],
+        ];
+    }
+
+    $contactIconOptions = [
+        'email' => 'Email',
+        'phone' => 'Phone',
+        'map-pin' => 'Address',
+        'clock' => 'Business Hours',
+    ];
 @endphp
 
 <form action="{{ $formAction }}" method="POST" enctype="multipart/form-data">
@@ -116,27 +130,25 @@
                 <h3 class="card-title">Website Hero Section</h3>
             </div>
             <div class="card-body">
-                    <div class="form-group">
-                        <label for="hero_badge_text" class="form-label">Homepage Hero Badge</label>
-                        <input type="text" id="hero_badge_text" name="hero_badge_text" class="form-input @error('hero_badge_text') is-invalid @enderror" value="{{ $fieldValue('hero_badge_text', 'New Season Collection') }}">
-                        @error('hero_badge_text')<span class="form-error">{{ $message }}</span>@enderror
-                    </div>
+                <div class="form-group">
+                    <label for="hero_badge_text" class="form-label">Homepage Hero Badge</label>
+                    <input type="text" id="hero_badge_text" name="hero_badge_text" class="form-input @error('hero_badge_text') is-invalid @enderror" value="{{ $fieldValue('hero_badge_text', 'New Season Collection') }}">
+                    @error('hero_badge_text')<span class="form-error">{{ $message }}</span>@enderror
+                </div>
 
-                    <div class="form-group">
-                        <label for="hero_heading" class="form-label">Homepage Hero Heading</label>
-                        <input type="text" id="hero_heading" name="hero_heading" class="form-input @error('hero_heading') is-invalid @enderror" value="{{ $fieldValue('hero_heading', 'Discover Your Perfect Style') }}">
-                        @error('hero_heading')<span class="form-error">{{ $message }}</span>@enderror
-                    </div>
+                <div class="form-group">
+                    <label for="hero_heading" class="form-label">Homepage Hero Heading</label>
+                    <input type="text" id="hero_heading" name="hero_heading" class="form-input @error('hero_heading') is-invalid @enderror" value="{{ $fieldValue('hero_heading', 'Discover Your Perfect Style') }}">
+                    @error('hero_heading')<span class="form-error">{{ $message }}</span>@enderror
+                </div>
 
-                    <div class="form-group">
-                        <label for="hero_description" class="form-label">Homepage Hero Description</label>
-                        <textarea id="hero_description" name="hero_description" rows="3" class="form-input @error('hero_description') is-invalid @enderror">{{ $fieldValue('hero_description', 'Curated collections of premium products designed for the modern lifestyle. Quality meets elegance.') }}</textarea>
-                        @error('hero_description')<span class="form-error">{{ $message }}</span>@enderror
-                    </div>
+                <div class="form-group">
+                    <label for="hero_description" class="form-label">Homepage Hero Description</label>
+                    <textarea id="hero_description" name="hero_description" rows="3" class="form-input @error('hero_description') is-invalid @enderror">{{ $fieldValue('hero_description', 'Curated collections of premium products designed for the modern lifestyle. Quality meets elegance.') }}</textarea>
+                    @error('hero_description')<span class="form-error">{{ $message }}</span>@enderror
+                </div>
+            </div>
         </div>
-        </div>
-        
-
         
     </div>
 
@@ -342,6 +354,50 @@
         </div>
     </div>
 
+    <div class="card" style="margin-top: 1.5rem;">
+        <div class="card-header">
+            <h3 class="card-title">Contact Information</h3>
+        </div>
+        <div class="card-body">
+            <p class="form-hint" style="margin-bottom: 1rem;">Contact details shown on the storefront contact page. Enter each detail on a new line.</p>
+
+            <div id="contact-information-rows" style="display:flex; flex-direction:column; gap:1rem;">
+                @foreach($contactInformation as $index => $item)
+                    @php
+                        $detailsText = is_array($item['details'] ?? null)
+                            ? implode("\n", $item['details'])
+                            : (string) ($item['details'] ?? '');
+                    @endphp
+                    <div class="contact-information-row card" style="padding: 1rem;">
+                        <div style="display:grid; grid-template-columns: 160px 1fr auto; gap:0.75rem; align-items:start;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label" for="contact_information_{{ $index }}_icon">Icon</label>
+                                <select id="contact_information_{{ $index }}_icon" name="contact_information[{{ $index }}][icon]" class="form-select">
+                                    @foreach($contactIconOptions as $iconValue => $iconLabel)
+                                        <option value="{{ $iconValue }}" {{ ($item['icon'] ?? 'email') === $iconValue ? 'selected' : '' }}>{{ $iconLabel }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label" for="contact_information_{{ $index }}_title">Title</label>
+                                <input type="text" id="contact_information_{{ $index }}_title" name="contact_information[{{ $index }}][title]" class="form-input" placeholder="Title" value="{{ $item['title'] ?? '' }}">
+                            </div>
+                            <button type="button" class="btn btn-ghost" style="color: var(--danger); margin-top: 1.75rem;" data-remove-contact-information-row aria-label="Remove contact item">×</button>
+                        </div>
+                        <div class="form-group" style="margin-top: 0.75rem; margin-bottom: 0;">
+                            <label class="form-label" for="contact_information_{{ $index }}_details">Details</label>
+                            <textarea id="contact_information_{{ $index }}_details" name="contact_information[{{ $index }}][details]" class="form-input" rows="3" placeholder="One detail per line">{{ $detailsText }}</textarea>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <div style="margin-top:0.75rem;">
+                <button type="button" class="btn btn-secondary btn-sm" id="add-contact-information-row">Add One More</button>
+            </div>
+        </div>
+    </div>
+
     <div style="margin-top: 1.5rem; display:flex; justify-content:flex-end; gap:0.75rem; flex-wrap:wrap;">
         <a href="{{ route('system-settings.index') }}" class="btn btn-ghost">Cancel</a>
         <button type="submit" class="btn btn-primary">{{ $submitLabel }}</button>
@@ -425,6 +481,58 @@
 
             const row = button.closest('.about-team-row');
             if (row && teamRows.querySelectorAll('.about-team-row').length > 1) {
+                row.remove();
+            }
+        });
+    }
+
+    const contactRows = document.getElementById('contact-information-rows');
+    const addContactButton = document.getElementById('add-contact-information-row');
+    let nextContactIndex = contactRows ? contactRows.querySelectorAll('.contact-information-row').length : 0;
+
+    if (contactRows && addContactButton) {
+        const createContactRow = (icon = 'email', title = '', details = '') => {
+            const index = nextContactIndex++;
+            const row = document.createElement('div');
+            row.className = 'contact-information-row card';
+            row.style.padding = '1rem';
+            row.innerHTML = `
+                <div style="display:grid; grid-template-columns: 160px 1fr auto; gap:0.75rem; align-items:start;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" for="contact_information_${index}_icon">Icon</label>
+                        <select id="contact_information_${index}_icon" name="contact_information[${index}][icon]" class="form-select">
+                            <option value="email"${icon === 'email' ? ' selected' : ''}>Email</option>
+                            <option value="phone"${icon === 'phone' ? ' selected' : ''}>Phone</option>
+                            <option value="map-pin"${icon === 'map-pin' ? ' selected' : ''}>Address</option>
+                            <option value="clock"${icon === 'clock' ? ' selected' : ''}>Business Hours</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" for="contact_information_${index}_title">Title</label>
+                        <input type="text" id="contact_information_${index}_title" name="contact_information[${index}][title]" class="form-input" placeholder="Title" value="${title.replace(/"/g, '&quot;')}">
+                    </div>
+                    <button type="button" class="btn btn-ghost" style="color: var(--danger); margin-top: 1.75rem;" data-remove-contact-information-row aria-label="Remove contact item">×</button>
+                </div>
+                <div class="form-group" style="margin-top: 0.75rem; margin-bottom: 0;">
+                    <label class="form-label" for="contact_information_${index}_details">Details</label>
+                    <textarea id="contact_information_${index}_details" name="contact_information[${index}][details]" class="form-input" rows="3" placeholder="One detail per line">${details.replace(/</g, '&lt;')}</textarea>
+                </div>
+            `;
+            return row;
+        };
+
+        addContactButton.addEventListener('click', () => {
+            contactRows.appendChild(createContactRow());
+        });
+
+        contactRows.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-remove-contact-information-row]');
+            if (!button) {
+                return;
+            }
+
+            const row = button.closest('.contact-information-row');
+            if (row && contactRows.querySelectorAll('.contact-information-row').length > 1) {
                 row.remove();
             }
         });

@@ -80,6 +80,10 @@ class SystemSettingController extends Controller
             'about_team_members.*.name' => ['nullable', 'string', 'max:255'],
             'about_team_members.*.role' => ['nullable', 'string', 'max:255'],
             'about_team_members.*.image' => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif,webp,svg', 'max:4096'],
+            'contact_information' => ['nullable', 'array'],
+            'contact_information.*.icon' => ['nullable', 'string', Rule::in(['email', 'phone', 'map-pin', 'clock'])],
+            'contact_information.*.title' => ['nullable', 'string', 'max:255'],
+            'contact_information.*.details' => ['nullable', 'string', 'max:2000'],
             'uploaded_image_format' => ['required', Rule::in(['webp', 'jpg', 'jpeg', 'png', 'svg'])],
             'website_base_color' => ['required', 'string', 'max:20'],
             'website_base_hover_color' => ['required', 'string', 'max:20'],
@@ -155,6 +159,24 @@ class SystemSettingController extends Controller
 
         $validated['about_team_members'] = $teamMembers;
 
+        $validated['contact_information'] = collect($request->input('contact_information', []))
+            ->map(function ($item) {
+                $details = collect(preg_split('/\r\n|\r|\n/', (string) ($item['details'] ?? '')))
+                    ->map(fn ($line) => trim($line))
+                    ->filter()
+                    ->values()
+                    ->all();
+
+                return [
+                    'icon' => trim((string) ($item['icon'] ?? 'email')),
+                    'title' => trim((string) ($item['title'] ?? '')),
+                    'details' => $details,
+                ];
+            })
+            ->filter(fn ($item) => $item['title'] !== '' || !empty($item['details']))
+            ->values()
+            ->all();
+
         return $validated;
     }
 
@@ -188,6 +210,12 @@ class SystemSettingController extends Controller
                 ['name' => 'Marcus Johnson', 'role' => 'Creative Director', 'image' => null],
                 ['name' => 'Emily Rodriguez', 'role' => 'Head of Operations', 'image' => null],
                 ['name' => 'David Park', 'role' => 'Lead Designer', 'image' => null],
+            ],
+            'contact_information' => [
+                ['icon' => 'email', 'title' => 'Email', 'details' => ['support@luxe.com', 'sales@luxe.com']],
+                ['icon' => 'phone', 'title' => 'Phone', 'details' => ['+1 (555) 123-4567', 'Mon-Fri 9AM-6PM EST']],
+                ['icon' => 'map-pin', 'title' => 'Address', 'details' => ['123 Fashion Avenue', 'New York, NY 10001']],
+                ['icon' => 'clock', 'title' => 'Business Hours', 'details' => ['Monday - Friday: 9AM - 6PM', 'Saturday: 10AM - 4PM', 'Sunday: Closed']],
             ],
             'uploaded_image_format' => 'webp',
             'website_base_color' => '#0080FF',

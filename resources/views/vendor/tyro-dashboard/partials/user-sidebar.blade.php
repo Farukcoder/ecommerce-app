@@ -96,7 +96,7 @@
 
         <div class="sidebar-section">
             <div class="sidebar-section-title">Communication</div>
-            <a href="" class="sidebar-link" style="padding-left:2.75rem;">
+            <a href="{{ route('support-tickets.index') }}" class="sidebar-link {{ request()->routeIs('support-tickets.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
                 Support & Communication
             </a>
         </div>
