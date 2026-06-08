@@ -22,6 +22,7 @@ Route::prefix('home')->name('home.')->group(function () {
     Route::get('/brands', [BrandController::class, 'index'])->name('brands.index');
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
+    Route::get('/products/{product}/reviews', [ProductController::class, 'reviews'])->name('products.reviews');
     Route::get('/system-settings', [SystemSettingController::class, 'show'])->name('system-settings.show');
     Route::get('/support-tickets/subjects', [SupportTicketController::class, 'subjects'])->name('support-tickets.subjects');
     Route::post('/support-tickets', [SupportTicketController::class, 'store'])

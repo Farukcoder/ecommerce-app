@@ -52,8 +52,12 @@ class ProductResource extends JsonResource
             'featured' => (bool) $this->featured,
             'status' => $this->status,
             'badge' => $this->resolveBadge(),
-            'rating' => 0,
-            'reviews' => 0,
+            'rating' => $this->relationLoaded('reviews') || isset($this->reviews_avg_rating)
+                ? ($this->reviews_avg_rating ? round((float)$this->reviews_avg_rating, 1) : ($this->reviews->avg('rating') ? round($this->reviews->avg('rating'), 1) : 0))
+                : 0,
+            'reviews' => $this->relationLoaded('reviews') || isset($this->reviews_count)
+                ? (int)($this->reviews_count ?? $this->reviews->count())
+                : 0,
             'brand' => [
                 'id' => $this->brand?->id,
                 'name' => $this->brand?->name,

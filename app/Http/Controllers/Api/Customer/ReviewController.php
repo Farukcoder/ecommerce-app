@@ -56,6 +56,7 @@ class ReviewController extends Controller
                     'product_id' => $item->product_id,
                     'name' => $item->product ? $item->product->name : $item->product_name,
                     'order_number' => $order ? $order->order_number : '',
+                    'thumbnail' => $item->product ? $item->product->thumbnail : null,
                 ];
             });
 

@@ -23,6 +23,8 @@ class ProductController extends Controller
                 'stocks.color',
                 'attributeValues.attribute',
             ])
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
             ->whereRaw('LOWER(status) = ?', ['published']);
 
         if ($search = trim((string) $request->string('search'))) {
@@ -93,7 +95,22 @@ class ProductController extends Controller
                 'images',
                 'stocks.color',
                 'attributeValues.attribute',
-            ])
+            ])->loadAvg('reviews', 'rating')->loadCount('reviews')
         );
+    }
+
+    /**
+     * Get reviews of a single product.
+     */
+    public function reviews(Product $product): JsonResponse
+    {
+        abort_if(strtolower($product->status) !== 'published', 404);
+
+        $reviews = $product->reviews()
+            ->with('user:id,name')
+            ->latest()
+            ->paginate(10);
+
+        return response()->json($reviews);
     }
 }
