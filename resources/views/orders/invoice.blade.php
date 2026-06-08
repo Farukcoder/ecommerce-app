@@ -30,8 +30,8 @@
     <table style="width:100%; margin-bottom:16px; border-bottom:1px solid #e5e7eb; padding-bottom:8px;">
         <tr>
             <td style="vertical-align:middle;">
-                @if(!empty($settings?->system_logo_white_url))
-                    <img src="{{ $settings->system_logo_white_url }}" alt="Logo" style="height:48px; display:block; margin-bottom:6px;">
+                @if(!empty($settings?->system_logo_white_pdf_source))
+                    <img src="{{ $settings->system_logo_white_pdf_source }}" alt="Logo" style="height:48px; display:block; margin-bottom:6px;">
                 @endif
             </td>
             <td style="vertical-align:middle; text-align:right; width:260px; font-size:12px; color:#374151;">
@@ -67,8 +67,8 @@
                     <td>{{ $item->product_name }}</td>
                     <td>{{ $item->product_sku ?? '—' }}</td>
                     <td>{{ $item->quantity }}</td>
-                    <td>৳{{ number_format($item->unit_price, 2) }}</td>
-                    <td>৳{{ number_format($item->total_price, 2) }}</td>
+                    <td>BDT {{ number_format($item->unit_price, 2) }}</td>
+                    <td>BDT {{ number_format($item->total_price, 2) }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -78,23 +78,23 @@
         <table class="totals">
             <tr>
                 <td>Subtotal</td>
-                <td style="text-align:right;">৳{{ number_format($order->subtotal, 2) }}</td>
+                <td style="text-align:right;">BDT {{ number_format($order->subtotal, 2) }}</td>
             </tr>
             <tr>
                 <td>Discount</td>
-                <td style="text-align:right;">৳{{ number_format($order->discount_amount, 2) }}</td>
+                <td style="text-align:right;">BDT {{ number_format($order->discount_amount, 2) }}</td>
             </tr>
             <tr>
                 <td>Shipping</td>
-                <td style="text-align:right;">৳{{ number_format($order->shipping_charge, 2) }}</td>
+                <td style="text-align:right;">BDT {{ number_format($order->shipping_charge, 2) }}</td>
             </tr>
             <tr>
                 <td>Tax</td>
-                <td style="text-align:right;">৳{{ number_format($order->tax_amount, 2) }}</td>
+                <td style="text-align:right;">BDT {{ number_format($order->tax_amount, 2) }}</td>
             </tr>
             <tr>
                 <td>Grand Total</td>
-                <td style="text-align:right;">৳{{ number_format($order->total_amount, 2) }}</td>
+                <td style="text-align:right;">BDT {{ number_format($order->total_amount, 2) }}</td>
             </tr>
         </table>
         <div style="margin-top: 12px; font-size: 13px;">
