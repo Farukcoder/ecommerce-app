@@ -126,7 +126,7 @@
                             </button>
                             @endforeach
                         </div>
-                            <div id="description-editor" contenteditable="true" data-initial="{{ e(old('description', $product->description)) }}"
+                            <div id="description-editor" contenteditable="true" data-initial="{!! e(old('description', $product->description)) !!}"
                              style="min-height:160px; padding:0.875rem 1rem; font-size:0.9375rem; color:var(--foreground); line-height:1.7; outline:none; background:var(--background);"
                              placeholder="Enter detailed product description…"></div>
                     </div>
@@ -440,6 +440,12 @@ function submitProductForm(status) {
             }))
     );
 
+    // Sync editor description just in case before submit
+    const descEditor = document.getElementById('description-editor');
+    if (descEditor) {
+        document.getElementById('description').value = descEditor.innerHTML;
+    }
+
     // Reattach the galleryFiles array to the hidden input so they get submitted
     const dt = new DataTransfer();
     galleryFiles.forEach(file => dt.items.add(file));
@@ -467,7 +473,10 @@ function execCmd(cmd) {
     } else {
         document.execCommand(cmd, false, null);
     }
-    document.getElementById('description-editor').focus();
+    const editor = document.getElementById('description-editor');
+    editor.focus();
+    // Sync description field after formatting command
+    document.getElementById('description').value = editor.innerHTML;
 }
 // Initialize description editor
 const descEditor = document.getElementById('description-editor');

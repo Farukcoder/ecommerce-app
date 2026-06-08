@@ -129,8 +129,6 @@
             @if(!empty($brand['logo']))
                 <img class="logo" src="{{ $brand['logo'] }}" alt="{{ $brand['name'] }} logo">
             @endif
-            <h1 class="title">{{ $brand['name'] }}</h1>
-            <div class="subtitle">{{ $brand['subtitle'] }}</div>
         </div>
         <div class="header-meta">
             <div><strong>Sales Report</strong></div>
@@ -143,15 +141,6 @@
         </div>
     </div>
 
-    <table class="stats-table">
-        <tr>
-            <td><div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-value">{{ $summary['total_orders'] }}</div></div></td>
-            <td><div class="stat-card"><div class="stat-label">Total Revenue</div><div class="stat-value">BDT {{ number_format($summary['total_revenue'], 2) }}</div></div></td>
-            <td><div class="stat-card"><div class="stat-label">Average Order</div><div class="stat-value">BDT {{ number_format($summary['average_order_value'], 2) }}</div></div></td>
-            <td><div class="stat-card"><div class="stat-label">Paid Orders</div><div class="stat-value">{{ $summary['paid_orders'] }}</div></div></td>
-            <td><div class="stat-card"><div class="stat-label">Pending Orders</div><div class="stat-value">{{ $summary['pending_orders'] }}</div></div></td>
-        </tr>
-    </table>
 
     <div class="section">
         <div class="section-title">Order Wise Sales</div>
@@ -245,6 +234,16 @@
             @endforelse
         </tbody>
     </table>
+    </div>
+
+    <div style="margin-top: 20px; border-top: 2px solid #111827; padding: 10px 0; font-size: 13px; font-weight: bold; overflow: hidden;">
+        <div style="float: left; width: 50%;">
+            Total Orders: {{ $summary['total_orders'] }}
+        </div>
+        <div style="float: right; width: 50%; text-align: right;">
+            Total Revenue: BDT {{ number_format($summary['total_revenue'], 2) }}
+        </div>
+        <div style="clear: both;"></div>
     </div>
 
     <div class="footer">

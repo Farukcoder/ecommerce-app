@@ -127,7 +127,7 @@
                             </button>
                             @endforeach
                         </div>
-                            <div id="description-editor" contenteditable="true" data-initial="{{ e(old('description')) }}"
+                            <div id="description-editor" contenteditable="true" data-initial="{!! e(old('description')) !!}"
                              style="min-height:160px; padding:0.875rem 1rem; font-size:0.9375rem; color:var(--foreground); line-height:1.7; outline:none; background:var(--background);"
                              placeholder="Enter detailed product description…"></div>
                     </div>
@@ -478,6 +478,12 @@ function submitProductForm(status) {
             }))
     );
 
+    // Sync editor description just in case before submit
+    const descEditor = document.getElementById('description-editor');
+    if (descEditor) {
+        document.getElementById('description').value = descEditor.innerHTML;
+    }
+
     // Save current attributes state for error recovery
     document.getElementById('attributes-state').value = JSON.stringify(
         attrRows.map(row => ({
@@ -527,7 +533,10 @@ function execCmd(cmd) {
     } else {
         document.execCommand(cmd, false, null);
     }
-    document.getElementById('description-editor').focus();
+    const editor = document.getElementById('description-editor');
+    editor.focus();
+    // Sync description field after formatting command
+    document.getElementById('description').value = editor.innerHTML;
 }
 const descEditor = document.getElementById('description-editor');
 if (descEditor.dataset.initial) {

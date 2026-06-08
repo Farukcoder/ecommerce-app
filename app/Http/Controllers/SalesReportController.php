@@ -102,12 +102,17 @@ class SalesReportController extends Controller
             ->orderByDesc('order_date')
             ->get();
 
+        $logo = $this->getLogoPdfSource($headerSetting?->header_logo)
+            ?? $this->getLogoPdfSource($systemSetting?->system_logo_black)
+            ?? $this->getLogoPdfSource($systemSetting?->system_logo_white)
+            ?? $headerSetting?->header_logo_url
+            ?? $systemSetting?->system_logo_black_url
+            ?? $systemSetting?->system_logo_white_url;
+
         $brand = [
             'name' => $systemSetting?->system_name ?? config('app.name'),
             'subtitle' => $systemSetting?->frontend_website_name ?? 'Sales Report',
-            'logo' => $headerSetting?->header_logo_url
-                ?? $systemSetting?->system_logo_black_url
-                ?? $systemSetting?->system_logo_white_url,
+            'logo' => $logo,
         ];
 
         $filters = [
@@ -125,6 +130,69 @@ class SalesReportController extends Controller
             'daily' => $daily,
             'filters' => $filters,
         ];
+    }
+
+    private function getLogoPdfSource(?string $storagePath): ?string
+    {
+        if (!$storagePath) {
+            return null;
+        }
+
+        $path = public_path('storage/' . $storagePath);
+        if (!file_exists($path)) {
+            $path = storage_path('app/public/' . $storagePath);
+        }
+
+        if (!file_exists($path)) {
+            return null;
+        }
+
+        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+
+        if ($extension === 'svg') {
+            $svg = file_get_contents($path);
+            if (preg_match('/<style>(.*?)<\/style>/s', $svg, $matches)) {
+                $styleContent = $matches[1];
+                preg_match_all('/\.([a-zA-Z0-9_-]+)\s*\{(.*?)\}/s', $styleContent, $classMatches);
+                $styles = [];
+                for ($i = 0; $i < count($classMatches[1]); $i++) {
+                    $className = $classMatches[1][$i];
+                    $styleRules = trim($classMatches[2][$i]);
+                    $rules = [];
+                    foreach (explode(';', $styleRules) as $rule) {
+                        if (trim($rule)) {
+                            $parts = explode(':', $rule, 2);
+                            if (count($parts) === 2) {
+                                $rules[trim($parts[0])] = trim($parts[1]);
+                            }
+                        }
+                    }
+                    $styles[$className] = $rules;
+                }
+
+                $svg = preg_replace_callback('/class=["\']([a-zA-Z0-9_-]+)["\']/', function($m) use ($styles) {
+                    $className = $m[1];
+                    if (isset($styles[$className])) {
+                        $attrs = [];
+                        foreach ($styles[$className] as $k => $v) {
+                            if (in_array($k, ['fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-miterlimit', 'opacity'])) {
+                                $attrs[] = $k . '="' . $v . '"';
+                            }
+                        }
+                        return implode(' ', $attrs);
+                    }
+                    return $m[0];
+                }, $svg);
+            }
+
+            $svg = preg_replace('/<\?xml.*?\?>/', '', $svg);
+            $svg = preg_replace('/<defs>.*?<\/defs>/s', '', $svg);
+
+            return 'data:image/svg+xml;base64,' . base64_encode(trim($svg));
+        }
+
+        $data = file_get_contents($path);
+        return 'data:image/' . $extension . ';base64,' . base64_encode($data);
     }
 
     private function resolveRange(string $range, string $dateFrom, string $dateTo): array
