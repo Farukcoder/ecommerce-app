@@ -4,6 +4,9 @@ namespace App\Providers;
 
 use App\Models\User;
 use App\Models\Order;
+use App\Models\Product;
+use App\Models\OrderItem;
+use App\Models\Refund;
 use Illuminate\Auth\Events\Login;
 use HasinHayder\TyroDashboard\Support\DashboardRoute;
 use Illuminate\Support\Collection;
@@ -64,18 +67,29 @@ class AppServiceProvider extends ServiceProvider
      */
     private function buildUserDashboardStats(array $baseStats, ?User $user): array
     {
-        if (! $user) {
-            return array_merge($baseStats, $this->defaultUserDashboardStats());
-        }
-
-        $ordersQuery = Order::query()->where('customer_id', $user->id);
+        $ordersQuery = Order::query();
 
         $totalOrders = (clone $ordersQuery)->count();
-        $totalSpent = (float) (clone $ordersQuery)->sum('total_amount');
-        $pendingOrders = (clone $ordersQuery)->whereIn('status', ['pending', 'processing'])->count();
-        $fulfilledOrders = (clone $ordersQuery)->whereIn('status', ['shipped', 'delivered'])->count();
-        $refundedOrders = (clone $ordersQuery)->where('status', 'refunded')->count();
-        $averageOrderValue = $totalOrders > 0 ? $totalSpent / $totalOrders : 0;
+        $totalRevenue = (float) (clone $ordersQuery)->where('status', '!=', 'cancelled')->sum('total_amount');
+        $pendingOrders = (clone $ordersQuery)->where('status', 'pending')->count();
+        
+        $totalProducts = Product::count();
+        $totalCustomers = User::whereHas('roles', function ($q) {
+            $q->where('slug', 'customer');
+        })->count();
+
+        $totalRefunded = (float) Refund::sum('amount');
+        $availableBalance = max(0.0, $totalRevenue - $totalRefunded);
+
+        $totalSpent = $user ? (float) Order::where('customer_id', $user->id)->sum('total_amount') : 0.0;
+
+        $weeklySales = $this->buildWeeklySalesSeries($ordersQuery);
+        $monthlySales = $this->buildMonthlySalesSeries();
+        $recentOrders = $this->buildRecentOrders((clone $ordersQuery)->with('customer')->withCount('items')->latest()->take(5)->get());
+        $topSelling = $this->buildTopSellingProducts();
+        $lowStock = $this->buildLowStockAlerts();
+        $latestReviews = $this->buildLatestReviews();
+        $recentTransactions = $this->buildRecentTransactions();
 
         $currentMonthStart = now()->startOfMonth();
         $currentMonthEnd = now()->endOfMonth();
@@ -83,9 +97,11 @@ class AppServiceProvider extends ServiceProvider
         $previousMonthEnd = now()->subMonthNoOverflow()->endOfMonth();
 
         $currentMonthSpent = (float) (clone $ordersQuery)
+            ->where('status', '!=', 'cancelled')
             ->whereBetween('created_at', [$currentMonthStart, $currentMonthEnd])
             ->sum('total_amount');
         $previousMonthSpent = (float) (clone $ordersQuery)
+            ->where('status', '!=', 'cancelled')
             ->whereBetween('created_at', [$previousMonthStart, $previousMonthEnd])
             ->sum('total_amount');
 
@@ -93,20 +109,23 @@ class AppServiceProvider extends ServiceProvider
             ? round((($currentMonthSpent - $previousMonthSpent) / $previousMonthSpent) * 100, 1)
             : ($currentMonthSpent > 0 ? 100.0 : 0.0);
 
-        $weeklySales = $this->buildWeeklySalesSeries($ordersQuery);
-        $recentOrders = $this->buildRecentOrders((clone $ordersQuery)->withCount('items')->latest()->take(5)->get());
-
         return array_merge($baseStats, [
             'total_orders' => $totalOrders,
+            'total_revenue' => $totalRevenue,
             'total_spent' => $totalSpent,
             'pending_orders' => $pendingOrders,
-            'fulfilled_orders' => $fulfilledOrders,
-            'refunded_orders' => $refundedOrders,
-            'average_order_value' => $averageOrderValue,
+            'total_products' => $totalProducts,
+            'total_customers' => $totalCustomers,
+            'available_balance' => $availableBalance,
             'month_growth_pct' => $monthGrowthPct,
             'weekly_sales' => $weeklySales,
+            'monthly_sales' => $monthlySales,
             'recent_orders' => $recentOrders,
             'recent_orders_count' => $recentOrders->count(),
+            'top_selling' => $topSelling,
+            'low_stock' => $lowStock,
+            'latest_reviews' => $latestReviews,
+            'recent_transactions' => $recentTransactions,
         ]);
     }
 
@@ -117,15 +136,21 @@ class AppServiceProvider extends ServiceProvider
     {
         return [
             'total_orders' => 0,
+            'total_revenue' => 0,
             'total_spent' => 0,
             'pending_orders' => 0,
-            'fulfilled_orders' => 0,
-            'refunded_orders' => 0,
-            'average_order_value' => 0,
+            'total_products' => 0,
+            'total_customers' => 0,
+            'available_balance' => 0,
             'month_growth_pct' => 0,
             'weekly_sales' => [],
+            'monthly_sales' => [],
             'recent_orders' => collect(),
             'recent_orders_count' => 0,
+            'top_selling' => collect(),
+            'low_stock' => collect(),
+            'latest_reviews' => collect(),
+            'recent_transactions' => collect(),
         ];
     }
 
@@ -181,8 +206,161 @@ class AppServiceProvider extends ServiceProvider
                 'formatted_total' => '$' . number_format((float) $order->total_amount, 2),
                 'item_count' => (int) $order->items_count,
                 'placed_at' => $order->created_at ? $order->created_at->format('M d, Y') : '—',
+                'customer_name' => $order->customer?->name ?? 'Guest',
             ];
         });
+    }
+
+    /**
+     * Build a 6-month sales series for the dashboard chart.
+     */
+    private function buildMonthlySalesSeries(): array
+    {
+        $series = collect(range(5, 0))->map(function (int $offset) {
+            $date = now()->subMonths($offset);
+            $monthOrdersQuery = Order::query()
+                ->where('status', '!=', 'cancelled')
+                ->whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month);
+
+            return [
+                'label' => $date->format('M'),
+                'total' => (float) $monthOrdersQuery->sum('total_amount'),
+                'order_count' => $monthOrdersQuery->count(),
+            ];
+        });
+
+        $maxTotal = max(1.0, (float) $series->max('total'));
+
+        return $series->map(function (array $month) use ($maxTotal): array {
+            $height = $month['total'] > 0
+                ? max(8, (int) round(($month['total'] / $maxTotal) * 100))
+                : 0;
+
+            return [
+                'label' => $month['label'],
+                'total' => $month['total'],
+                'formatted_total' => '$' . number_format($month['total'], 2),
+                'order_count' => $month['order_count'],
+                'height' => $height,
+            ];
+        })->all();
+    }
+
+    /**
+     * Get top selling products globally.
+     */
+    private function buildTopSellingProducts(): Collection
+    {
+        return OrderItem::query()
+            ->selectRaw('product_id, product_name, SUM(quantity) as total_qty, SUM(total_price) as total_revenue')
+            ->groupBy('product_id', 'product_name')
+            ->orderByDesc('total_qty')
+            ->take(5)
+            ->get()
+            ->map(function ($item) {
+                $product = Product::find($item->product_id);
+                return [
+                    'product_id' => $item->product_id,
+                    'name' => $item->product_name ?: ($product?->name ?? 'Unknown Product'),
+                    'sku' => $product?->sku ?? 'N/A',
+                    'total_qty' => (int) $item->total_qty,
+                    'total_revenue' => (float) $item->total_revenue,
+                    'formatted_revenue' => '$' . number_format((float) $item->total_revenue, 2),
+                    'image' => $product?->thumbnail ? asset('storage/' . $product->thumbnail) : null,
+                ];
+            });
+    }
+
+    /**
+     * Get products with low stock (quantity <= 5).
+     */
+    private function buildLowStockAlerts(): Collection
+    {
+        return Product::with('stocks')
+            ->get()
+            ->filter(function ($product) {
+                return $product->qty <= 5;
+            })
+            ->sortBy('qty')
+            ->take(5)
+            ->map(function ($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'sku' => $product->sku ?? 'N/A',
+                    'qty' => $product->qty,
+                    'status' => $product->qty === 0 ? 'Out of Stock' : 'Low Stock',
+                    'status_class' => $product->qty === 0 ? 'badge-danger' : 'badge-warning',
+                    'image' => $product->thumbnail ? asset('storage/' . $product->thumbnail) : null,
+                ];
+            })
+            ->values();
+    }
+
+    /**
+     * Get mock/dynamic reviews linked to actual products.
+     */
+    private function buildLatestReviews(): Collection
+    {
+        $sampleProducts = Product::take(4)->get();
+        $mockComments = [
+            'Absolutely love the quality! Fits perfectly and looks great.',
+            'Great performance and build quality. Highly recommended!',
+            'Very comfortable and durable. Exceeded my expectations.',
+            'Nice design, though shipping took a bit longer than expected.',
+        ];
+        $mockNames = ['Sarah Jenkins', 'David Miller', 'Emily Watson', 'James Smith'];
+        $mockRatings = [5, 4, 5, 4];
+        $mockTimes = ['2 hours ago', '5 hours ago', '1 day ago', '2 days ago'];
+
+        $reviews = collect();
+        for ($i = 0; $i < 4; $i++) {
+            $product = $sampleProducts->get($i);
+            $reviews->push([
+                'customer_name' => $mockNames[$i],
+                'product_name' => $product ? $product->name : 'Premium Product ' . ($i + 1),
+                'rating' => $mockRatings[$i],
+                'comment' => $mockComments[$i],
+                'time_ago' => $mockTimes[$i],
+                'avatar_letter' => substr($mockNames[$i], 0, 1),
+                'product_image' => $product?->thumbnail ? asset('storage/' . $product->thumbnail) : null,
+            ]);
+        }
+        return $reviews;
+    }
+
+    /**
+     * Extract recent transactions from orders.
+     */
+    private function buildRecentTransactions(): Collection
+    {
+        return Order::with('customer')
+            ->latest()
+            ->take(6)
+            ->get()
+            ->map(function ($order) {
+                $shippingAddress = is_array($order->shipping_address) 
+                    ? $order->shipping_address 
+                    : json_decode($order->shipping_address, true);
+
+                $transactionId = $shippingAddress['transaction_id'] ?? null;
+                if (! $transactionId) {
+                    $transactionId = 'TXN-' . strtoupper(substr(md5($order->id . $order->created_at), 0, 8));
+                }
+
+                return [
+                    'transaction_id' => $transactionId,
+                    'order_number' => $order->order_number,
+                    'customer_name' => $order->customer?->name ?? 'Guest',
+                    'amount' => (float) $order->total_amount,
+                    'formatted_amount' => '$' . number_format((float) $order->total_amount, 2),
+                    'payment_method' => strtoupper($order->payment_method ?: 'COD'),
+                    'status' => $order->payment_status === 'paid' ? 'Success' : ($order->payment_status === 'refunded' ? 'Refunded' : 'Pending'),
+                    'status_class' => $order->payment_status === 'paid' ? 'badge-success' : ($order->payment_status === 'refunded' ? 'badge-warning' : 'badge-secondary'),
+                    'date' => $order->created_at ? $order->created_at->format('M d, Y H:i') : '—',
+                ];
+            });
     }
 
     private function dashboardStatusClass(string $status): string

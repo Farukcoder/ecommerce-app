@@ -30,11 +30,9 @@
     <table style="width:100%; margin-bottom:16px; border-bottom:1px solid #e5e7eb; padding-bottom:8px;">
         <tr>
             <td style="vertical-align:middle;">
-                @if(!empty($settings?->system_logo_black_url))
-                    <img src="{{ $settings->system_logo_black_url }}" alt="Logo" style="height:48px; display:block; margin-bottom:6px;">
+                @if(!empty($settings?->system_logo_white_url))
+                    <img src="{{ $settings->system_logo_white_url }}" alt="Logo" style="height:48px; display:block; margin-bottom:6px;">
                 @endif
-                <div style="font-size:18px; font-weight:700;">{{ $settings?->system_name ?? config('app.name') }}</div>
-                <div style="font-size:12px; color:#6b7280;">{{ $settings?->frontend_website_name ?? 'Online Store' }}</div>
             </td>
             <td style="vertical-align:middle; text-align:right; width:260px; font-size:12px; color:#374151;">
                 <div style="font-size:16px; font-weight:700; margin-bottom:6px;">Invoice</div>
