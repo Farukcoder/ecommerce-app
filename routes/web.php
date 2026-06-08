@@ -8,9 +8,10 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\HeaderSettingController;
 use App\Http\Controllers\SalesReportController;
-use App\Http\Controllers\StockReportController;
+use App\Http\Controllers\ProductStockController;
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\SystemSettingController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -26,6 +27,7 @@ Route::middleware(['auth'])->prefix('dashboard')->name('products.')->group(funct
     Route::get('/products/create',             [ProductController::class, 'create'])->name('create');
     Route::get('/products/import',             [ProductController::class, 'importForm'])->name('import.form');
     Route::get('/products/import/sample',      [ProductController::class, 'downloadImportSample'])->name('import.sample');
+    Route::get('/products/stock',              [ProductStockController::class, 'index'])->name('stock');
     Route::post('/products/import',            [ProductController::class, 'importStore'])->name('import.store');
     Route::post('/products',                   [ProductController::class, 'store'])->name('store');
     Route::get('/products/{product}',          [ProductController::class, 'show'])->name('show');
@@ -57,7 +59,6 @@ Route::middleware(['auth'])->prefix('dashboard')->name('customers.')->group(func
 Route::middleware(['auth'])->prefix('dashboard/reports')->name('reports.')->group(function () {
     Route::get('/sales', [SalesReportController::class, 'index'])->name('sales');
     Route::get('/sales/pdf', [SalesReportController::class, 'download'])->name('sales.pdf');
-    Route::get('/stock', [StockReportController::class, 'index'])->name('stock');
 });
 
 // Attribute CRUD routes
@@ -96,6 +97,12 @@ Route::middleware(['auth'])->prefix('dashboard')->name('support-tickets.')->grou
     Route::get('/support-tickets/{supportTicket}', [SupportTicketController::class, 'show'])->name('show');
     Route::patch('/support-tickets/{supportTicket}/status', [SupportTicketController::class, 'updateStatus'])->name('status');
     Route::patch('/support-tickets/{supportTicket}/note', [SupportTicketController::class, 'updateAdminNote'])->name('note');
+});
+
+// Review management routes
+Route::middleware(['auth'])->prefix('dashboard')->name('reviews.')->group(function () {
+    Route::get('/reviews', [ReviewController::class, 'index'])->name('index');
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('destroy');
 });
 
 // System Setting routes

@@ -53,7 +53,7 @@
 
         <div class="sidebar-section">
             <div class="sidebar-section-title">Product Management</div>
-            <a href="{{ route('products.index') }}" class="sidebar-link {{ request()->routeIs('products.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
+            <a href="{{ route('products.index') }}" class="sidebar-link {{ request()->routeIs('products.*') && !request()->routeIs('products.stock') ? 'active' : '' }}" style="padding-left:2.75rem;">
                 All Products
             </a>
             <a href="{{ route('categories.index') }}" class="sidebar-link {{ request()->routeIs('categories.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
@@ -64,6 +64,13 @@
             </a>
             <a href="{{ route('brands.index') }}" class="sidebar-link {{ request()->routeIs('brands.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
                 Brands
+            </a>
+
+            <a href="{{ route('products.stock') }}" class="sidebar-link {{ request()->routeIs('products.stock') ? 'active' : '' }}" style="padding-left:2.75rem;">
+                Stock
+            </a>
+            <a href="{{ route('reviews.index') }}" class="sidebar-link {{ request()->routeIs('reviews.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
+                Product Review
             </a>
         </div>
 
@@ -79,9 +86,6 @@
             <a href="{{ route('reports.sales') }}" class="sidebar-link {{ request()->routeIs('reports.sales') ? 'active' : '' }}" style="padding-left:2.75rem;">
                 Sales Report
             </a>
-            <a href="{{ route('reports.stock') }}" class="sidebar-link {{ request()->routeIs('reports.stock') ? 'active' : '' }}" style="padding-left:2.75rem;">
-                Stock Report
-            </a>
         </div>
 
         <div class="sidebar-section">
@@ -95,9 +99,13 @@
         </div>
 
         <div class="sidebar-section">
-            <div class="sidebar-section-title">Communication</div>
+            <div class="sidebar-section-title"> Support & Communication</div>
+            <a href="{{ route('support-tickets.index') }}" class="sidebar-link {{ request()->routeIs('support
+            -tickets.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
+                Ticket
+            </a>
             <a href="{{ route('support-tickets.index') }}" class="sidebar-link {{ request()->routeIs('support-tickets.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
-                Support & Communication
+                Contact us
             </a>
         </div>
 

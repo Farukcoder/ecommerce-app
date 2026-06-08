@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class StockReportController extends Controller
+class ProductStockController extends Controller
 {
     private const LOW_STOCK_THRESHOLD = 5;
 
@@ -102,7 +102,7 @@ class StockReportController extends Controller
                 ?? $systemSetting?->system_logo_white_url,
         ];
 
-        return view('reports.stock', [
+        return view('products.stock', [
             'brand' => $brand,
             'products' => $products,
             'categories' => $categories,

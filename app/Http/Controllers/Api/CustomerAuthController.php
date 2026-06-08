@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
+use Log;
 
 class CustomerAuthController extends Controller
 {
@@ -22,13 +23,15 @@ class CustomerAuthController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'regex:/^(\+88)?01[3-9]\d{8}$/', 'unique:users,phone'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Password::min(8)],
         ]);
 
         $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
+            'name'     => $data['name'],
+            'phone'    => '+88' . preg_replace('/^\+88/', '', $data['phone']),
+            'email'    => $data['email'],
             'password' => $data['password'],
         ]);
 
@@ -47,15 +50,17 @@ class CustomerAuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'email' => ['required', 'string', 'email'],
+            'phone' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 
-        $user = User::query()->where('email', $data['email'])->first();
+        $phone = '+88' . preg_replace('/^\+88/', '', $data['phone']);
+
+        $user = User::query()->where('phone', $phone)->first();
 
         if (! $user || ! Hash::check($data['password'], $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
+                'phone' => ['The provided credentials are incorrect.'],
             ]);
         }
 
@@ -147,6 +152,7 @@ class CustomerAuthController extends Controller
         return [
             'id' => $user->id,
             'name' => $user->name,
+            'phone' => $user->phone,
             'email' => $user->email,
             'roles' => $user->roles->pluck('slug')->values()->all(),
         ];

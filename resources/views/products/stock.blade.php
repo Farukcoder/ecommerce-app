@@ -17,7 +17,7 @@
             $overrides
         );
 
-        return route('reports.stock', array_filter($query, static fn ($value) => $value !== null && $value !== ''));
+        return route('products.stock', array_filter($query, static fn ($value) => $value !== null && $value !== ''));
     };
     $hasSidebarFilter = request()->filled('category') || request()->filled('brand') || request()->filled('variety');
     $activeStockStatus = request('stock_status', 'all');
@@ -129,7 +129,7 @@
 
 <div class="card" style="margin-bottom: 1rem;">
     <div class="card-body">
-        <form action="{{ route('reports.stock') }}" method="GET">
+        <form action="{{ route('products.stock') }}" method="GET">
             <div class="filters-bar">
                 <div class="search-box">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -240,7 +240,7 @@
                 </button>
 
                 @if($hasSidebarFilter || request()->filled('search'))
-                    <a href="{{ route('reports.stock') }}" class="btn btn-ghost">Clear</a>
+                    <a href="{{ route('products.stock') }}" class="btn btn-ghost">Clear</a>
                 @endif
             </div>
         </form>

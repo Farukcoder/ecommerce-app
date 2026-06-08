@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Admin\RefundController as AdminRefundController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\SupportTicketController;
 use App\Http\Controllers\Api\SystemSettingController;
+use App\Http\Controllers\Api\Customer\ReviewController as CustomerReviewController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -48,6 +49,11 @@ Route::prefix('customer')->name('customer.')->group(function () {
         Route::post('/orders', [CustomerOrderController::class, 'store'])->name('orders.store');
         Route::get('/orders/track/{orderIdentifier}', [CustomerOrderController::class, 'track'])->name('orders.track');
         Route::get('/orders/{order}', [CustomerOrderController::class, 'show'])->name('orders.show');
+
+        // Review routes
+        Route::get('/reviews', [CustomerReviewController::class, 'index'])->name('reviews.index');
+        Route::get('/reviews/pending', [CustomerReviewController::class, 'pending'])->name('reviews.pending');
+        Route::post('/reviews', [CustomerReviewController::class, 'store'])->name('reviews.store');
     });
 });
 

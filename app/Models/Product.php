@@ -81,6 +81,11 @@ class Product extends Model
         return $this->belongsToMany(AttributeValue::class, 'product_attribute_value');
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
     public function getPriceAttribute(): float
     {
         return (float) ($this->sale_price ?? $this->base_price ?? 0);
