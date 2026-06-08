@@ -147,8 +147,15 @@
                 <h3 class="card-title">Customer</h3>
             </div>
             <div class="card-body">
-                <div style="font-weight:600;">{{ $order->customer?->name ?? 'Guest' }}</div>
-                <div style="color:var(--muted-foreground);">{{ $order->customer?->email ?? '—' }}</div>
+                @if($order->customer)
+                    <div style="font-weight:600;">
+                        <a href="{{ route('customers.show', $order->customer) }}" style="color:var(--primary); text-decoration:none; font-weight:600;">{{ $order->customer->name }}</a>
+                    </div>
+                    <div style="color:var(--muted-foreground);">{{ $order->customer->email }}</div>
+                @else
+                    <div style="font-weight:600; color:var(--muted-foreground);">Guest</div>
+                    <div style="color:var(--muted-foreground);">—</div>
+                @endif
                 <div style="margin-top:0.5rem; font-size:0.875rem;">
                     Past orders: {{ $customerOrderCount }}
                 </div>

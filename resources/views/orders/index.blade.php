@@ -150,7 +150,13 @@
                             </td>
                             <td>{{ $order->order_number }}</td>
                             <td>
-                                <div style="font-weight:500;">{{ $order->customer?->name ?? 'Guest' }}</div>
+                                @if($order->customer)
+                                    <div style="font-weight:500;">
+                                        <a href="{{ route('customers.show', $order->customer) }}" style="color:var(--primary); text-decoration:none; font-weight:600;">{{ $order->customer->name }}</a>
+                                    </div>
+                                @else
+                                    <div style="font-weight:500; color:var(--muted-foreground);">Guest</div>
+                                @endif
                                 <div style="font-size:0.8125rem; color:var(--muted-foreground);">{{ data_get($order->shipping_address, 'phone') }}</div>
                             </td>
                             <td>{{ $order->created_at?->format('M d, Y') }}</td>

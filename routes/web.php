@@ -50,6 +50,7 @@ Route::middleware(['auth'])->prefix('dashboard')->name('orders.')->group(functio
 
 Route::middleware(['auth'])->prefix('dashboard')->name('customers.')->group(function () {
     Route::get('/customers', [CustomerController::class, 'index'])->name('index');
+    Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('show');
 });
 
 // Report routes

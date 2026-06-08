@@ -46,4 +46,31 @@ class CustomerController extends Controller
 
         return view('customers.index', compact('customers', 'summary', 'filters'));
     }
+
+    public function show(User $customer)
+    {
+        if (!$customer->roles()->where('slug', 'customer')->exists()) {
+            abort(404);
+        }
+
+        $customer->load([
+            'orders' => function ($query) {
+                $query->latest()->withCount('items');
+            }
+        ]);
+
+        $totalOrders = $customer->orders->count();
+        $totalSpent = (float) $customer->orders->sum('total_amount');
+        $averageOrderValue = $totalOrders > 0 ? $totalSpent / $totalOrders : 0;
+
+        $shippingAddresses = $customer->orders
+            ->pluck('shipping_address')
+            ->filter()
+            ->unique(function ($address) {
+                return data_get($address, 'phone') . '|' . data_get($address, 'address') . '|' . data_get($address, 'zip');
+            })
+            ->values();
+
+        return view('customers.show', compact('customer', 'totalOrders', 'totalSpent', 'averageOrderValue', 'shippingAddresses'));
+    }
 }

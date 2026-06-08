@@ -82,7 +82,9 @@
             <tbody>
                 @foreach($customers as $customer)
                 <tr>
-                    <td style="font-weight:500;">{{ $customer->name }}</td>
+                    <td style="font-weight:500;">
+                        <a href="{{ route('customers.show', $customer) }}" style="color:var(--primary); text-decoration:none; font-weight:600;">{{ $customer->name }}</a>
+                    </td>
                     <td>{{ $customer->email }}</td>
                     <td>
                         <span class="badge badge-primary">{{ $customer->orders_count }}</span>
@@ -97,7 +99,9 @@
                     </td>
                     <td>{{ $customer->created_at?->format('M d, Y') }}</td>
                     <td style="text-align:right;">
-                        <a href="{{ route('orders.index', ['search' => $customer->email]) }}" class="btn btn-sm btn-secondary">View Orders</a>
+                        <div style="display:inline-flex; gap:0.375rem; justify-content:flex-end;">
+                            <a href="{{ route('customers.show', $customer) }}" class="btn btn-sm btn-primary">View Profile</a>
+                        </div>
                     </td>
                 </tr>
                 @endforeach
