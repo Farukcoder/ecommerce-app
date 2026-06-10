@@ -35,6 +35,8 @@ class CustomerAuthController extends Controller
             'password' => $data['password'],
         ]);
 
+        \HasinHayder\Tyro\Support\TyroAudit::log('user.created', $user, null, $user->only(['name', 'email', 'id']));
+
         $this->assignCustomerRole($user);
 
         $token = $user->createToken(self::TOKEN_NAME, [self::CUSTOMER_ROLE])->plainTextToken;

@@ -13,6 +13,7 @@ use App\Http\Controllers\ContactUsController;
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\SystemSettingController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\LocationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -130,4 +131,14 @@ Route::middleware(['auth'])->prefix('dashboard')->name('header-settings.')->grou
     Route::post('/header-settings',                [HeaderSettingController::class, 'store'])->name('store');
     Route::get('/header-settings/{headerSetting}/edit', [HeaderSettingController::class, 'edit'])->name('edit');
     Route::put('/header-settings/{headerSetting}',  [HeaderSettingController::class, 'update'])->name('update');
+});
+
+// Location routes
+Route::middleware(['auth'])->prefix('dashboard')->name('locations.')->group(function () {
+    Route::get('/locations',                     [LocationController::class, 'index'])->name('index');
+    Route::get('/locations/create',              [LocationController::class, 'create'])->name('create');
+    Route::post('/locations',                    [LocationController::class, 'store'])->name('store');
+    Route::get('/locations/{type}/{id}/edit',    [LocationController::class, 'edit'])->name('edit');
+    Route::put('/locations/{type}/{id}',         [LocationController::class, 'update'])->name('update');
+    Route::delete('/locations/{type}/{id}',      [LocationController::class, 'destroy'])->name('destroy');
 });

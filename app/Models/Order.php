@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use App\Traits\Auditable;
 
 class Order extends Model
 {
+    use Auditable;
     protected $fillable = [
         'order_number',
         'customer_id',

@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\ContactUsController;
 use App\Http\Controllers\Api\SupportTicketController;
 use App\Http\Controllers\Api\SystemSettingController;
 use App\Http\Controllers\Api\Customer\ReviewController as CustomerReviewController;
+use App\Http\Controllers\Api\LocationController;
+use App\Http\Controllers\Api\Customer\CustomerAddressController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +34,12 @@ Route::prefix('home')->name('home.')->group(function () {
     Route::post('/support-tickets', [SupportTicketController::class, 'store'])
         ->middleware('throttle:10,1')
         ->name('support-tickets.store');
+
+    // Location routes
+    Route::get('/divisions', [LocationController::class, 'divisions'])->name('locations.divisions');
+    Route::get('/districts', [LocationController::class, 'districts'])->name('locations.districts');
+    Route::get('/upazilas', [LocationController::class, 'upazilas'])->name('locations.upazilas');
+    Route::get('/unions', [LocationController::class, 'unions'])->name('locations.unions');
 });
 
 Route::prefix('customer')->name('customer.')->group(function () {
@@ -59,6 +67,13 @@ Route::prefix('customer')->name('customer.')->group(function () {
         Route::get('/reviews', [CustomerReviewController::class, 'index'])->name('reviews.index');
         Route::get('/reviews/pending', [CustomerReviewController::class, 'pending'])->name('reviews.pending');
         Route::post('/reviews', [CustomerReviewController::class, 'store'])->name('reviews.store');
+
+        // Address routes
+        Route::get('/addresses', [CustomerAddressController::class, 'index'])->name('addresses.index');
+        Route::post('/addresses', [CustomerAddressController::class, 'store'])->name('addresses.store');
+        Route::put('/addresses/{address}', [CustomerAddressController::class, 'update'])->name('addresses.update');
+        Route::delete('/addresses/{address}', [CustomerAddressController::class, 'destroy'])->name('addresses.destroy');
+        Route::patch('/addresses/{address}/default', [CustomerAddressController::class, 'setDefault'])->name('addresses.setDefault');
     });
 });
 

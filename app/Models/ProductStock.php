@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Auditable;
 
 class ProductStock extends Model
 {
+    use Auditable;
+
     protected $fillable = [
         'product_id',
         'color_id',

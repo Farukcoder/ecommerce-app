@@ -13,14 +13,14 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use HasinHayder\Tyro\Concerns\HasTyroRoles;
 use HasinHayder\TyroLogin\Traits\HasTwoFactorAuth;
-
+use App\Traits\Auditable;
 
 
 #[Fillable(['name', 'email', 'phone', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
-    use HasApiTokens, HasTyroRoles, HasTwoFactorAuth;
+    use HasApiTokens, HasTyroRoles, HasTwoFactorAuth, Auditable;
 
 
     /** @use HasFactory<UserFactory> */
@@ -47,5 +47,10 @@ class User extends Authenticatable
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);
+    }
+
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(CustomerAddress::class);
     }
 }

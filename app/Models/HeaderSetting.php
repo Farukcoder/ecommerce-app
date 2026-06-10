@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Auditable;
 
 class HeaderSetting extends Model
 {
+    use Auditable;
+
     protected $fillable = [
         'header_logo',
         'show_language_switcher',
