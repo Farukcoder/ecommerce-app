@@ -100,12 +100,11 @@
 
         <div class="sidebar-section">
             <div class="sidebar-section-title"> Support & Communication</div>
-            <a href="{{ route('support-tickets.index') }}" class="sidebar-link {{ request()->routeIs('support
-            -tickets.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
-                Ticket
+            <a href="{{ route('contact-us.index') }}" class="sidebar-link {{ request()->routeIs('contact-us.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
+                Contact Us
             </a>
             <a href="{{ route('support-tickets.index') }}" class="sidebar-link {{ request()->routeIs('support-tickets.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
-                Contact us
+                Ticket
             </a>
         </div>
 

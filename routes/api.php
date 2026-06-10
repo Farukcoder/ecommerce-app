@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Customer\OrderController as CustomerOrderController
 use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Api\Admin\RefundController as AdminRefundController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ContactUsController;
 use App\Http\Controllers\Api\SupportTicketController;
 use App\Http\Controllers\Api\SystemSettingController;
 use App\Http\Controllers\Api\Customer\ReviewController as CustomerReviewController;
@@ -24,6 +25,9 @@ Route::prefix('home')->name('home.')->group(function () {
     Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
     Route::get('/products/{product}/reviews', [ProductController::class, 'reviews'])->name('products.reviews');
     Route::get('/system-settings', [SystemSettingController::class, 'show'])->name('system-settings.show');
+    Route::post('/contact-us', [ContactUsController::class, 'store'])
+        ->middleware('throttle:10,1')
+        ->name('contact-us.store');
     Route::get('/support-tickets/subjects', [SupportTicketController::class, 'subjects'])->name('support-tickets.subjects');
     Route::post('/support-tickets', [SupportTicketController::class, 'store'])
         ->middleware('throttle:10,1')

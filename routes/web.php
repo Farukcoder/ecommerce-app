@@ -9,6 +9,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\HeaderSettingController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\ProductStockController;
+use App\Http\Controllers\ContactUsController;
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\SystemSettingController;
 use App\Http\Controllers\ReviewController;
@@ -89,6 +90,14 @@ Route::middleware(['auth'])->prefix('dashboard')->name('categories.')->group(fun
     Route::get('/categories/{category}/edit',      [CategoryController::class, 'edit'])->name('edit');
     Route::put('/categories/{category}',           [CategoryController::class, 'update'])->name('update');
     Route::delete('/categories/{category}',        [CategoryController::class, 'destroy'])->name('destroy');
+});
+
+// Contact us routes
+Route::middleware(['auth'])->prefix('dashboard')->name('contact-us.')->group(function () {
+    Route::get('/contact-us', [ContactUsController::class, 'index'])->name('index');
+    Route::get('/contact-us/{contactUsMessage}', [ContactUsController::class, 'show'])->name('show');
+    Route::patch('/contact-us/{contactUsMessage}/status', [ContactUsController::class, 'updateStatus'])->name('status');
+    Route::patch('/contact-us/{contactUsMessage}/note', [ContactUsController::class, 'updateAdminNote'])->name('note');
 });
 
 // Support ticket routes
