@@ -187,9 +187,9 @@
     .sidebar-expand-btn {
         display: none;
         position: absolute;
-        top: 50%;
+        top: 0.75rem;
         left: 50%;
-        transform: translate(-50%, -50%);
+        transform: translateX(-50%);
         background: transparent;
         border: none;
         color: var(--sidebar-foreground, var(--muted-foreground));
@@ -237,6 +237,14 @@
         width: 20px;
         height: 20px;
         color: var(--sidebar, var(--background));
+    }
+
+    .sidebar-logo-img {
+        width: 36px;
+        height: 36px;
+        object-fit: cover;
+        border-radius: 50%;
+        flex-shrink: 0;
     }
 
     .sidebar-logo-text {
@@ -2002,6 +2010,83 @@
     .gallery-lightbox-button:hover {
         background-color: rgba(255, 255, 255, 0.2);
     }
+
+    /* Vertical Tab Layout */
+    .vtabs-layout {
+        display: grid;
+        grid-template-columns: 220px minmax(0, 1fr);
+        gap: 1.5rem;
+        align-items: start;
+    }
+    .vtabs-sidebar {
+        position: sticky;
+        top: calc(64px + 1.5rem);
+        align-self: start;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        padding: 0.5rem;
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        background: var(--card);
+        max-height: calc(100vh - 64px - 3rem);
+        overflow-y: auto;
+        scrollbar-width: thin;
+    }
+    .vtabs-item {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.65rem 0.85rem;
+        border: none;
+        border-radius: 0.65rem;
+        background: transparent;
+        color: var(--muted-foreground);
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-align: left;
+        transition: background 0.15s ease, color 0.15s ease;
+        width: 100%;
+    }
+    .vtabs-item:hover {
+        background: var(--muted);
+        color: var(--foreground);
+    }
+    .vtabs-item.active {
+        background: color-mix(in srgb, var(--primary) 10%, var(--card));
+        color: var(--primary);
+        font-weight: 600;
+    }
+    .vtabs-item svg { flex-shrink: 0; opacity: 0.7; }
+    .vtabs-item.active svg { opacity: 1; }
+    .vtabs-panel { display: none; }
+    .vtabs-panel.active { display: block; }
+    .vtabs-sidebar .vtabs-save-bar {
+        display: none;
+    }
+    .vtabs-sidebar .vtabs-save-bar.visible {
+        display: block;
+        position: sticky;
+        bottom: -1px;
+        z-index: 15;
+        margin: auto -0.5rem -0.5rem;
+        padding: 0.75rem 0.5rem 0.5rem;
+        background: linear-gradient(to top, var(--card) 60%, transparent);
+        border-radius: 0 0 1rem 1rem;
+    }
+    @media (max-width: 900px) {
+        .vtabs-layout {
+            grid-template-columns: 1fr;
+        }
+        .vtabs-sidebar {
+            position: static;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+    }
+    .section-save-button { display: none; }
 
     /* Gallery thumbnail overlay */
     .gallery-thumbnail-overlay {

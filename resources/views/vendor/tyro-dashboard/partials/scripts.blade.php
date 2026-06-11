@@ -67,6 +67,7 @@
             }
 
             const compactMode = accordion.dataset.sidebarAccordionCompact === 'true';
+            const openSections = parseInt(accordion.dataset.sidebarAccordionOpenSections || '1', 10);
             const sections = Array.from(accordion.querySelectorAll('.sidebar-section'));
 
             sections.forEach((section, sectionIndex) => {
@@ -95,7 +96,7 @@
 
                 const contentId = `sidebar-section-content-${accordionIndex}-${sectionIndex}`;
                 const hasActiveLink = Boolean(content.querySelector('.sidebar-link.active'));
-                const shouldExpand = compactMode ? sectionIndex === 0 || hasActiveLink : true;
+                const shouldExpand = compactMode ? sectionIndex < openSections || hasActiveLink : true;
 
                 title.setAttribute('role', 'button');
                 title.setAttribute('tabindex', '0');
@@ -159,6 +160,36 @@
         if (dropdown && !dropdown.contains(event.target)) {
             dropdown.classList.remove('active');
         }
+    });
+
+    // Vertical Tab switching
+    document.addEventListener('click', function(e) {
+        var btn = e.target.closest('.vtabs-item[data-vtab]');
+        if (!btn) return;
+        e.preventDefault();
+
+        var tabId = btn.dataset.vtab;
+        var container = btn.closest('.vtabs-layout');
+        if (!container) return;
+
+        container.querySelectorAll('.vtabs-item').forEach(function(t) { t.classList.remove('active'); });
+        container.querySelectorAll('.vtabs-panel').forEach(function(p) { p.classList.remove('active'); });
+
+        btn.classList.add('active');
+        var panel = document.getElementById('vtab-' + tabId);
+        if (panel) panel.classList.add('active');
+
+        try { localStorage.setItem('vtab-' + location.pathname, tabId); } catch (e) {}
+    });
+
+    // Restore last active vtab on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        var saved;
+        try { saved = localStorage.getItem('vtab-' + location.pathname); } catch (e) {}
+        if (!saved) return;
+
+        var btn = document.querySelector('.vtabs-item[data-vtab="' + saved + '"]');
+        if (btn) btn.click();
     });
 
     // Apply theme on load
