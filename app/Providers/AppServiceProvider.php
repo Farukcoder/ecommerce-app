@@ -7,10 +7,12 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\OrderItem;
 use App\Models\Refund;
+use App\Support\CurrencyFormatter;
 use Illuminate\Auth\Events\Login;
 use HasinHayder\TyroDashboard\Support\DashboardRoute;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -35,6 +37,18 @@ class AppServiceProvider extends ServiceProvider
         // tyro-dashboard layouts (e.g. products/index, products/create) can
         // call $dashboardRoute::name() and $dashboardRoute::pattern() helpers.
         View::share('dashboardRoute', DashboardRoute::class);
+
+        Blade::directive('money', function (string $expression): string {
+            return "<?php echo \\App\\Support\\CurrencyFormatter::format({$expression}); ?>";
+        });
+
+        Blade::directive('currencySymbol', function (): string {
+            return "<?php echo \\App\\Support\\CurrencyFormatter::symbol(); ?>";
+        });
+
+        View::composer('*', function ($view): void {
+            $view->with('currencySymbol', CurrencyFormatter::symbol());
+        });
 
         Event::listen(Login::class, function (Login $event): void {
             if ($event->guard !== config('auth.defaults.guard', 'web')) {
@@ -182,7 +196,7 @@ class AppServiceProvider extends ServiceProvider
             return [
                 'label' => $day['label'],
                 'total' => $day['total'],
-                'formatted_total' => '$' . number_format($day['total'], 2),
+                'formatted_total' => CurrencyFormatter::format($day['total']),
                 'order_count' => $day['order_count'],
                 'height' => $height,
             ];
@@ -203,7 +217,7 @@ class AppServiceProvider extends ServiceProvider
                 'payment_status' => $order->payment_status,
                 'payment_label' => ucfirst(str_replace('_', ' ', $order->payment_status)),
                 'payment_class' => $this->dashboardPaymentClass($order->payment_status),
-                'formatted_total' => '$' . number_format((float) $order->total_amount, 2),
+                'formatted_total' => CurrencyFormatter::format((float) $order->total_amount),
                 'item_count' => (int) $order->items_count,
                 'placed_at' => $order->created_at ? $order->created_at->format('M d, Y') : '—',
                 'customer_name' => $order->customer?->name ?? 'Guest',
@@ -240,7 +254,7 @@ class AppServiceProvider extends ServiceProvider
             return [
                 'label' => $month['label'],
                 'total' => $month['total'],
-                'formatted_total' => '$' . number_format($month['total'], 2),
+                'formatted_total' => CurrencyFormatter::format($month['total']),
                 'order_count' => $month['order_count'],
                 'height' => $height,
             ];
@@ -266,7 +280,7 @@ class AppServiceProvider extends ServiceProvider
                     'sku' => $product?->sku ?? 'N/A',
                     'total_qty' => (int) $item->total_qty,
                     'total_revenue' => (float) $item->total_revenue,
-                    'formatted_revenue' => '$' . number_format((float) $item->total_revenue, 2),
+                    'formatted_revenue' => CurrencyFormatter::format((float) $item->total_revenue),
                     'image' => $product?->thumbnail ? asset('storage/' . $product->thumbnail) : null,
                 ];
             });
@@ -354,7 +368,7 @@ class AppServiceProvider extends ServiceProvider
                     'order_number' => $order->order_number,
                     'customer_name' => $order->customer?->name ?? 'Guest',
                     'amount' => (float) $order->total_amount,
-                    'formatted_amount' => '$' . number_format((float) $order->total_amount, 2),
+                    'formatted_amount' => CurrencyFormatter::format((float) $order->total_amount),
                     'payment_method' => strtoupper($order->payment_method ?: 'COD'),
                     'status' => $order->payment_status === 'paid' ? 'Success' : ($order->payment_status === 'refunded' ? 'Refunded' : 'Pending'),
                     'status_class' => $order->payment_status === 'paid' ? 'badge-success' : ($order->payment_status === 'refunded' ? 'badge-warning' : 'badge-secondary'),

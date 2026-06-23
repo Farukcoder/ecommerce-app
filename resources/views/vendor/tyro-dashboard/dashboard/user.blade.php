@@ -47,7 +47,7 @@
         </div>
         <div class="stat-content">
             <div class="stat-label" style="font-size: 0.875rem; color: var(--muted-foreground); font-weight: 500;">Total Revenue</div>
-            <div class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: var(--foreground);">${{ number_format($totalRevenue, 2) }}</div>
+            <div class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: var(--foreground);">@money($totalRevenue)</div>
             <div class="stat-change {{ $monthGrowthPct >= 0 ? 'stat-change-up' : 'stat-change-down' }}" style="font-size: 0.8125rem; display: flex; align-items: center; gap: 0.25rem; margin-top: 0.25rem;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
                     <path stroke-linecap="round" stroke-linejoin="round" d="{{ $monthGrowthPct >= 0 ? 'M7 17l9-9m0 0H7m9 0v9' : 'M7 7l9 9m0 0V7m0 9H7' }}"></path>
@@ -66,7 +66,7 @@
         </div>
         <div class="stat-content">
             <div class="stat-label" style="font-size: 0.875rem; color: var(--muted-foreground); font-weight: 500;">Available Balance</div>
-            <div class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: var(--foreground);">${{ number_format($availableBalance, 2) }}</div>
+            <div class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: var(--foreground);">@money($availableBalance)</div>
             <span style="font-size: 0.8125rem; color: var(--muted-foreground); margin-top: 0.25rem;">Settled funds</span>
         </div>
     </div>
@@ -139,7 +139,7 @@
             <div style="display:flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 1rem;">
                 <div>
                     <div style="font-size: 0.875rem; color: var(--muted-foreground);">Total Revenue (6 Months)</div>
-                    <div style="font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em;">${{ number_format($monthlySales->sum('total'), 2) }}</div>
+                    <div style="font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em;">@money($monthlySales->sum('total'))</div>
                 </div>
                 <div class="badge-list">
                     <span class="badge badge-primary">{{ count($monthlySales) }} months</span>

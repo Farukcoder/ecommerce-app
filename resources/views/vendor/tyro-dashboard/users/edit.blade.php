@@ -299,11 +299,6 @@
         color: var(--foreground);
     }
     .role-checkbox {
-        width: 1rem;
-        height: 1rem;
-        border-radius: 4px;
-        border: 1px solid var(--border);
-        accent-color: var(--primary);
         cursor: pointer;
     }
     .role-desc {

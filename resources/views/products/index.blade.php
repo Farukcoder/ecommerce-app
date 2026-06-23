@@ -229,11 +229,11 @@
                     </td>
                     <td>
                         <div style="font-size:0.9375rem; font-weight:600; color:var(--foreground);">
-                            ৳{{ number_format($product->base_price, 2) }}
+                            @money($product->base_price)
                         </div>
                         @if($product->sale_price)
                             <div style="font-size:0.8125rem; color:var(--success);">
-                                Sale: ৳{{ number_format($product->sale_price, 2) }}
+                                Sale: @money($product->sale_price)
                             </div>
                         @endif
                     </td>

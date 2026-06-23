@@ -30,6 +30,20 @@
         'map-pin' => 'Address',
         'clock' => 'Business Hours',
     ];
+
+    $availableCurrencies = old('available_currencies', $systemSetting->available_currencies ?? []);
+    if (!is_array($availableCurrencies) || empty($availableCurrencies)) {
+        $availableCurrencies = [
+            ['code' => 'BDT', 'symbol' => '৳', 'exchange_rate' => 1, 'is_default' => true],
+        ];
+    }
+
+    $currencyPresets = \App\Support\CurrencyFormatter::PRESET_CURRENCIES;
+    $currencyPresetOptions = collect($currencyPresets)->map(fn ($preset, $code) => [
+        'code' => $code,
+        'symbol' => $preset['symbol'],
+        'name' => $preset['name']
+    ])->values();
 @endphp
 
 <form action="{{ $formAction }}" method="POST" enctype="multipart/form-data">
@@ -150,6 +164,89 @@
             </div>
         </div>
         
+    </div>
+
+    <div class="card" style="margin-top: 1.5rem;">
+        <div class="card-header">
+            <h3 class="card-title">Currency Settings</h3>
+        </div>
+        <div class="card-body">
+            <p class="form-hint" style="margin-bottom: 1rem;">Configure the default store currency and optional additional currencies for the storefront switcher. Exchange rates are relative to the default currency (rate = 1 for default).</p>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="currency_code" class="form-label">Default Currency Code</label>
+                    <select id="currency_code" name="currency_code" class="form-select @error('currency_code') is-invalid @enderror" required>
+                        @foreach($currencyPresets as $code => $preset)
+                            <option value="{{ $code }}" data-symbol="{{ $preset['symbol'] }}" {{ $fieldValue('currency_code', 'BDT') === $code ? 'selected' : '' }}>{{ $code }} — {{ $preset['name'] }}</option>
+                        @endforeach
+                        @if(!array_key_exists($fieldValue('currency_code', 'BDT'), $currencyPresets))
+                            <option value="{{ $fieldValue('currency_code') }}" selected>{{ $fieldValue('currency_code') }}</option>
+                        @endif
+                    </select>
+                    @error('currency_code')<span class="form-error">{{ $message }}</span>@enderror
+                </div>
+                <div class="form-group">
+                    <label for="currency_symbol" class="form-label">Currency Symbol</label>
+                    <input type="text" id="currency_symbol" name="currency_symbol" class="form-input @error('currency_symbol') is-invalid @enderror" value="{{ $fieldValue('currency_symbol', '৳') }}" required>
+                    @error('currency_symbol')<span class="form-error">{{ $message }}</span>@enderror
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="currency_symbol_position" class="form-label">Symbol Position</label>
+                    <select id="currency_symbol_position" name="currency_symbol_position" class="form-select @error('currency_symbol_position') is-invalid @enderror" required>
+                        <option value="before" {{ $fieldValue('currency_symbol_position', 'before') === 'before' ? 'selected' : '' }}>Before amount (e.g. ৳100)</option>
+                        <option value="before_with_space" {{ $fieldValue('currency_symbol_position') === 'before_with_space' ? 'selected' : '' }}>Before with space (e.g. BDT 100)</option>
+                        <option value="after" {{ $fieldValue('currency_symbol_position') === 'after' ? 'selected' : '' }}>After amount (e.g. 100৳)</option>
+                    </select>
+                    @error('currency_symbol_position')<span class="form-error">{{ $message }}</span>@enderror
+                </div>
+                <div class="form-group">
+                    <label for="currency_decimal_places" class="form-label">Decimal Places</label>
+                    <input type="number" id="currency_decimal_places" name="currency_decimal_places" class="form-input @error('currency_decimal_places') is-invalid @enderror" value="{{ $fieldValue('currency_decimal_places', 2) }}" min="0" max="4" required>
+                    @error('currency_decimal_places')<span class="form-error">{{ $message }}</span>@enderror
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="currency_thousands_separator" class="form-label">Thousands Separator</label>
+                    <input type="text" id="currency_thousands_separator" name="currency_thousands_separator" class="form-input @error('currency_thousands_separator') is-invalid @enderror" value="{{ $fieldValue('currency_thousands_separator', ',') }}" required>
+                    @error('currency_thousands_separator')<span class="form-error">{{ $message }}</span>@enderror
+                </div>
+                <div class="form-group">
+                    <label for="currency_decimal_separator" class="form-label">Decimal Separator</label>
+                    <input type="text" id="currency_decimal_separator" name="currency_decimal_separator" class="form-input @error('currency_decimal_separator') is-invalid @enderror" value="{{ $fieldValue('currency_decimal_separator', '.') }}" required>
+                    @error('currency_decimal_separator')<span class="form-error">{{ $message }}</span>@enderror
+                </div>
+            </div>
+
+            <div style="margin-top: 1rem;">
+                <h4 style="font-size: 0.9375rem; font-weight: 600; margin-bottom: 0.75rem;">Available Currencies (for storefront switcher)</h4>
+                <div id="available-currency-rows" style="display:flex; flex-direction:column; gap:0.75rem;">
+                    @foreach($availableCurrencies as $index => $currency)
+                        <div class="available-currency-row" style="display:grid; grid-template-columns: 1fr 1fr 1fr auto; gap:0.75rem; align-items:center;">
+                            <select name="available_currencies[{{ $index }}][code]" class="form-select currency-code-select">
+                                @foreach($currencyPresets as $code => $preset)
+                                    <option value="{{ $code }}" data-symbol="{{ $preset['symbol'] }}" {{ ($currency['code'] ?? '') === $code ? 'selected' : '' }}>{{ $code }}</option>
+                                @endforeach
+                                @if(!empty($currency['code']) && !array_key_exists($currency['code'], $currencyPresets))
+                                    <option value="{{ $currency['code'] }}" selected>{{ $currency['code'] }}</option>
+                                @endif
+                            </select>
+                            <input type="text" name="available_currencies[{{ $index }}][symbol]" class="form-input currency-symbol-input" placeholder="Symbol" value="{{ $currency['symbol'] ?? '' }}">
+                            <input type="number" name="available_currencies[{{ $index }}][exchange_rate]" class="form-input" placeholder="Exchange rate" step="0.000001" min="0" value="{{ $currency['exchange_rate'] ?? 1 }}">
+                            <button type="button" class="btn btn-ghost" style="color: var(--danger);" data-remove-currency-row aria-label="Remove currency">×</button>
+                        </div>
+                    @endforeach
+                </div>
+                <div style="margin-top:0.75rem;">
+                    <button type="button" class="btn btn-secondary btn-sm" id="add-currency-row">Add Currency</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="grid-2" style="margin-top: 1.5rem; align-items:start;">
@@ -533,6 +630,83 @@
 
             const row = button.closest('.contact-information-row');
             if (row && contactRows.querySelectorAll('.contact-information-row').length > 1) {
+                row.remove();
+            }
+        });
+    }
+
+    const currencyCodeSelect = document.getElementById('currency_code');
+    const currencySymbolInput = document.getElementById('currency_symbol');
+
+    if (currencyCodeSelect && currencySymbolInput) {
+        currencyCodeSelect.addEventListener('change', () => {
+            const option = currencyCodeSelect.selectedOptions[0];
+            if (option?.dataset.symbol) {
+                currencySymbolInput.value = option.dataset.symbol;
+            }
+        });
+    }
+
+    const currencyRows = document.getElementById('available-currency-rows');
+    const addCurrencyButton = document.getElementById('add-currency-row');
+    let nextCurrencyIndex = currencyRows ? currencyRows.querySelectorAll('.available-currency-row').length : 0;
+
+    const currencyPresetOptions = @json($currencyPresetOptions);
+
+    if (currencyRows && addCurrencyButton) {
+        const bindCurrencyRow = (row) => {
+            const select = row.querySelector('.currency-code-select');
+            const symbolInput = row.querySelector('.currency-symbol-input');
+            if (!select || !symbolInput) {
+                return;
+            }
+
+            select.addEventListener('change', () => {
+                const option = select.selectedOptions[0];
+                if (option?.dataset.symbol) {
+                    symbolInput.value = option.dataset.symbol;
+                }
+            });
+        };
+
+        currencyRows.querySelectorAll('.available-currency-row').forEach(bindCurrencyRow);
+
+        const createCurrencyRow = () => {
+            const index = nextCurrencyIndex++;
+            const row = document.createElement('div');
+            row.className = 'available-currency-row';
+            row.style.display = 'grid';
+            row.style.gridTemplateColumns = '1fr 1fr 1fr auto';
+            row.style.gap = '0.75rem';
+            row.style.alignItems = 'center';
+
+            const options = currencyPresetOptions.map((preset) =>
+                `<option value="${preset.code}" data-symbol="${preset.symbol}">${preset.code}</option>`
+            ).join('');
+
+            row.innerHTML = `
+                <select name="available_currencies[${index}][code]" class="form-select currency-code-select">${options}</select>
+                <input type="text" name="available_currencies[${index}][symbol]" class="form-input currency-symbol-input" placeholder="Symbol" value="">
+                <input type="number" name="available_currencies[${index}][exchange_rate]" class="form-input" placeholder="Exchange rate" step="0.000001" min="0" value="1">
+                <button type="button" class="btn btn-ghost" style="color: var(--danger);" data-remove-currency-row aria-label="Remove currency">×</button>
+            `;
+
+            bindCurrencyRow(row);
+            return row;
+        };
+
+        addCurrencyButton.addEventListener('click', () => {
+            currencyRows.appendChild(createCurrencyRow());
+        });
+
+        currencyRows.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-remove-currency-row]');
+            if (!button) {
+                return;
+            }
+
+            const row = button.closest('.available-currency-row');
+            if (row && currencyRows.querySelectorAll('.available-currency-row').length > 1) {
                 row.remove();
             }
         });

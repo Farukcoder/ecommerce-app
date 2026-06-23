@@ -122,7 +122,7 @@
         </div>
         <div class="stat-content">
             <div class="stat-label">Inventory Value</div>
-            <div class="stat-value" style="font-size:1.5rem;">৳{{ $inventoryValueK }}k</div>
+            <div class="stat-value" style="font-size:1.5rem;">@currencySymbol{{ $inventoryValueK }}k</div>
         </div>
     </div>
 </div>
@@ -370,7 +370,7 @@
                                 <span class="badge {{ $stockBadgeClass }}">{{ $stockLabel }}</span>
                             </td>
                             <td>
-                                <div style="font-weight:600; color:var(--foreground);">৳{{ number_format((float) $product->price, 2) }}</div>
+                                <div style="font-weight:600; color:var(--foreground);">@money((float) $product->price)</div>
                             </td>
                             <td style="text-align:right;">
                                 <div style="display:inline-flex; gap:0.5rem; flex-wrap:wrap; justify-content:flex-end;">

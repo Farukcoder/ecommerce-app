@@ -28,13 +28,13 @@
     <div class="stat-card">
         <div class="stat-content">
             <div class="stat-label">Total Revenue</div>
-            <div class="stat-value" style="font-size:1.5rem;">BDT {{ number_format($summary['total_revenue'], 2) }}</div>
+            <div class="stat-value" style="font-size:1.5rem;">@money($summary['total_revenue'])</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-content">
             <div class="stat-label">Average Order</div>
-            <div class="stat-value" style="font-size:1.5rem;">BDT {{ number_format($summary['average_order_value'], 2) }}</div>
+            <div class="stat-value" style="font-size:1.5rem;">@money($summary['average_order_value'])</div>
         </div>
     </div>
     <div class="stat-card">
@@ -119,8 +119,8 @@
                 <tr>
                     <td>{{ \Illuminate\Support\Carbon::parse($row->order_date)->format('M d, Y') }}</td>
                     <td>{{ $row->order_count }}</td>
-                    <td style="font-weight:600;">BDT {{ number_format((float) $row->total_revenue, 2) }}</td>
-                    <td>BDT {{ number_format((float) $row->avg_order_value, 2) }}</td>
+                    <td style="font-weight:600;">@money((float) $row->total_revenue)</td>
+                    <td>@money((float) $row->avg_order_value)</td>
                 </tr>
                 @endforeach
             </tbody>

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\HeaderSetting;
 use App\Models\SystemSetting;
+use App\Support\CurrencyFormatter;
 use Illuminate\Http\JsonResponse;
 
 class SystemSettingController extends Controller
@@ -14,6 +16,7 @@ class SystemSettingController extends Controller
     public function show(): JsonResponse
     {
         $setting = SystemSetting::query()->latest('id')->first();
+        $headerSetting = HeaderSetting::query()->latest('id')->first();
 
         if (!$setting) {
             return response()->json(['data' => null]);
@@ -60,6 +63,8 @@ class SystemSettingController extends Controller
                 'flash_deal_page_banner_large_url' => $setting->flash_deal_page_banner_large_url,
                 'flash_deal_page_banner_small_url' => $setting->flash_deal_page_banner_small_url,
                 'product_default_image_url' => $setting->product_default_image_url,
+                'currency' => CurrencyFormatter::toApiArray(),
+                'show_currency_switcher' => (bool) ($headerSetting?->show_currency_switcher ?? true),
                 'created_at' => $setting->created_at?->toISOString(),
                 'updated_at' => $setting->updated_at?->toISOString(),
             ],

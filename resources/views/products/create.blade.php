@@ -334,7 +334,7 @@
                     <div class="form-group">
                         <label for="base_price" class="form-label">Base Price <span style="color:var(--destructive);">*</span></label>
                         <div style="position:relative;">
-                            <span style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--muted-foreground);font-weight:500;">৳</span>
+                            <span style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--muted-foreground);font-weight:500;">@currencySymbol</span>
                             <input type="number" id="base_price" name="base_price" class="form-input @error('base_price') is-invalid @enderror"
                                    value="{{ old('base_price') }}" placeholder="0.00" step="0.01" min="0" required style="padding-left:1.75rem;">
                         </div>
@@ -343,7 +343,7 @@
                     <div class="form-group">
                         <label for="sale_price" class="form-label">Sale Price</label>
                         <div style="position:relative;">
-                            <span style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--muted-foreground);font-weight:500;">৳</span>
+                            <span style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--muted-foreground);font-weight:500;">@currencySymbol</span>
                             <input type="number" id="sale_price" name="sale_price" class="form-input @error('sale_price') is-invalid @enderror"
                                    value="{{ old('sale_price') }}" placeholder="0.00" step="0.01" min="0" style="padding-left:1.75rem;">
                         </div>
@@ -356,7 +356,7 @@
                         <select id="discount_type" name="discount_type" class="form-select">
                             <option value="">None</option>
                             <option value="percentage" {{ old('discount_type')==='percentage' ? 'selected' : '' }}>Percentage (%)</option>
-                            <option value="fixed" {{ old('discount_type')==='fixed' ? 'selected' : '' }}>Fixed (৳)</option>
+                            <option value="fixed" {{ old('discount_type')==='fixed' ? 'selected' : '' }}>Fixed (@currencySymbol)</option>
                         </select>
                         @error('discount_type')<span class="form-error">{{ $message }}</span>@enderror
                     </div>
@@ -445,7 +445,7 @@ function restoreStateFromOldValues() {
                 tr.innerHTML = `
                     <td><span style="font-size:0.875rem;font-weight:500;color:var(--foreground);">Variant ${i + 1}</span></td>
                     <td><input type="text" name="variants[${i}][sku]" class="form-input" style="font-size:0.8125rem;padding:0.375rem 0.625rem;" placeholder="SKU-${i+1}" value="${variant.sku || ''}"></td>
-                    <td><div style="position:relative;"><span style="position:absolute;left:0.625rem;top:50%;transform:translateY(-50%);color:var(--muted-foreground);font-size:0.8125rem;">৳</span>
+                    <td><div style="position:relative;"><span style="position:absolute;left:0.625rem;top:50%;transform:translateY(-50%);color:var(--muted-foreground);font-size:0.8125rem;">@currencySymbol</span>
                         <input type="number" name="variants[${i}][price]" class="form-input" style="font-size:0.8125rem;padding:0.375rem 0.625rem 0.375rem 1.375rem;" placeholder="0.00" step="0.01" min="0" value="${variant.price || ''}"></div></td>
                     <td><input type="number" name="variants[${i}][quantity]" class="form-input" style="font-size:0.8125rem;padding:0.375rem 0.625rem;" placeholder="0" min="0" value="${variant.quantity || '0'}"></td>
                     <td><select name="variants[${i}][status]" class="form-select" style="font-size:0.8125rem;padding:0.375rem 1.5rem 0.375rem 0.625rem;">
@@ -761,7 +761,7 @@ function generateVariants() {
         tr.innerHTML = `
             <td><span style="font-size:0.875rem;font-weight:500;color:var(--foreground);">${label}</span></td>
             <td><input type="text" name="variants[${i}][sku]" class="form-input" style="font-size:0.8125rem;padding:0.375rem 0.625rem;" placeholder="SKU-${i+1}"></td>
-            <td><div style="position:relative;"><span style="position:absolute;left:0.625rem;top:50%;transform:translateY(-50%);color:var(--muted-foreground);font-size:0.8125rem;">৳</span>
+            <td><div style="position:relative;"><span style="position:absolute;left:0.625rem;top:50%;transform:translateY(-50%);color:var(--muted-foreground);font-size:0.8125rem;">@currencySymbol</span>
                 <input type="number" name="variants[${i}][price]" class="form-input" style="font-size:0.8125rem;padding:0.375rem 0.625rem 0.375rem 1.375rem;" placeholder="0.00" step="0.01" min="0"></div></td>
             <td><input type="number" name="variants[${i}][quantity]" class="form-input" style="font-size:0.8125rem;padding:0.375rem 0.625rem;" placeholder="0" min="0" value="0"></td>
             <td><select name="variants[${i}][status]" class="form-select" style="font-size:0.8125rem;padding:0.375rem 1.5rem 0.375rem 0.625rem;">

@@ -44,12 +44,18 @@ trait Auditable
 
             // Get original values of changed keys only
             $original = Arr::only($model->getOriginal(), array_keys($changes));
+            $newValues = static::filterSensitive($model, $changes);
+
+            // Tyro audit summaries expect email on user.updated entries
+            if ($model instanceof \App\Models\User) {
+                $newValues['email'] = $newValues['email'] ?? $model->email;
+            }
 
             static::logEvent(
                 $model,
                 'updated',
                 static::filterSensitive($model, $original),
-                static::filterSensitive($model, $changes)
+                $newValues
             );
         });
 

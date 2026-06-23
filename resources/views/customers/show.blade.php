@@ -80,7 +80,7 @@
                                     <td style="font-weight:600;">{{ $order->order_number }}</td>
                                     <td>{{ $order->created_at?->format('M d, Y') }}</td>
                                     <td>{{ $order->items_count }}</td>
-                                    <td style="font-weight:600;">৳{{ number_format($order->total_amount, 2) }}</td>
+                                    <td style="font-weight:600;">@money($order->total_amount)</td>
                                     <td>
                                         <div>{{ strtoupper($order->payment_method ?? 'N/A') }}</div>
                                         <div style="font-size:0.8125rem; color:var(--muted-foreground);">{{ ucfirst($order->payment_status) }}</div>
@@ -128,7 +128,7 @@
             <div class="card-body" style="display:grid; gap:1rem;">
                 <div>
                     <div class="form-hint" style="font-size:0.8125rem; color:var(--muted-foreground); margin-bottom:0.125rem;">Total Spent</div>
-                    <div style="font-size:1.5rem; font-weight:700; color:var(--primary);">৳{{ number_format($totalSpent, 2) }}</div>
+                    <div style="font-size:1.5rem; font-weight:700; color:var(--primary);">@money($totalSpent)</div>
                 </div>
                 <div style="border-top:1px solid var(--border); padding-top:0.75rem;">
                     <div class="form-hint" style="font-size:0.8125rem; color:var(--muted-foreground); margin-bottom:0.125rem;">Total Orders</div>
@@ -136,7 +136,7 @@
                 </div>
                 <div style="border-top:1px solid var(--border); padding-top:0.75rem;">
                     <div class="form-hint" style="font-size:0.8125rem; color:var(--muted-foreground); margin-bottom:0.125rem;">Average Order Value</div>
-                    <div style="font-size:1.25rem; font-weight:600;">৳{{ number_format($averageOrderValue, 2) }}</div>
+                    <div style="font-size:1.25rem; font-weight:600;">@money($averageOrderValue)</div>
                 </div>
                 @if($customer->orders->count())
                     <div style="border-top:1px solid var(--border); padding-top:0.75rem;">

@@ -41,13 +41,28 @@ class SystemSetting extends Model
         'flash_deal_page_banner_large',
         'flash_deal_page_banner_small',
         'product_default_image',
+        'currency_code',
+        'currency_symbol',
+        'currency_symbol_position',
+        'currency_decimal_places',
+        'currency_thousands_separator',
+        'currency_decimal_separator',
+        'available_currencies',
     ];
 
     protected $casts = [
         'about_values' => 'array',
         'about_team_members' => 'array',
         'contact_information' => 'array',
+        'available_currencies' => 'array',
+        'currency_decimal_places' => 'integer',
     ];
+
+    protected static function booted(): void
+    {
+        static::saved(fn () => \App\Support\CurrencyFormatter::clearCache());
+        static::deleted(fn () => \App\Support\CurrencyFormatter::clearCache());
+    }
 
     public function getSiteIconUrlAttribute(): ?string
     {

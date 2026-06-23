@@ -1012,9 +1012,9 @@
         transition-duration: 200ms;
     }
 
-    /* Checkbox & Radio - shadcn style */
-    .checkbox-input,
-    .radio-input {
+    /* Checkbox - shadcn style (all checkboxes except toggle switches) */
+    input[type="checkbox"]:not(.toggle-input),
+    .checkbox-input {
         width: 20px;
         height: 20px;
         border-radius: 5px;
@@ -1026,18 +1026,16 @@
         transition: all 0.15s ease;
         position: relative;
         flex-shrink: 0;
+        margin: 0;
     }
 
-    .radio-input {
-        border-radius: 50%;
-    }
-
-    .checkbox-input:checked,
-    .radio-input:checked {
+    input[type="checkbox"]:not(.toggle-input):checked,
+    .checkbox-input:checked {
         background-color: var(--foreground);
         border-color: var(--foreground);
     }
 
+    input[type="checkbox"]:not(.toggle-input):checked::after,
     .checkbox-input:checked::after {
         content: '';
         position: absolute;
@@ -1048,6 +1046,26 @@
         border: solid var(--background);
         border-width: 0 2px 2px 0;
         transform: rotate(45deg);
+    }
+
+    /* Radio - shadcn style */
+    .radio-input {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 1px solid var(--input);
+        background-color: transparent;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        transition: all 0.15s ease;
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .radio-input:checked {
+        background-color: var(--foreground);
+        border-color: var(--foreground);
     }
 
     .radio-input:checked::after {

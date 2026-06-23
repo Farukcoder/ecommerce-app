@@ -40,7 +40,7 @@
     <div class="stat-card">
         <div class="stat-content">
             <div class="stat-label">Total Spent</div>
-            <div class="stat-value" style="font-size:1.5rem;">৳{{ number_format($summary['total_spent'], 2) }}</div>
+            <div class="stat-value" style="font-size:1.5rem;">@money($summary['total_spent'])</div>
         </div>
     </div>
 </div>
@@ -89,7 +89,7 @@
                     <td>
                         <span class="badge badge-primary">{{ $customer->orders_count }}</span>
                     </td>
-                    <td style="font-weight:600;">৳{{ number_format((float) ($customer->orders_sum_total_amount ?? 0), 2) }}</td>
+                    <td style="font-weight:600;">@money((float) ($customer->orders_sum_total_amount ?? 0))</td>
                     <td>
                         @if($customer->orders_max_created_at)
                             {{ \Illuminate\Support\Carbon::parse($customer->orders_max_created_at)->format('M d, Y') }}

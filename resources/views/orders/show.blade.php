@@ -51,8 +51,8 @@
                                 </td>
                                 <td>{{ $item->product_sku ?? '—' }}</td>
                                 <td>{{ $item->quantity }}</td>
-                                <td>৳{{ number_format($item->unit_price, 2) }}</td>
-                                <td style="font-weight:600;">৳{{ number_format($item->total_price, 2) }}</td>
+                                <td>@money($item->unit_price)</td>
+                                <td style="font-weight:600;">@money($item->total_price)</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -62,23 +62,23 @@
                 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:0.75rem;">
                     <div>
                         <div class="form-hint">Subtotal</div>
-                        <div style="font-weight:600;">৳{{ number_format($order->subtotal, 2) }}</div>
+                        <div style="font-weight:600;">@money($order->subtotal)</div>
                     </div>
                     <div>
                         <div class="form-hint">Discount</div>
-                        <div style="font-weight:600;">৳{{ number_format($order->discount_amount, 2) }}</div>
+                        <div style="font-weight:600;">@money($order->discount_amount)</div>
                     </div>
                     <div>
                         <div class="form-hint">Shipping</div>
-                        <div style="font-weight:600;">৳{{ number_format($order->shipping_charge, 2) }}</div>
+                        <div style="font-weight:600;">@money($order->shipping_charge)</div>
                     </div>
                     <div>
                         <div class="form-hint">Tax</div>
-                        <div style="font-weight:600;">৳{{ number_format($order->tax_amount, 2) }}</div>
+                        <div style="font-weight:600;">@money($order->tax_amount)</div>
                     </div>
                     <div>
                         <div class="form-hint">Total</div>
-                        <div style="font-weight:700; font-size:1.125rem;">৳{{ number_format($order->total_amount, 2) }}</div>
+                        <div style="font-weight:700; font-size:1.125rem;">@money($order->total_amount)</div>
                     </div>
                 </div>
             </div>
@@ -224,7 +224,7 @@
                 <form method="POST" action="{{ route('orders.refund', $order) }}">
                     @csrf
                     <div class="form-group">
-                        <label class="form-label">Refund amount (max {{ number_format($remainingRefund, 2) }})</label>
+                        <label class="form-label">Refund amount (max @money($remainingRefund))</label>
                         <input type="number" step="0.01" max="{{ $remainingRefund }}" name="amount" class="form-input" required>
                     </div>
                     <div class="form-group">

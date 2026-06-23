@@ -171,7 +171,7 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <span style="font-size: 0.875rem; color: var(--foreground);">{{ \Illuminate\Support\Str::limit($log->summary, 100) }}</span>
+                                    <span style="font-size: 0.875rem; color: var(--foreground);">{{ \Illuminate\Support\Str::limit(\App\Support\AuditLogSummary::for($log), 100) }}</span>
                                 </td>
                                 <td>
                                     <div class="action-buttons" style="justify-content: flex-end;">

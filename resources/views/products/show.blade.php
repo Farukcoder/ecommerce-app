@@ -40,13 +40,13 @@
     <div class="stat-card">
         <div class="stat-content">
             <div class="stat-label">Base Price</div>
-            <div class="stat-value" style="font-size:1.125rem;">৳{{ number_format($product->base_price, 2) }}</div>
+            <div class="stat-value" style="font-size:1.125rem;">@money($product->base_price)</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-content">
             <div class="stat-label">Sale Price</div>
-            <div class="stat-value" style="font-size:1.125rem;">{{ $product->sale_price ? '৳' . number_format($product->sale_price, 2) : '—' }}</div>
+            <div class="stat-value" style="font-size:1.125rem;">{{ $product->sale_price ? \App\Support\CurrencyFormatter::format($product->sale_price) : '—' }}</div>
         </div>
     </div>
     <div class="stat-card">

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SystemSetting;
+use App\Support\CurrencyFormatter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -95,6 +96,16 @@ class SystemSettingController extends Controller
             'flash_deal_page_banner_large' => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif,webp,svg', 'max:4096'],
             'flash_deal_page_banner_small' => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif,webp,svg', 'max:4096'],
             'product_default_image' => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif,webp,svg', 'max:4096'],
+            'currency_code' => ['required', 'string', 'max:10'],
+            'currency_symbol' => ['required', 'string', 'max:10'],
+            'currency_symbol_position' => ['required', Rule::in(['before', 'after', 'before_with_space'])],
+            'currency_decimal_places' => ['required', 'integer', 'min:0', 'max:4'],
+            'currency_thousands_separator' => ['required', 'string', 'max:5'],
+            'currency_decimal_separator' => ['required', 'string', 'max:5'],
+            'available_currencies' => ['nullable', 'array'],
+            'available_currencies.*.code' => ['nullable', 'string', 'max:10'],
+            'available_currencies.*.symbol' => ['nullable', 'string', 'max:10'],
+            'available_currencies.*.exchange_rate' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $fileFields = [
@@ -177,6 +188,33 @@ class SystemSettingController extends Controller
             ->values()
             ->all();
 
+        $defaultCode = strtoupper((string) $validated['currency_code']);
+        $validated['currency_code'] = $defaultCode;
+
+        $validated['available_currencies'] = collect($request->input('available_currencies', []))
+            ->map(function (array $item) use ($defaultCode) {
+                return [
+                    'code' => strtoupper(trim((string) ($item['code'] ?? ''))),
+                    'symbol' => trim((string) ($item['symbol'] ?? '')),
+                    'exchange_rate' => (float) ($item['exchange_rate'] ?? 1),
+                    'is_default' => strtoupper(trim((string) ($item['code'] ?? ''))) === $defaultCode,
+                ];
+            })
+            ->filter(fn (array $item) => $item['code'] !== '')
+            ->values()
+            ->all();
+
+        if (empty($validated['available_currencies'])) {
+            $validated['available_currencies'] = [
+                [
+                    'code' => $defaultCode,
+                    'symbol' => $validated['currency_symbol'],
+                    'exchange_rate' => 1,
+                    'is_default' => true,
+                ],
+            ];
+        }
+
         return $validated;
     }
 
@@ -222,6 +260,15 @@ class SystemSettingController extends Controller
             'website_base_hover_color' => '#0066CC',
             'website_secondary_base_color' => '#171717',
             'website_secondary_base_hover_color' => '#5D5D62',
+            'currency_code' => 'BDT',
+            'currency_symbol' => '৳',
+            'currency_symbol_position' => 'before',
+            'currency_decimal_places' => 2,
+            'currency_thousands_separator' => ',',
+            'currency_decimal_separator' => '.',
+            'available_currencies' => [
+                ['code' => 'BDT', 'symbol' => '৳', 'exchange_rate' => 1, 'is_default' => true],
+            ],
         ];
     }
 }

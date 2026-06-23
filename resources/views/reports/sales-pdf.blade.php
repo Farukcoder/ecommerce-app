@@ -164,7 +164,7 @@
                     <td>{{ ucfirst($order['status']) }}</td>
                     <td>{{ ucfirst($order['payment_status']) }}</td>
                     <td>{{ $order['items_count'] }}</td>
-                    <td>BDT {{ number_format($order['total_amount'], 2) }}</td>
+                    <td>@money($order['total_amount'])</td>
                     <td>{{ optional($order['created_at'])->format('M d, Y') }}</td>
                 </tr>
                 @empty
@@ -196,8 +196,8 @@
                     <td>{{ $product->product_sku ?? '-' }}</td>
                     <td>{{ $product->order_count }}</td>
                     <td>{{ $product->total_quantity }}</td>
-                    <td>BDT {{ number_format((float) $product->avg_unit_price, 2) }}</td>
-                    <td>BDT {{ number_format((float) $product->total_revenue, 2) }}</td>
+                    <td>@money((float) $product->avg_unit_price)</td>
+                    <td>@money((float) $product->total_revenue)</td>
                 </tr>
                 @empty
                 <tr>
@@ -224,8 +224,8 @@
             <tr>
                 <td>{{ \Illuminate\Support\Carbon::parse($row->order_date)->format('M d, Y') }}</td>
                 <td>{{ $row->order_count }}</td>
-                <td>BDT {{ number_format((float) $row->total_revenue, 2) }}</td>
-                <td>BDT {{ number_format((float) $row->avg_order_value, 2) }}</td>
+                <td>@money((float) $row->total_revenue)</td>
+                <td>@money((float) $row->avg_order_value)</td>
             </tr>
             @empty
             <tr>
@@ -241,7 +241,7 @@
             Total Orders: {{ $summary['total_orders'] }}
         </div>
         <div style="float: right; width: 50%; text-align: right;">
-            Total Revenue: BDT {{ number_format($summary['total_revenue'], 2) }}
+            Total Revenue: @money($summary['total_revenue'])
         </div>
         <div style="clear: both;"></div>
     </div>

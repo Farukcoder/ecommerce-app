@@ -32,7 +32,7 @@
     <div class="stat-card">
         <div class="stat-content">
             <div class="stat-label">Total Revenue (Today)</div>
-            <div class="stat-value" style="font-size:1.5rem;">৳{{ number_format($summary['total_revenue'], 2) }}</div>
+            <div class="stat-value" style="font-size:1.5rem;">@money($summary['total_revenue'])</div>
         </div>
     </div>
     <div class="stat-card">
@@ -161,7 +161,7 @@
                             </td>
                             <td>{{ $order->created_at?->format('M d, Y') }}</td>
                             <td>{{ $order->items_count }}</td>
-                            <td style="font-weight:600;">৳{{ number_format($order->total_amount, 2) }}</td>
+                            <td style="font-weight:600;">@money($order->total_amount)</td>
                             <td>
                                 <div>{{ strtoupper($order->payment_method ?? 'N/A') }}</div>
                                 <div style="font-size:0.8125rem; color:var(--muted-foreground);">{{ ucfirst($order->payment_status) }}</div>

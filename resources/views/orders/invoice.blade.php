@@ -67,8 +67,8 @@
                     <td>{{ $item->product_name }}</td>
                     <td>{{ $item->product_sku ?? '—' }}</td>
                     <td>{{ $item->quantity }}</td>
-                    <td>BDT {{ number_format($item->unit_price, 2) }}</td>
-                    <td>BDT {{ number_format($item->total_price, 2) }}</td>
+                    <td>@money($item->unit_price)</td>
+                    <td>@money($item->total_price)</td>
                 </tr>
             @endforeach
         </tbody>
@@ -78,23 +78,23 @@
         <table class="totals">
             <tr>
                 <td>Subtotal</td>
-                <td style="text-align:right;">BDT {{ number_format($order->subtotal, 2) }}</td>
+                <td style="text-align:right;">@money($order->subtotal)</td>
             </tr>
             <tr>
                 <td>Discount</td>
-                <td style="text-align:right;">BDT {{ number_format($order->discount_amount, 2) }}</td>
+                <td style="text-align:right;">@money($order->discount_amount)</td>
             </tr>
             <tr>
                 <td>Shipping</td>
-                <td style="text-align:right;">BDT {{ number_format($order->shipping_charge, 2) }}</td>
+                <td style="text-align:right;">@money($order->shipping_charge)</td>
             </tr>
             <tr>
                 <td>Tax</td>
-                <td style="text-align:right;">BDT {{ number_format($order->tax_amount, 2) }}</td>
+                <td style="text-align:right;">@money($order->tax_amount)</td>
             </tr>
             <tr>
                 <td>Grand Total</td>
-                <td style="text-align:right;">BDT {{ number_format($order->total_amount, 2) }}</td>
+                <td style="text-align:right;">@money($order->total_amount)</td>
             </tr>
         </table>
         <div style="margin-top: 12px; font-size: 13px;">

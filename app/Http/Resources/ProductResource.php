@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Support\CurrencyFormatter;
 
 class ProductResource extends JsonResource
 {
@@ -101,6 +102,7 @@ class ProductResource extends JsonResource
             }, []),
             'stock' => $this->whenLoaded('stocks', fn () => (int) $this->stocks->sum('quantity'), 0),
             'total_stock' => $this->whenLoaded('stocks', fn () => (int) $this->stocks->sum('quantity'), 0),
+            'currency' => CurrencyFormatter::toApiArray(),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
