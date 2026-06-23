@@ -14,12 +14,12 @@
     $totalCustomers = (int) ($stats['total_customers'] ?? 0);
     $pendingOrders = (int) ($stats['pending_orders'] ?? 0);
     $availableBalance = (float) ($stats['available_balance'] ?? 0);
-    
+
     $monthGrowthPct = (float) ($stats['month_growth_pct'] ?? 0);
     $weeklySales = collect($stats['weekly_sales'] ?? []);
     $monthlySales = collect($stats['monthly_sales'] ?? []);
     $recentOrders = collect($stats['recent_orders'] ?? []);
-    
+
     $topSelling = collect($stats['top_selling'] ?? []);
     $lowStock = collect($stats['low_stock'] ?? []);
     $latestReviews = collect($stats['latest_reviews'] ?? []);
@@ -29,9 +29,9 @@
 <div class="page-header">
     <div class="page-header-row">
         <div>
-            <h1 class="page-title">Store Overview</h1>
+            <h1 class="page-title">{{ __('messages.store_overview') }}</h1>
             <p class="page-description" style="font-size: 1rem; color: var(--muted-foreground);">
-                Manage your store operations, analyze key indicators, and review latest activity.
+                {{ __('messages.manage_store_operations') }}
             </p>
         </div>
     </div>
@@ -46,13 +46,13 @@
             </svg>
         </div>
         <div class="stat-content">
-            <div class="stat-label" style="font-size: 0.875rem; color: var(--muted-foreground); font-weight: 500;">Total Revenue</div>
+            <div class="stat-label" style="font-size: 0.875rem; color: var(--muted-foreground); font-weight: 500;">{{ __('messages.total_revenue') }}</div>
             <div class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: var(--foreground);">@money($totalRevenue)</div>
             <div class="stat-change {{ $monthGrowthPct >= 0 ? 'stat-change-up' : 'stat-change-down' }}" style="font-size: 0.8125rem; display: flex; align-items: center; gap: 0.25rem; margin-top: 0.25rem;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
                     <path stroke-linecap="round" stroke-linejoin="round" d="{{ $monthGrowthPct >= 0 ? 'M7 17l9-9m0 0H7m9 0v9' : 'M7 7l9 9m0 0V7m0 9H7' }}"></path>
                 </svg>
-                <span>{{ $monthGrowthPct >= 0 ? '+' : '' }}{{ number_format($monthGrowthPct, 1) }}% vs last month</span>
+                <span>{{ $monthGrowthPct >= 0 ? '+' : '' }}{{ number_format($monthGrowthPct, 1) }}% {{ __('messages.vs_last_month') }}</span>
             </div>
         </div>
     </div>
@@ -65,9 +65,9 @@
             </svg>
         </div>
         <div class="stat-content">
-            <div class="stat-label" style="font-size: 0.875rem; color: var(--muted-foreground); font-weight: 500;">Available Balance</div>
+            <div class="stat-label" style="font-size: 0.875rem; color: var(--muted-foreground); font-weight: 500;">{{ __('messages.available_balance') }}</div>
             <div class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: var(--foreground);">@money($availableBalance)</div>
-            <span style="font-size: 0.8125rem; color: var(--muted-foreground); margin-top: 0.25rem;">Settled funds</span>
+            <span style="font-size: 0.8125rem; color: var(--muted-foreground); margin-top: 0.25rem;">{{ __('messages.settled_funds') }}</span>
         </div>
     </div>
 
@@ -79,9 +79,9 @@
             </svg>
         </div>
         <div class="stat-content">
-            <div class="stat-label" style="font-size: 0.875rem; color: var(--muted-foreground); font-weight: 500;">Total Orders</div>
+            <div class="stat-label" style="font-size: 0.875rem; color: var(--muted-foreground); font-weight: 500;">{{ __('messages.total_orders') }}</div>
             <div class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: var(--foreground);">{{ number_format($totalOrders) }}</div>
-            <span style="font-size: 0.8125rem; color: var(--muted-foreground); margin-top: 0.25rem;">Lifetime volume</span>
+            <span style="font-size: 0.8125rem; color: var(--muted-foreground); margin-top: 0.25rem;">{{ __('messages.lifetime_volume') }}</span>
         </div>
     </div>
 
@@ -93,9 +93,9 @@
             </svg>
         </div>
         <div class="stat-content">
-            <div class="stat-label" style="font-size: 0.875rem; color: var(--muted-foreground); font-weight: 500;">Pending Orders</div>
+            <div class="stat-label" style="font-size: 0.875rem; color: var(--muted-foreground); font-weight: 500;">{{ __('messages.pending_orders') }}</div>
             <div class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: var(--foreground);">{{ number_format($pendingOrders) }}</div>
-            <span style="font-size: 0.8125rem; color: var(--muted-foreground); margin-top: 0.25rem;">Awaiting processing</span>
+            <span style="font-size: 0.8125rem; color: var(--muted-foreground); margin-top: 0.25rem;">{{ __('messages.awaiting_processing') }}</span>
         </div>
     </div>
 
@@ -107,9 +107,9 @@
             </svg>
         </div>
         <div class="stat-content">
-            <div class="stat-label" style="font-size: 0.875rem; color: var(--muted-foreground); font-weight: 500;">Products</div>
+            <div class="stat-label" style="font-size: 0.875rem; color: var(--muted-foreground); font-weight: 500;">{{ __('messages.products') }}</div>
             <div class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: var(--foreground);">{{ number_format($totalProducts) }}</div>
-            <span style="font-size: 0.8125rem; color: var(--muted-foreground); margin-top: 0.25rem;">Catalog size</span>
+            <span style="font-size: 0.8125rem; color: var(--muted-foreground); margin-top: 0.25rem;">{{ __('messages.catalog_size') }}</span>
         </div>
     </div>
 
@@ -121,9 +121,9 @@
             </svg>
         </div>
         <div class="stat-content">
-            <div class="stat-label" style="font-size: 0.875rem; color: var(--muted-foreground); font-weight: 500;">Customers</div>
+            <div class="stat-label" style="font-size: 0.875rem; color: var(--muted-foreground); font-weight: 500;">{{ __('messages.customers') }}</div>
             <div class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: var(--foreground);">{{ number_format($totalCustomers) }}</div>
-            <span style="font-size: 0.8125rem; color: var(--muted-foreground); margin-top: 0.25rem;">Registered buyers</span>
+            <span style="font-size: 0.8125rem; color: var(--muted-foreground); margin-top: 0.25rem;">{{ __('messages.registered_buyers') }}</span>
         </div>
     </div>
 </div>
@@ -132,17 +132,17 @@
     <!-- Sales Chart (Monthly) -->
     <div class="card">
         <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 class="card-title" style="font-size: 1.0625rem;">Sales Chart (Monthly)</h3>
-            <span class="badge badge-secondary">6-Month Trend</span>
+            <h3 class="card-title" style="font-size: 1.0625rem;">{{ __('messages.sales_chart_monthly') }}</h3>
+            <span class="badge badge-secondary">{{ __('messages.six_month_trend') }}</span>
         </div>
         <div class="card-body">
             <div style="display:flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 1rem;">
                 <div>
-                    <div style="font-size: 0.875rem; color: var(--muted-foreground);">Total Revenue (6 Months)</div>
+                    <div style="font-size: 0.875rem; color: var(--muted-foreground);">{{ __('messages.total_revenue_six_months') }}</div>
                     <div style="font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em;">@money($monthlySales->sum('total'))</div>
                 </div>
                 <div class="badge-list">
-                    <span class="badge badge-primary">{{ count($monthlySales) }} months</span>
+                    <span class="badge badge-primary">{{ count($monthlySales) }} {{ __('messages.months') }}</span>
                 </div>
             </div>
 
@@ -158,7 +158,7 @@
                         </div>
                     @empty
                         <div style="grid-column: 1 / -1; display:flex; align-items:center; justify-content:center; min-height: 150px; color: var(--muted-foreground);">
-                            No sales data available.
+                            {{ __('messages.no_sales_data_available') }}
                         </div>
                     @endforelse
                 </div>
@@ -169,8 +169,8 @@
     <!-- Recent Orders -->
     <div class="card">
         <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 class="card-title" style="font-size: 1.0625rem;">Recent Orders</h3>
-            <a href="{{ route('orders.index') }}" class="btn btn-sm btn-ghost" style="font-size: 0.8125rem;">View All</a>
+            <h3 class="card-title" style="font-size: 1.0625rem;">{{ __('messages.recent_orders') }}</h3>
+            <a href="{{ route('orders.index') }}" class="btn btn-sm btn-ghost" style="font-size: 0.8125rem;">{{ __('messages.view_all') }}</a>
         </div>
         <div class="card-body" style="padding: 0;">
             @forelse($recentOrders as $order)
@@ -178,10 +178,10 @@
                     <div>
                         <div style="display: flex; align-items: center; gap: 0.5rem;">
                             <span style="font-weight: 600; color: var(--foreground); letter-spacing: -0.01em;">{{ $order['order_number'] }}</span>
-                            <span style="font-size: 0.8125rem; color: var(--muted-foreground);">by {{ $order['customer_name'] }}</span>
+                            <span style="font-size: 0.8125rem; color: var(--muted-foreground);">{{ __('messages.by') }} {{ $order['customer_name'] }}</span>
                         </div>
                         <div style="font-size: 0.875rem; color: var(--muted-foreground); margin-top: 0.25rem;">
-                            {{ $order['placed_at'] }} · {{ $order['item_count'] }} item{{ $order['item_count'] === 1 ? '' : 's' }}
+                            {{ $order['placed_at'] }} · {{ $order['item_count'] }} {{ $order['item_count'] === 1 ? __('messages.item') : __('messages.items') }}
                         </div>
                     </div>
                     <div style="text-align: right;">
@@ -194,7 +194,7 @@
                 </div>
             @empty
                 <div class="empty-state" style="padding: 2rem;">
-                    <p class="empty-state-description">No orders placed yet.</p>
+                    <p class="empty-state-description">{{ __('messages.no_orders_placed') }}</p>
                 </div>
             @endforelse
         </div>
@@ -205,8 +205,8 @@
     <!-- Top Selling Products -->
     <div class="card">
         <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 class="card-title" style="font-size: 1.0625rem;">Top Selling Products</h3>
-            <a href="{{ route('products.index') }}" class="btn btn-sm btn-ghost" style="font-size: 0.8125rem;">View Catalog</a>
+            <h3 class="card-title" style="font-size: 1.0625rem;">{{ __('messages.top_selling_products') }}</h3>
+            <a href="{{ route('products.index') }}" class="btn btn-sm btn-ghost" style="font-size: 0.8125rem;">{{ __('messages.view_catalog') }}</a>
         </div>
         <div class="card-body" style="padding: 0;">
             @forelse($topSelling as $product)
@@ -223,17 +223,17 @@
                         </div>
                         <div>
                             <div style="font-weight: 600; font-size: 0.9375rem; color: var(--foreground);">{{ $product['name'] }}</div>
-                            <div style="font-size: 0.8125rem; color: var(--muted-foreground);">SKU: {{ $product['sku'] }}</div>
+                            <div style="font-size: 0.8125rem; color: var(--muted-foreground);">{{ __('messages.sku_label', ['sku' => $product['sku']]) }}</div>
                         </div>
                     </div>
                     <div style="text-align: right;">
                         <div style="font-weight: 700; font-size: 0.9375rem;">{{ $product['formatted_revenue'] }}</div>
-                        <div style="font-size: 0.8125rem; color: var(--muted-foreground); margin-top: 0.15rem;">{{ $product['total_qty'] }} sold</div>
+                        <div style="font-size: 0.8125rem; color: var(--muted-foreground); margin-top: 0.15rem;">{{ $product['total_qty'] }} {{ __('messages.sold') }}</div>
                     </div>
                 </div>
             @empty
                 <div class="empty-state" style="padding: 2rem;">
-                    <p class="empty-state-description">No sales data available yet.</p>
+                    <p class="empty-state-description">{{ __('messages.no_sales_data_available') }}</p>
                 </div>
             @endforelse
         </div>
@@ -246,9 +246,9 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
-                Low Stock Alerts
+                {{ __('messages.low_stock_alerts') }}
             </h3>
-            <span class="badge badge-danger">Attention Required</span>
+            <span class="badge badge-danger">{{ __('messages.attention_required') }}</span>
         </div>
         <div class="card-body" style="padding: 0;">
             @forelse($lowStock as $product)
@@ -265,17 +265,17 @@
                         </div>
                         <div>
                             <div style="font-weight: 600; font-size: 0.9375rem; color: var(--foreground);">{{ $product['name'] }}</div>
-                            <div style="font-size: 0.8125rem; color: var(--muted-foreground);">SKU: {{ $product['sku'] }}</div>
+                            <div style="font-size: 0.8125rem; color: var(--muted-foreground);">{{ __('messages.sku_label', ['sku' => $product['sku']]) }}</div>
                         </div>
                     </div>
                     <div style="text-align: right;">
-                        <span class="badge {{ $product['status_class'] }}" style="font-weight: 600;">{{ $product['qty'] }} left</span>
+                        <span class="badge {{ $product['status_class'] }}" style="font-weight: 600;">{{ $product['qty'] }} {{ __('messages.left_in_stock') }}</span>
                         <div style="font-size: 0.8125rem; color: var(--muted-foreground); margin-top: 0.25rem;">{{ $product['status'] }}</div>
                     </div>
                 </div>
             @empty
                 <div class="empty-state" style="padding: 2rem;">
-                    <p class="empty-state-description" style="color: var(--success);">All products are well stocked!</p>
+                    <p class="empty-state-description" style="color: var(--success);">{{ __('messages.all_products_well_stocked') }}</p>
                 </div>
             @endforelse
         </div>
@@ -286,7 +286,7 @@
     <!-- Latest Reviews -->
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title" style="font-size: 1.0625rem;">Latest Reviews</h3>
+            <h3 class="card-title" style="font-size: 1.0625rem;">{{ __('messages.latest_reviews') }}</h3>
         </div>
         <div class="card-body" style="padding: 0.5rem 1rem;">
             @forelse($latestReviews as $review)
@@ -308,7 +308,12 @@
                                     </svg>
                                 @endfor
                             </div>
-                            <span style="font-size: 0.8125rem; color: var(--muted-foreground);">on <strong style="color: var(--foreground);">{{ $review['product_name'] }}</strong></span>
+                            <span style="font-size: 0.8125rem; color: var(--muted-foreground); display:flex; align-items:center; gap:0.5rem;">{{ __('messages.product_label') }} <strong style="color: var(--foreground); display:flex; align-items:center; gap:0.5rem;">
+                                @if(!empty($review['product_image']))
+                                    <img src="{{ $review['product_image'] }}" alt="{{ $review['product_name'] }}" style="width:18px; height:18px; object-fit:cover; border-radius:4px; border:1px solid var(--border)">
+                                @endif
+                                {{ $review['product_name'] }}
+                            </strong></span>
                         </div>
                         <p style="font-size: 0.875rem; color: var(--muted-foreground); margin: 0.5rem 0 0 0; line-height: 1.4;">
                             "{{ $review['comment'] }}"
@@ -317,7 +322,7 @@
                 </div>
             @empty
                 <div class="empty-state" style="padding: 2rem;">
-                    <p class="empty-state-description">No reviews yet.</p>
+                    <p class="empty-state-description">{{ __('messages.no_reviews_yet') }}</p>
                 </div>
             @endforelse
         </div>
@@ -326,18 +331,18 @@
     <!-- Recent Transactions -->
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title" style="font-size: 1.0625rem;">Recent Transactions</h3>
+            <h3 class="card-title" style="font-size: 1.0625rem;">{{ __('messages.recent_transactions') }}</h3>
         </div>
         <div class="card-body" style="padding: 0;">
             <div class="table-container" style="border: none;">
                 <table class="table" style="font-size: 0.875rem;">
                     <thead>
                         <tr style="border-bottom: 1px solid var(--border);">
-                            <th style="padding: 0.75rem 1rem; text-align: left; color: var(--muted-foreground); font-weight: 500;">Txn ID</th>
-                            <th style="padding: 0.75rem 1rem; text-align: left; color: var(--muted-foreground); font-weight: 500;">Customer</th>
-                            <th style="padding: 0.75rem 1rem; text-align: center; color: var(--muted-foreground); font-weight: 500;">Method</th>
-                            <th style="padding: 0.75rem 1rem; text-align: right; color: var(--muted-foreground); font-weight: 500;">Amount</th>
-                            <th style="padding: 0.75rem 1rem; text-align: right; color: var(--muted-foreground); font-weight: 500;">Status</th>
+                            <th style="padding: 0.75rem 1rem; text-align: left; color: var(--muted-foreground); font-weight: 500;">{{ __('messages.txn_id') }}</th>
+                            <th style="padding: 0.75rem 1rem; text-align: left; color: var(--muted-foreground); font-weight: 500;">{{ __('messages.customer') }}</th>
+                            <th style="padding: 0.75rem 1rem; text-align: center; color: var(--muted-foreground); font-weight: 500;">{{ __('messages.method') }}</th>
+                            <th style="padding: 0.75rem 1rem; text-align: right; color: var(--muted-foreground); font-weight: 500;">{{ __('messages.amount') }}</th>
+                            <th style="padding: 0.75rem 1rem; text-align: right; color: var(--muted-foreground); font-weight: 500;">{{ __('messages.status_label') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -346,7 +351,7 @@
                                 <td style="padding: 0.75rem 1rem; font-weight: 600; font-family: monospace; color: var(--foreground);">{{ $txn['transaction_id'] }}</td>
                                 <td style="padding: 0.75rem 1rem; color: var(--muted-foreground);">
                                     <div style="font-weight: 500; color: var(--foreground);">{{ $txn['customer_name'] }}</div>
-                                    <div style="font-size: 0.75rem; color: var(--muted-foreground);">Order: {{ $txn['order_number'] }}</div>
+                                    <div style="font-size: 0.75rem; color: var(--muted-foreground);">{{ __('messages.order_label', ['order_number' => $txn['order_number']]) }}</div>
                                 </td>
                                 <td style="padding: 0.75rem 1rem; text-align: center;">
                                     <span class="badge badge-secondary" style="font-size: 0.75rem; padding: 0.15rem 0.4rem;">{{ $txn['payment_method'] }}</span>
@@ -359,7 +364,7 @@
                         @empty
                             <tr>
                                 <td colspan="5" style="text-align: center; padding: 2rem; color: var(--muted-foreground);">
-                                    No transactions recorded yet.
+                                    {{ __('messages.no_transactions_recorded') }}
                                 </td>
                             </tr>
                         @endforelse

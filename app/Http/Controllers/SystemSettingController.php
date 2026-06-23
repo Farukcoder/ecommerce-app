@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\SystemSetting;
-use App\Support\CurrencyFormatter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -34,7 +33,7 @@ class SystemSettingController extends Controller
             return redirect()->route('system-settings.index')->with('success', 'System setting already exists. Use edit to update it.');
         }
 
-        $systemSetting = new SystemSetting();
+        $systemSetting = new SystemSetting;
         $systemSetting->fill($this->validatedAttributes($request));
         $systemSetting->save();
 
@@ -106,6 +105,10 @@ class SystemSettingController extends Controller
             'available_currencies.*.code' => ['nullable', 'string', 'max:10'],
             'available_currencies.*.symbol' => ['nullable', 'string', 'max:10'],
             'available_currencies.*.exchange_rate' => ['nullable', 'numeric', 'min:0'],
+            'default_locale' => ['required', 'string', 'max:10'],
+            'available_locales' => ['nullable', 'array'],
+            'available_locales.*.code' => ['nullable', 'string', 'max:10'],
+            'available_locales.*.name' => ['nullable', 'string', 'max:255'],
         ]);
 
         $fileFields = [
@@ -184,7 +187,7 @@ class SystemSettingController extends Controller
                     'details' => $details,
                 ];
             })
-            ->filter(fn ($item) => $item['title'] !== '' || !empty($item['details']))
+            ->filter(fn ($item) => $item['title'] !== '' || ! empty($item['details']))
             ->values()
             ->all();
 
@@ -210,6 +213,31 @@ class SystemSettingController extends Controller
                     'code' => $defaultCode,
                     'symbol' => $validated['currency_symbol'],
                     'exchange_rate' => 1,
+                    'is_default' => true,
+                ],
+            ];
+        }
+
+        $defaultLocale = strtolower((string) $validated['default_locale']);
+        $validated['default_locale'] = $defaultLocale;
+
+        $validated['available_locales'] = collect($request->input('available_locales', []))
+            ->map(function (array $item) use ($defaultLocale) {
+                return [
+                    'code' => strtolower(trim((string) ($item['code'] ?? ''))),
+                    'name' => trim((string) ($item['name'] ?? '')),
+                    'is_default' => strtolower(trim((string) ($item['code'] ?? ''))) === $defaultLocale,
+                ];
+            })
+            ->filter(fn (array $item) => $item['code'] !== '')
+            ->values()
+            ->all();
+
+        if (empty($validated['available_locales'])) {
+            $validated['available_locales'] = [
+                [
+                    'code' => $defaultLocale,
+                    'name' => $defaultLocale === 'bn' ? 'Bangla' : 'English',
                     'is_default' => true,
                 ],
             ];
@@ -268,6 +296,11 @@ class SystemSettingController extends Controller
             'currency_decimal_separator' => '.',
             'available_currencies' => [
                 ['code' => 'BDT', 'symbol' => '৳', 'exchange_rate' => 1, 'is_default' => true],
+            ],
+            'default_locale' => 'en',
+            'available_locales' => [
+                ['code' => 'en', 'name' => 'English', 'is_default' => true],
+                ['code' => 'bn', 'name' => 'Bangla', 'is_default' => false],
             ],
         ];
     }

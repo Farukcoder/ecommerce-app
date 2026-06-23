@@ -56,7 +56,7 @@
                     <label for="password" class="form-label">
                         New Password <span class="form-label-optional">(leave blank to keep current)</span>
                     </label>
-                    <input type="password" id="password" name="password" class="form-input @error('password') is-invalid @enderror" placeholder="••••••••">
+                    <input type="password" id="password" name="password" class="form-input @error('password') is-invalid @enderror" placeholder="{{ __('messages.password_placeholder') }}">
                     @error('password')
                         <span class="form-error">{{ $message }}</span>
                     @enderror
@@ -64,7 +64,7 @@
 
                 <div class="form-group">
                     <label for="password_confirmation" class="form-label">Confirm New Password</label>
-                    <input type="password" id="password_confirmation" name="password_confirmation" class="form-input" placeholder="••••••••">
+                    <input type="password" id="password_confirmation" name="password_confirmation" class="form-input" placeholder="{{ __('messages.password_placeholder') }}">
                 </div>
 
                 <div class="form-group">
@@ -111,9 +111,9 @@
                         <div style="font-weight: 600; color: var(--foreground); display: flex; align-items: center; gap: 0.5rem;">
                             {{ $editUser->name }}
                             @if(method_exists($editUser, 'isSuspended') && $editUser->isSuspended())
-                                <span class="badge badge-danger">Suspended</span>
+                                <span class="badge badge-danger">{{ __('messages.suspended') }}</span>
                             @else
-                                <span class="badge badge-success">Active</span>
+                                <span class="badge badge-success">{{ __('messages.active') }}</span>
                             @endif
                         </div>
                         <div style="font-size: 0.875rem; color: var(--muted-foreground);">Member since {{ $editUser->created_at->format('M d, Y') }}</div>
@@ -236,7 +236,7 @@
                     <label for="reason" class="form-label">
                         Reason for suspension <span class="form-label-optional">(optional)</span>
                     </label>
-                    <textarea id="reason" name="reason" class="form-textarea" rows="3" placeholder="Enter a reason for suspension..."></textarea>
+                    <textarea id="reason" name="reason" class="form-textarea" rows="3" placeholder="{{ __('messages.enter_suspension_reason') }}"></textarea>
                 </div>
             </div>
             <div class="modal-footer">

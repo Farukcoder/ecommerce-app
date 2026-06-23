@@ -40,25 +40,25 @@
         data-sidebar-accordion-open-sections="{{ config('tyro-dashboard.branding.sidebar_accordion_open_sections', 1) }}">
         <!-- Main Menu -->
         <div class="sidebar-section">
-            <div class="sidebar-section-title">Menu</div>
+            <div class="sidebar-section-title">{{ __('messages.menu') }}</div>
             <a href="{{ route($dashboardRoute::name('index')) }}" class="sidebar-link {{ request()->routeIs($dashboardRoute::pattern('index')) ? 'active' : '' }}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
-                Dashboard
+                {{ __('messages.dashboard') }}
             </a>
             <!-- <a href="{{ route($dashboardRoute::name('profile')) }}" class="sidebar-link {{ request()->routeIs($dashboardRoute::pattern('profile*')) ? 'active' : '' }}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                My Profile
+                {{ __('messages.my_profile') }}
             </a> -->
             @if(config('tyro-dashboard.features.invitation_system', true))
             <a href="{{ route($dashboardRoute::name('invitations.index')) }}" class="sidebar-link {{ request()->routeIs($dashboardRoute::pattern('invitations.index')) ? 'active' : '' }}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                 </svg>
-                My Invitation Link
+                {{ __('messages.my_invitation_link') }}
             </a>
             @endif
 
@@ -94,77 +94,77 @@
         </div>
 
         <div class="sidebar-section">
-            <div class="sidebar-section-title">Order Management</div>
+            <div class="sidebar-section-title">{{ __('messages.order_management') }}</div>
             <a href="{{ route('orders.index') }}" class="sidebar-link {{ request()->routeIs('orders.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
-                Orders
+                {{ __('messages.orders') }}
             </a>
         </div>
 
         <div class="sidebar-section">
-            <div class="sidebar-section-title">Product Management</div>
+            <div class="sidebar-section-title">{{ __('messages.product_management') }}</div>
             <a href="{{ route('products.index') }}" class="sidebar-link {{ request()->routeIs('products.*') && !request()->routeIs('products.stock') ? 'active' : '' }}" style="padding-left:2.75rem;">
-                All Products
+                {{ __('messages.all_products') }}
             </a>
             <a href="{{ route('categories.index') }}" class="sidebar-link {{ request()->routeIs('categories.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
-                Categories
+                {{ __('messages.categories') }}
             </a>
             <a href="{{ route('attributes.index') }}" class="sidebar-link {{ request()->routeIs('attributes.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
-                Attributes
+                {{ __('messages.attributes') }}
             </a>
             <a href="{{ route('brands.index') }}" class="sidebar-link {{ request()->routeIs('brands.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
-                Brands
+                {{ __('messages.brands') }}
             </a>
 
             <a href="{{ route('products.stock') }}" class="sidebar-link {{ request()->routeIs('products.stock') ? 'active' : '' }}" style="padding-left:2.75rem;">
-                Stock
+                {{ __('messages.stock') }}
             </a>
             <a href="{{ route('reviews.index') }}" class="sidebar-link {{ request()->routeIs('reviews.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
-                Product Review
+                {{ __('messages.product_review') }}
             </a>
         </div>
 
         <div class="sidebar-section">
-            <div class="sidebar-section-title">Customer Management</div>
+            <div class="sidebar-section-title">{{ __('messages.customer_management') }}</div>
             <a href="{{ route('customers.index') }}" class="sidebar-link {{ request()->routeIs('customers.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
-                Customers
+                {{ __('messages.customers') }}
             </a>
         </div>
 
          <div class="sidebar-section">
-            <div class="sidebar-section-title">Report Management</div>
+            <div class="sidebar-section-title">{{ __('messages.report_management') }}</div>
             <a href="{{ route('reports.sales') }}" class="sidebar-link {{ request()->routeIs('reports.sales') ? 'active' : '' }}" style="padding-left:2.75rem;">
-                Sales Report
+                {{ __('messages.sales_report') }}
             </a>
         </div>
 
         <div class="sidebar-section">
-            <div class="sidebar-section-title">Marketing & Promotions</div>
+            <div class="sidebar-section-title">{{ __('messages.marketing_promotions') }}</div>
             <a href="" class="sidebar-link" style="padding-left:2.75rem;">
-                Promotion & Offers
+                {{ __('messages.promotion_offers') }}
             </a>
             <a href="" class="sidebar-link" style="padding-left:2.75rem;">
-                Marketing Analytics
+                {{ __('messages.marketing_analytics') }}
             </a>
         </div>
 
         <div class="sidebar-section">
-            <div class="sidebar-section-title"> Support & Communication</div>
+            <div class="sidebar-section-title">{{ __('messages.support_communication') }}</div>
             <a href="{{ route('contact-us.index') }}" class="sidebar-link {{ request()->routeIs('contact-us.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
-                Contact Us
+                {{ __('messages.contact_us') }}
             </a>
             <a href="{{ route('support-tickets.index') }}" class="sidebar-link {{ request()->routeIs('support-tickets.*') ? 'active' : '' }}" style="padding-left:2.75rem;">
-                Ticket
+                {{ __('messages.ticket') }}
             </a>
         </div>
 
         <!-- Media -->
         <div class="sidebar-section">
-            <div class="sidebar-section-title">Media</div>
+            <div class="sidebar-section-title">{{ __('messages.media') }}</div>
             <a href="{{ route($dashboardRoute::name('media')) }}" class="sidebar-link {{ request()->routeIs($dashboardRoute::pattern('media*')) ? 'active' : '' }}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                 </svg>
-                Media Library
+                {{ __('messages.media_library') }}
             </a>
         </div>
 
@@ -204,7 +204,7 @@
 
         @if(!empty($accessibleResources))
         <div class="sidebar-section">
-            <div class="sidebar-section-title">Resources</div>
+            <div class="sidebar-section-title">{{ __('messages.resources') }}</div>
             @foreach($accessibleResources as $key => $resource)
                 <a href="{{ route($dashboardRoute::name('resources.index'), $key) }}" class="sidebar-link {{ request()->is('*resources/'.$key.'*') ? 'active' : '' }}">
                     @if(isset($resource['icon']))
@@ -222,7 +222,7 @@
 
         @if(!config('tyro-dashboard.disable_examples', false) && !app()->environment('production'))
         <div class="sidebar-section">
-            <div class="sidebar-section-title">Examples</div>
+            <div class="sidebar-section-title">{{ __('messages.examples') }}</div>
             <a href="{{ route($dashboardRoute::name('components')) }}" class="sidebar-link {{ (request()->routeIs($dashboardRoute::pattern('components')) || request()->routeIs($dashboardRoute::pattern('examples.components'))) ? 'active' : '' }}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h3a2 2 0 012 2v3a2 2 0 01-2 2H6a2 2 0 01-2-2V6z" />
@@ -230,7 +230,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 15a2 2 0 012-2h3a2 2 0 012 2v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 15a2 2 0 012-2h3a2 2 0 012 2v3a2 2 0 01-2 2h-3a2 2 0 01-2-2v-3z" />
                 </svg>
-                Dashboard Components
+                {{ __('messages.dashboard_components') }}
             </a>
 
             <a href="{{ route($dashboardRoute::name('widgets')) }}" class="sidebar-link {{ (request()->routeIs($dashboardRoute::pattern('widgets')) || request()->routeIs($dashboardRoute::pattern('examples.widgets'))) ? 'active' : '' }}">
@@ -240,7 +240,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 5h6v6H5z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 13h6v6h-6z" />
                 </svg>
-                Widgets
+                {{ __('messages.widgets') }}
             </a>
 
             @if(class_exists('HasinHayder\\TyroDashboardComponents\\TyroDashboardComponentsServiceProvider'))
@@ -248,7 +248,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Form Components
+                {{ __('messages.form_components') }}
             </a>
             @endif
         </div>

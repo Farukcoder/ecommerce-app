@@ -44,6 +44,23 @@
         'symbol' => $preset['symbol'],
         'name' => $preset['name']
     ])->values();
+
+    $availableLocales = old('available_locales', $systemSetting->available_locales ?? []);
+    if (!is_array($availableLocales) || empty($availableLocales)) {
+        $availableLocales = [
+            ['code' => 'en', 'name' => 'English', 'is_default' => true],
+            ['code' => 'bn', 'name' => 'Bangla', 'is_default' => false],
+        ];
+    }
+
+    $localePresets = [
+        'en' => ['code' => 'en', 'name' => 'English'],
+        'bn' => ['code' => 'bn', 'name' => 'Bangla'],
+        'ar' => ['code' => 'ar', 'name' => 'Arabic'],
+        'es' => ['code' => 'es', 'name' => 'Spanish'],
+        'fr' => ['code' => 'fr', 'name' => 'French'],
+        'hi' => ['code' => 'hi', 'name' => 'Hindi'],
+    ];
 @endphp
 
 <form action="{{ $formAction }}" method="POST" enctype="multipart/form-data">
@@ -244,6 +261,47 @@
                 </div>
                 <div style="margin-top:0.75rem;">
                     <button type="button" class="btn btn-secondary btn-sm" id="add-currency-row">Add Currency</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 1.5rem;">
+            <div class="card-header">
+                <h3 class="card-title">Language Settings</h3>
+            </div>
+            <div class="card-body">
+                <p class="form-hint" style="margin-bottom: 1rem;">Configure the default store language and active languages. You can select English (en) and Bangla (bn) for now.</p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="default_locale" class="form-label">Default Language</label>
+                        <select id="default_locale" name="default_locale" class="form-select @error('default_locale') is-invalid @enderror" required>
+                            @foreach($localePresets as $code => $preset)
+                                <option value="{{ $code }}" {{ $fieldValue('default_locale', 'en') === $code ? 'selected' : '' }}>{{ $preset['name'] }} ({{ $code }})</option>
+                            @endforeach
+                        </select>
+                        @error('default_locale')<span class="form-error">{{ $message }}</span>@enderror
+                    </div>
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <h4 style="font-size: 0.9375rem; font-weight: 600; margin-bottom: 0.75rem;">Available Languages</h4>
+                    <div id="available-locale-rows" style="display:flex; flex-direction:column; gap:0.75rem;">
+                        @foreach($availableLocales as $index => $locale)
+                            <div class="available-locale-row" style="display:grid; grid-template-columns: 1fr 2fr auto; gap:0.75rem; align-items:center;">
+                                <select name="available_locales[{{ $index }}][code]" class="form-select locale-code-select">
+                                    @foreach($localePresets as $code => $preset)
+                                        <option value="{{ $code }}" data-name="{{ $preset['name'] }}" {{ ($locale['code'] ?? '') === $code ? 'selected' : '' }}>{{ $code }}</option>
+                                    @endforeach
+                                </select>
+                                <input type="text" name="available_locales[{{ $index }}][name]" class="form-input locale-name-input" placeholder="Name" value="{{ $locale['name'] ?? '' }}">
+                                <button type="button" class="btn btn-ghost" style="color: var(--danger);" data-remove-locale-row aria-label="Remove language">×</button>
+                            </div>
+                        @endforeach
+                    </div>
+                    <div style="margin-top:0.75rem;">
+                        <button type="button" class="btn btn-secondary btn-sm" id="add-locale-row">Add Language</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -707,6 +765,70 @@
 
             const row = button.closest('.available-currency-row');
             if (row && currencyRows.querySelectorAll('.available-currency-row').length > 1) {
+                row.remove();
+            }
+        });
+    }
+
+    const localeRows = document.getElementById('available-locale-rows');
+    const addLocaleButton = document.getElementById('add-locale-row');
+    let nextLocaleIndex = localeRows ? localeRows.querySelectorAll('.available-locale-row').length : 0;
+
+    const localePresets = @json(array_values($localePresets));
+
+    if (localeRows && addLocaleButton) {
+        const bindLocaleRow = (row) => {
+            const select = row.querySelector('.locale-code-select');
+            const nameInput = row.querySelector('.locale-name-input');
+            if (!select || !nameInput) {
+                return;
+            }
+
+            select.addEventListener('change', () => {
+                const option = select.selectedOptions[0];
+                if (option?.dataset.name) {
+                    nameInput.value = option.dataset.name;
+                }
+            });
+        };
+
+        localeRows.querySelectorAll('.available-locale-row').forEach(bindLocaleRow);
+
+        const createLocaleRow = () => {
+            const index = nextLocaleIndex++;
+            const row = document.createElement('div');
+            row.className = 'available-locale-row';
+            row.style.display = 'grid';
+            row.style.gridTemplateColumns = '1fr 2fr auto';
+            row.style.gap = '0.75rem';
+            row.style.alignItems = 'center';
+
+            const options = localePresets.map((preset) =>
+                `<option value="${preset.code}" data-name="${preset.name}">${preset.code}</option>`
+            ).join('');
+
+            row.innerHTML = `
+                <select name="available_locales[${index}][code]" class="form-select locale-code-select">${options}</select>
+                <input type="text" name="available_locales[${index}][name]" class="form-input locale-name-input" placeholder="Name" value="${localePresets[0]?.name || ''}">
+                <button type="button" class="btn btn-ghost" style="color: var(--danger);" data-remove-locale-row aria-label="Remove language">×</button>
+            `;
+
+            bindLocaleRow(row);
+            return row;
+        };
+
+        addLocaleButton.addEventListener('click', () => {
+            localeRows.appendChild(createLocaleRow());
+        });
+
+        localeRows.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-remove-locale-row]');
+            if (!button) {
+                return;
+            }
+
+            const row = button.closest('.available-locale-row');
+            if (row && localeRows.querySelectorAll('.available-locale-row').length > 1) {
                 row.remove();
             }
         });

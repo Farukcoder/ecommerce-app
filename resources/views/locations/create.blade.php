@@ -84,12 +84,12 @@
             <div class="grid-2">
                 <div class="form-group">
                     <label for="name" class="form-label">Name (English) <span style="color:var(--destructive);">*</span></label>
-                    <input type="text" id="name" name="name" class="form-input @error('name') is-invalid @enderror" value="{{ old('name') }}" placeholder="e.g. Mirpur" required maxlength="255">
+                    <input type="text" id="name" name="name" class="form-input @error('name') is-invalid @enderror" value="{{ old('name') }}" placeholder="{{ __('messages.location_en_example') }}" required maxlength="255">
                     @error('name')<span class="form-error">{{ $message }}</span>@enderror
                 </div>
                 <div class="form-group">
                     <label for="bn_name" class="form-label">Name (Bengali) <span style="color:var(--destructive);">*</span></label>
-                    <input type="text" id="bn_name" name="bn_name" class="form-input @error('bn_name') is-invalid @enderror" value="{{ old('bn_name') }}" placeholder="e.g. মিরপুর" required maxlength="255">
+                    <input type="text" id="bn_name" name="bn_name" class="form-input @error('bn_name') is-invalid @enderror" value="{{ old('bn_name') }}" placeholder="{{ __('messages.location_bn_example') }}" required maxlength="255">
                     @error('bn_name')<span class="form-error">{{ $message }}</span>@enderror
                 </div>
             </div>
@@ -170,31 +170,31 @@ function handleTypeChange(type) {
         // Upazila requires Division -> District
         divGroup.style.display = 'block';
         distGroup.style.display = 'block';
-        
+
         divSelect.setAttribute('name', 'temp_division_id');
         divSelect.setAttribute('required', 'required');
-        
+
         distSelect.setAttribute('name', 'district_id');
         distSelect.setAttribute('required', 'required');
-        
+
         filterDistricts(divSelect.value);
     } else if (type === 'union') {
         // Union requires Division -> District -> Upazila
         divGroup.style.display = 'block';
         distGroup.style.display = 'block';
         upzGroup.style.display = 'block';
-        
+
         divSelect.setAttribute('name', 'temp_division_id');
         divSelect.setAttribute('required', 'required');
-        
+
         distSelect.setAttribute('name', 'temp_district_id');
         distSelect.setAttribute('required', 'required');
-        
+
         upzSelect.setAttribute('name', 'upazila_id');
         upzSelect.setAttribute('required', 'required');
-        
+
         document.getElementById('group-url').style.display = 'block';
-        
+
         filterDistricts(divSelect.value);
         filterUpazilas(distSelect.value);
     }
@@ -203,24 +203,24 @@ function handleTypeChange(type) {
 function filterDistricts(divisionId) {
     const distSelect = document.getElementById('chain-district');
     const currentValue = distSelect.value;
-    
+
     // Clear out options
     distSelect.innerHTML = '';
-    
+
     // Re-add options matching division_id
     const filtered = districtOptions.filter(opt => {
         return opt.value === '' || !divisionId || opt.dataset.divisionId === divisionId;
     });
-    
+
     filtered.forEach(opt => distSelect.appendChild(opt));
-    
+
     // Restore selection or reset
     if (filtered.some(opt => opt.value === currentValue)) {
         distSelect.value = currentValue;
     } else {
         distSelect.value = '';
     }
-    
+
     // Cascade change to upazilas
     filterUpazilas(distSelect.value);
 }
@@ -229,10 +229,10 @@ function filterUpazilas(districtId) {
     const upzSelect = document.getElementById('chain-upazila');
     const currentValue = upzSelect.value;
     const divisionId = document.getElementById('chain-division').value;
-    
+
     // Clear out options
     upzSelect.innerHTML = '';
-    
+
     // Re-add options matching district_id (or division_id as fallback)
     const filtered = upazilaOptions.filter(opt => {
         if (opt.value === '') return true;
@@ -240,9 +240,9 @@ function filterUpazilas(districtId) {
         if (divisionId) return opt.dataset.divisionId === divisionId;
         return true;
     });
-    
+
     filtered.forEach(opt => upzSelect.appendChild(opt));
-    
+
     // Restore selection or reset
     if (filtered.some(opt => opt.value === currentValue)) {
         upzSelect.value = currentValue;

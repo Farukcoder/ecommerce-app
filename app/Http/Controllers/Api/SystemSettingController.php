@@ -18,7 +18,7 @@ class SystemSettingController extends Controller
         $setting = SystemSetting::query()->latest('id')->first();
         $headerSetting = HeaderSetting::query()->latest('id')->first();
 
-        if (!$setting) {
+        if (! $setting) {
             return response()->json(['data' => null]);
         }
 
@@ -65,6 +65,11 @@ class SystemSettingController extends Controller
                 'product_default_image_url' => $setting->product_default_image_url,
                 'currency' => CurrencyFormatter::toApiArray(),
                 'show_currency_switcher' => (bool) ($headerSetting?->show_currency_switcher ?? true),
+                'default_locale' => $setting->default_locale ?? 'en',
+                'available_locales' => $setting->available_locales ?? [
+                    ['code' => 'en', 'name' => 'English', 'is_default' => true],
+                    ['code' => 'bn', 'name' => 'Bangla', 'is_default' => false],
+                ],
                 'created_at' => $setting->created_at?->toISOString(),
                 'updated_at' => $setting->updated_at?->toISOString(),
             ],

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\RequireAdmin;
+use App\Http\Middleware\SetLocaleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,7 +15,13 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'requireAdmin' => \App\Http\Middleware\RequireAdmin::class,
+            'requireAdmin' => RequireAdmin::class,
+        ]);
+        $middleware->web(append: [
+            SetLocaleMiddleware::class,
+        ]);
+        $middleware->api(append: [
+            SetLocaleMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

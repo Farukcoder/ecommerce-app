@@ -45,7 +45,7 @@
                     @csrf
                     @method('PATCH')
                     <div class="form-group">
-                        <textarea name="admin_note" class="form-input" rows="5" placeholder="Add a private note for your team…">{{ old('admin_note', $message->admin_note) }}</textarea>
+                        <textarea name="admin_note" class="form-input" rows="5" placeholder="{{ __('messages.add_private_note') }}">{{ old('admin_note', $message->admin_note) }}</textarea>
                         @error('admin_note')
                             <div class="form-error">{{ $message }}</div>
                         @enderror

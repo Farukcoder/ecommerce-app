@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Support\CurrencyFormatter;
 use App\Traits\Auditable;
+use Illuminate\Database\Eloquent\Model;
 
 class SystemSetting extends Model
 {
@@ -48,6 +49,8 @@ class SystemSetting extends Model
         'currency_thousands_separator',
         'currency_decimal_separator',
         'available_currencies',
+        'default_locale',
+        'available_locales',
     ];
 
     protected $casts = [
@@ -55,13 +58,14 @@ class SystemSetting extends Model
         'about_team_members' => 'array',
         'contact_information' => 'array',
         'available_currencies' => 'array',
+        'available_locales' => 'array',
         'currency_decimal_places' => 'integer',
     ];
 
     protected static function booted(): void
     {
-        static::saved(fn () => \App\Support\CurrencyFormatter::clearCache());
-        static::deleted(fn () => \App\Support\CurrencyFormatter::clearCache());
+        static::saved(fn () => CurrencyFormatter::clearCache());
+        static::deleted(fn () => CurrencyFormatter::clearCache());
     }
 
     public function getSiteIconUrlAttribute(): ?string
@@ -76,12 +80,12 @@ class SystemSetting extends Model
 
     public function getSystemLogoWhitePdfSourceAttribute(): ?string
     {
-        if (!$this->system_logo_white) {
+        if (! $this->system_logo_white) {
             return null;
         }
 
-        $path = public_path('storage/' . $this->system_logo_white);
-        if (!file_exists($path)) {
+        $path = public_path('storage/'.$this->system_logo_white);
+        if (! file_exists($path)) {
             return null;
         }
 
@@ -108,17 +112,19 @@ class SystemSetting extends Model
                     $styles[$className] = $rules;
                 }
 
-                $svg = preg_replace_callback('/class=["\']([a-zA-Z0-9_-]+)["\']/', function($m) use ($styles) {
+                $svg = preg_replace_callback('/class=["\']([a-zA-Z0-9_-]+)["\']/', function ($m) use ($styles) {
                     $className = $m[1];
                     if (isset($styles[$className])) {
                         $attrs = [];
                         foreach ($styles[$className] as $k => $v) {
                             if (in_array($k, ['fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-miterlimit', 'opacity'])) {
-                                $attrs[] = $k . '="' . $v . '"';
+                                $attrs[] = $k.'="'.$v.'"';
                             }
                         }
+
                         return implode(' ', $attrs);
                     }
+
                     return $m[0];
                 }, $svg);
             }
@@ -126,11 +132,12 @@ class SystemSetting extends Model
             $svg = preg_replace('/<\?xml.*?\?>/', '', $svg);
             $svg = preg_replace('/<defs>.*?<\/defs>/s', '', $svg);
 
-            return 'data:image/svg+xml;base64,' . base64_encode(trim($svg));
+            return 'data:image/svg+xml;base64,'.base64_encode(trim($svg));
         }
 
         $data = file_get_contents($path);
-        return 'data:image/' . $extension . ';base64,' . base64_encode($data);
+
+        return 'data:image/'.$extension.';base64,'.base64_encode($data);
     }
 
     public function getSystemLogoBlackUrlAttribute(): ?string
@@ -175,6 +182,6 @@ class SystemSetting extends Model
 
     protected function assetUrl(?string $path): ?string
     {
-        return $path ? asset('storage/' . $path) : null;
+        return $path ? asset('storage/'.$path) : null;
     }
 }

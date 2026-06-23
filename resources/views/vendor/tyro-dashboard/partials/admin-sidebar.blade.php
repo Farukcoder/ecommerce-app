@@ -40,18 +40,18 @@
         data-sidebar-accordion-open-sections="{{ config('tyro-dashboard.branding.sidebar_accordion_open_sections', 1) }}">
         <!-- Main Menu -->
         <div class="sidebar-section">
-            <div class="sidebar-section-title">Menu</div>
+            <div class="sidebar-section-title">{{ __('messages.menu') }}</div>
             <a href="{{ route($dashboardRoute::name('index')) }}" class="sidebar-link {{ request()->routeIs($dashboardRoute::pattern('index')) ? 'active' : '' }}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
-                Dashboard
+                {{ __('messages.dashboard') }}
             </a>
             <a href="{{ route($dashboardRoute::name('profile')) }}" class="sidebar-link {{ request()->routeIs($dashboardRoute::pattern('profile*')) ? 'active' : '' }}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                My Profile
+                {{ __('messages.my_profile') }}
             </a>
 
             @if(!empty($commonMenuItems))
@@ -87,19 +87,19 @@
 
         <!-- Admin Menu -->
         <div class="sidebar-section">
-            <div class="sidebar-section-title">Administration</div>
+            <div class="sidebar-section-title">{{ __('messages.administration') }}</div>
             <a href="{{ route($dashboardRoute::name('users.index')) }}" class="sidebar-link {{ request()->routeIs($dashboardRoute::pattern('users.*')) ? 'active' : '' }}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
-                Users
+                {{ __('messages.users') }}
             </a>
             @if(config('tyro-dashboard.features.show_roles_menu', true))
             <a href="{{ route($dashboardRoute::name('roles.index')) }}" class="sidebar-link {{ request()->routeIs($dashboardRoute::pattern('roles.*')) ? 'active' : '' }}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
-                Roles
+                {{ __('messages.roles') }}
             </a>
             @endif
             @if(config('tyro-dashboard.features.show_privileges_menu', true))
@@ -107,7 +107,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                 </svg>
-                Privileges
+                {{ __('messages.privileges') }}
             </a>
             @endif
             @if(config('tyro-dashboard.features.invitation_system', true))
@@ -115,7 +115,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                 </svg>
-                Invitation Links
+                {{ __('messages.invitation_links') }}
             </a>
             @endif
 
@@ -135,7 +135,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Audit Logs
+                {{ __('messages.audit_logs') }}
             </a>
             @endif
 
@@ -145,7 +145,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 2l7 4v6c0 5-3.5 9.5-7 10-3.5-.5-7-5-7-10V6l7-4z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v20" />
                 </svg>
-                Tyro System Settings
+                {{ __('messages.tyro_system_settings') }}
             </a>
             @endif
 
@@ -154,7 +154,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                Locations
+                {{ __('messages.locations') }}
             </a>
 
             @if(!empty($adminMenuItems))
@@ -174,37 +174,37 @@
         </div>
 
         <div class="sidebar-section">
-            <div class="sidebar-section-title">Settings</div>
+            <div class="sidebar-section-title">{{ __('messages.settings') }}</div>
             <a href="{{ route('system-settings.index') }}" class="sidebar-link {{ request()->routeIs('system-settings.*') ? 'active' : '' }}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 15.5A3.5 3.5 0 1012 8a3.5 3.5 0 000 7.5z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a7.97 7.97 0 000-6l1.7-1.1-1.9-3.2-1.9.7a7.96 7.96 0 00-5.3-3.1L11.6 0h-3.2l-.4 2.3a7.96 7.96 0 00-5.3 3.1l-1.9-.7-1.9 3.2L0.6 9a7.97 7.97 0 000 6l-1.7 1.1 1.9 3.2 1.9-.7a7.96 7.96 0 005.3 3.1l.4 2.3h3.2l.4-2.3a7.96 7.96 0 005.3-3.1l1.9.7 1.9-3.2-1.7-1.1z" />
                 </svg>
-                System Setting
+                {{ __('messages.system_setting') }}
             </a>
             <a href="{{ route('header-settings.index') }}" class="sidebar-link {{ request()->routeIs('header-settings.*') ? 'active' : '' }}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M7 7v10M12 7v10M17 7v10" />
                 </svg>
-                Header Setting
+                {{ __('messages.header_setting') }}
             </a>
         </div>
 
         <!-- Media -->
         <div class="sidebar-section">
-            <div class="sidebar-section-title">Media</div>
+            <div class="sidebar-section-title">{{ __('messages.media') }}</div>
             <a href="{{ route($dashboardRoute::name('media')) }}" class="sidebar-link {{ request()->routeIs($dashboardRoute::pattern('media*')) ? 'active' : '' }}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                 </svg>
-                Media Library
+                {{ __('messages.media_library') }}
             </a>
         </div>
 
         @if(config('tyro-dashboard.features.show_resources_menu', true) && !empty($allResources ?? config('tyro-dashboard.resources')))
         <div class="sidebar-section">
-            <div class="sidebar-section-title">Resources</div>
+            <div class="sidebar-section-title">{{ __('messages.resources') }}</div>
             @foreach($allResources ?? config('tyro-dashboard.resources', []) as $key => $resource)
                 @php
                     // Check access (logic duplicated from Controller for view)
@@ -252,7 +252,7 @@
 
         @if(!config('tyro-dashboard.disable_examples', false) && !app()->environment('production'))
         <div class="sidebar-section">
-            <div class="sidebar-section-title">Examples</div>
+            <div class="sidebar-section-title">{{ __('messages.examples') }}</div>
             <a href="{{ route($dashboardRoute::name('components')) }}" class="sidebar-link {{ (request()->routeIs($dashboardRoute::pattern('components')) || request()->routeIs($dashboardRoute::pattern('examples.components'))) ? 'active' : '' }}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h3a2 2 0 012 2v3a2 2 0 01-2 2H6a2 2 0 01-2-2V6z" />
@@ -260,7 +260,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 15a2 2 0 012-2h3a2 2 0 012 2v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 15a2 2 0 012-2h3a2 2 0 012 2v3a2 2 0 01-2 2h-3a2 2 0 01-2-2v-3z" />
                 </svg>
-                Dashboard Components
+                {{ __('messages.dashboard_components') }}
             </a>
 
             <a href="{{ route($dashboardRoute::name('widgets')) }}" class="sidebar-link {{ (request()->routeIs($dashboardRoute::pattern('widgets')) || request()->routeIs($dashboardRoute::pattern('examples.widgets'))) ? 'active' : '' }}">
@@ -270,7 +270,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 5h6v6H5z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 13h6v6h-6z" />
                 </svg>
-                Widgets
+                {{ __('messages.widgets') }}
             </a>
 
             @if(class_exists('HasinHayder\\TyroDashboardComponents\\TyroDashboardComponentsServiceProvider'))
@@ -278,7 +278,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Form Components
+                {{ __('messages.form_components') }}
             </a>
             @endif
         </div>

@@ -33,7 +33,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="name" class="form-label">Name</label>
-                    <input type="text" id="name" name="name" class="form-input @error('name') is-invalid @enderror" value="{{ old('name') }}" required placeholder="John Doe">
+                    <input type="text" id="name" name="name" class="form-input @error('name') is-invalid @enderror" value="{{ old('name') }}" required placeholder="{{ __('messages.user_name_example') }}">
                     @error('name')
                         <span class="form-error">{{ $message }}</span>
                     @enderror
@@ -41,7 +41,7 @@
 
                 <div class="form-group">
                     <label for="email" class="form-label">Email</label>
-                    <input type="email" id="email" name="email" class="form-input @error('email') is-invalid @enderror" value="{{ old('email') }}" required placeholder="john@example.com">
+                    <input type="email" id="email" name="email" class="form-input @error('email') is-invalid @enderror" value="{{ old('email') }}" required placeholder="{{ __('messages.user_email_example') }}">
                     @error('email')
                         <span class="form-error">{{ $message }}</span>
                     @enderror
@@ -51,7 +51,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" id="password" name="password" class="form-input @error('password') is-invalid @enderror" required placeholder="••••••••">
+                    <input type="password" id="password" name="password" class="form-input @error('password') is-invalid @enderror" required placeholder="{{ __('messages.password_placeholder') }}">
                     @error('password')
                         <span class="form-error">{{ $message }}</span>
                     @enderror
@@ -59,7 +59,7 @@
 
                 <div class="form-group">
                     <label for="password_confirmation" class="form-label">Confirm Password</label>
-                    <input type="password" id="password_confirmation" name="password_confirmation" class="form-input" required placeholder="••••••••">
+                    <input type="password" id="password_confirmation" name="password_confirmation" class="form-input" required placeholder="{{ __('messages.password_placeholder') }}">
                 </div>
             </div>
 

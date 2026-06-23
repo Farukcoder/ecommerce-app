@@ -1,11 +1,11 @@
 @extends('tyro-dashboard::layouts.user')
 
-@section('title', 'Products')
+@section('title', __('messages.products'))
 
 @section('breadcrumb')
-<a href="{{ route($dashboardRoute::name('index')) }}">Dashboard</a>
+<a href="{{ route($dashboardRoute::name('index')) }}">{{ __('messages.dashboard') }}</a>
 <span class="breadcrumb-separator">/</span>
-<span>Products</span>
+<span>{{ __('messages.products') }}</span>
 @endsection
 
 @section('content')
@@ -14,21 +14,21 @@
 <div class="page-header">
     <div class="page-header-row">
         <div>
-            <h1 class="page-title">Products</h1>
-            <p class="page-description">Manage your product catalog, inventory and pricing.</p>
+            <h1 class="page-title">{{ __('messages.products') }}</h1>
+            <p class="page-description">{{ __('messages.manage_catalog_description') }}</p>
         </div>
         <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
             <a href="{{ route('products.import.form') }}" class="btn btn-secondary">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l-3-3m3 3l3-3M5 21h14" />
                 </svg>
-                Bulk Upload
+                {{ __('messages.bulk_upload') }}
             </a>
             <a href="{{ route('products.create') }}" class="btn btn-primary">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                Add Product
+                {{ __('messages.add_product') }}
             </a>
         </div>
     </div>
@@ -43,7 +43,7 @@
             </svg>
         </div>
         <div class="stat-content">
-            <div class="stat-label">Total Products</div>
+            <div class="stat-label">{{ __('messages.total_products') }}</div>
             <div class="stat-value" style="font-size:1.5rem;">{{ $products->total() }}</div>
         </div>
     </div>
@@ -54,7 +54,7 @@
             </svg>
         </div>
         <div class="stat-content">
-            <div class="stat-label">Published</div>
+            <div class="stat-label">{{ __('messages.published') }}</div>
             <div class="stat-value" style="font-size:1.5rem;">{{ $products->getCollection()->where('status', 'published')->count() }}</div>
         </div>
     </div>
@@ -65,7 +65,7 @@
             </svg>
         </div>
         <div class="stat-content">
-            <div class="stat-label">Drafts</div>
+            <div class="stat-label">{{ __('messages.drafts') }}</div>
             <div class="stat-value" style="font-size:1.5rem;">{{ $products->getCollection()->where('status', 'draft')->count() }}</div>
         </div>
     </div>
@@ -76,7 +76,7 @@
             </svg>
         </div>
         <div class="stat-content">
-            <div class="stat-label">Archived</div>
+            <div class="stat-label">{{ __('messages.archived') }}</div>
             <div class="stat-value" style="font-size:1.5rem;">{{ $products->getCollection()->where('status', 'archived')->count() }}</div>
         </div>
     </div>
@@ -91,30 +91,30 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
-                    <input type="text" name="search" class="form-input" placeholder="Search products by name or SKU…" value="{{ $filters['search'] ?? '' }}">
+                    <input type="text" name="search" class="form-input" placeholder="{{ __('messages.search_placeholder') }}" value="{{ $filters['search'] ?? '' }}">
                 </div>
                 <div class="filter-group">
-                    <label class="filter-label">Status:</label>
+                    <label class="filter-label">{{ __('messages.status') }}:</label>
                     <select name="status" class="form-select" style="min-width: 140px;">
-                        <option value="">All Status</option>
-                        <option value="published" {{ strtolower($filters['status'] ?? '') === 'published' ? 'selected' : '' }}>Published</option>
-                        <option value="draft"     {{ strtolower($filters['status'] ?? '') === 'draft' ? 'selected' : '' }}>Draft</option>
-                        <option value="archived"  {{ strtolower($filters['status'] ?? '') === 'archived' ? 'selected' : '' }}>Archived</option>
+                        <option value="">{{ __('messages.all_status') }}</option>
+                        <option value="published" {{ strtolower($filters['status'] ?? '') === 'published' ? 'selected' : '' }}>{{ __('messages.published') }}</option>
+                        <option value="draft"     {{ strtolower($filters['status'] ?? '') === 'draft' ? 'selected' : '' }}>{{ __('messages.draft') }}</option>
+                        <option value="archived"  {{ strtolower($filters['status'] ?? '') === 'archived' ? 'selected' : '' }}>{{ __('messages.archived') }}</option>
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label class="filter-label">Category:</label>
+                    <label class="filter-label">{{ __('messages.category') }}:</label>
                     <select name="category" class="form-select" style="min-width: 150px;">
-                        <option value="">All Categories</option>
+                        <option value="">{{ __('messages.all_categories') }}</option>
                         @foreach($categories as $cat)
                             <option value="{{ $cat->id }}" {{ ($filters['category'] ?? '') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label class="filter-label">Brand:</label>
+                    <label class="filter-label">{{ __('messages.brand') }}:</label>
                     <select name="brand" class="form-select" style="min-width: 140px;">
-                        <option value="">All Brands</option>
+                        <option value="">{{ __('messages.all_brands') }}</option>
                         @foreach($brands as $brand)
                             <option value="{{ $brand->id }}" {{ ($filters['brand'] ?? '') == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
                         @endforeach
@@ -124,10 +124,10 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
                     </svg>
-                    Filter
+                    {{ __('messages.filter') }}
                 </button>
                 @if(array_filter($filters))
-                    <a href="{{ route('products.index') }}" class="btn btn-ghost">Clear</a>
+                    <a href="{{ route('products.index') }}" class="btn btn-ghost">{{ __('messages.clear') }}</a>
                 @endif
             </div>
         </form>
@@ -143,13 +143,13 @@
         <div style="display:flex; align-items:center; gap:0.75rem; width:100%;">
             <input type="checkbox" id="select-all" class="checkbox-input" style="cursor:pointer;">
             <label for="select-all" style="font-size:0.875rem; color:var(--muted-foreground); cursor:pointer;">
-                Select all on this page
+                {{ __('messages.select_all_page') }}
             </label>
             <span id="selected-count" style="font-size:0.875rem; color:var(--muted-foreground); margin-left:0.5rem;"></span>
             <div style="margin-left:auto; display:flex; gap:0.5rem;">
-                <button type="button" class="btn btn-sm btn-secondary" id="bulk-publish-btn" disabled>Publish Selected</button>
-                <button type="button" class="btn btn-sm btn-secondary" id="bulk-draft-btn" disabled>Set Draft</button>
-                <button type="button" class="btn btn-sm" style="background:color-mix(in srgb, var(--destructive), transparent 88%); color:var(--destructive);" id="bulk-delete-btn" disabled>Delete Selected</button>
+                <button type="button" class="btn btn-sm btn-secondary" id="bulk-publish-btn" disabled>{{ __('messages.publish_selected') }}</button>
+                <button type="button" class="btn btn-sm btn-secondary" id="bulk-draft-btn" disabled>{{ __('messages.set_draft') }}</button>
+                <button type="button" class="btn btn-sm" style="background:color-mix(in srgb, var(--destructive), transparent 88%); color:var(--destructive);" id="bulk-delete-btn" disabled>{{ __('messages.delete_selected') }}</button>
             </div>
         </div>
     </div>
@@ -161,14 +161,14 @@
                     <th style="width:40px; padding-right:0;">
                         <input type="checkbox" id="select-all-th" class="checkbox-input" style="cursor:pointer;">
                     </th>
-                    <th>Product</th>
-                    <th>SKU</th>
-                    <th>Categories</th>
-                    <th>Brand</th>
-                    <th>Price</th>
-                    <th>Status</th>
-                    <th>Featured</th>
-                    <th style="text-align:right;">Actions</th>
+                    <th>{{ __('messages.products') }}</th>
+                    <th>{{ __('messages.sku') }}</th>
+                    <th>{{ __('messages.category') }}</th>
+                    <th>{{ __('messages.brand') }}</th>
+                    <th>{{ __('messages.price') }}</th>
+                    <th>{{ __('messages.status') }}</th>
+                    <th>{{ __('messages.featured') }}</th>
+                    <th style="text-align:right;">{{ __('messages.actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -233,17 +233,17 @@
                         </div>
                         @if($product->sale_price)
                             <div style="font-size:0.8125rem; color:var(--success);">
-                                Sale: @money($product->sale_price)
+                                {{ __('messages.sale_price') }}@money($product->sale_price)
                             </div>
                         @endif
                     </td>
                     <td>
                         @if($product->status === 'published')
-                            <span class="badge badge-success">Published</span>
+                            <span class="badge badge-success">{{ __('messages.published') }}</span>
                         @elseif($product->status === 'draft')
-                            <span class="badge badge-warning">Draft</span>
+                            <span class="badge badge-warning">{{ __('messages.draft') }}</span>
                         @else
-                            <span class="badge badge-secondary">Archived</span>
+                            <span class="badge badge-secondary">{{ __('messages.archived') }}</span>
                         @endif
                     </td>
                     <td>
@@ -252,7 +252,7 @@
                                 <svg viewBox="0 0 24 24" fill="currentColor" style="width:12px;height:12px;margin-right:3px;">
                                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                 </svg>
-                                Featured
+                                {{ __('messages.featured') }}
                             </span>
                         @else
                             <span style="color:var(--muted-foreground); font-size:0.8125rem;">—</span>
@@ -260,12 +260,12 @@
                     </td>
                     <td>
                         <div class="action-buttons" style="justify-content:flex-end;">
-                            <a href="{{ route('products.edit', $product) }}" class="action-btn" title="Edit">
+                            <a href="{{ route('products.edit', $product) }}" class="action-btn" title="{{ __('messages.edit') }}">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                 </svg>
                             </a>
-                            <a href="{{ route('products.show', $product) }}" class="action-btn" title="Preview" target="_blank">
+                            <a href="{{ route('products.show', $product) }}" class="action-btn" title="{{ __('messages.preview') }}" target="_blank">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                 </svg>
@@ -273,8 +273,8 @@
                             <form action="{{ route('products.destroy', $product->id) }}" method="POST" style="display:inline;" id="delete-product-{{ $product->id }}">
                                 @csrf
                                 @method('DELETE')
-                                <button type="button" class="action-btn action-btn-danger" title="Delete"
-                                    onclick="showDanger('Delete Product', 'Are you sure you want to delete &quot;{{ addslashes($product->name) }}&quot;? This action cannot be undone.').then(confirmed => { if(confirmed) document.getElementById('delete-product-{{ $product->id }}').submit(); })">
+                                <button type="button" class="action-btn action-btn-danger" title="{{ __('messages.delete') }}"
+                                    onclick="showDanger('{{ __('messages.delete') }}', '{{ __('messages.product_delete_confirm') }}').then(confirmed => { if(confirmed) document.getElementById('delete-product-{{ $product->id }}').submit(); })">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                     </svg>
@@ -292,7 +292,7 @@
     @if($products->hasPages())
     <div style="padding: 1rem 1.5rem; border-top: 1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
         <div style="font-size:0.875rem; color:var(--muted-foreground);">
-            Showing {{ $products->firstItem() }}–{{ $products->lastItem() }} of {{ $products->total() }} products
+            {{ __('messages.showing') }} {{ $products->firstItem() }}–{{ $products->lastItem() }} {{ __('messages.of') }} {{ $products->total() }} {{ __('messages.products') }}
         </div>
         <div class="pagination">
             {{ $products->links() }}
@@ -306,12 +306,12 @@
         <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V11"/>
         </svg>
-        <h3 class="empty-state-title">No products found</h3>
+        <h3 class="empty-state-title">{{ __('messages.no_products_found') }}</h3>
         <p class="empty-state-description">
             @if(array_filter($filters))
-                No products match your current filters. Try adjusting your search criteria.
+                {{ __('messages.no_products_match') }}
             @else
-                Get started by adding your first product to the catalog.
+                {{ __('messages.add_first_product') }}
             @endif
         </p>
         <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;">
@@ -319,10 +319,10 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                 </svg>
-                Add Product
+                {{ __('messages.add_product') }}
             </a>
             @if(array_filter($filters))
-                <a href="{{ route('products.index') }}" class="btn btn-secondary">Clear Filters</a>
+                <a href="{{ route('products.index') }}" class="btn btn-secondary">{{ __('messages.clear_filters') }}</a>
             @endif
         </div>
     </div>

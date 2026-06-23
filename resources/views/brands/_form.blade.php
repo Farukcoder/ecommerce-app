@@ -58,11 +58,11 @@
                 <label for="name" class="form-label">
                     Brand Name <span style="color:var(--destructive);">*</span>
                 </label>
-                <input type="text" id="name" name="name"
-                       class="form-input @error('name') is-invalid @enderror"
-                       value="{{ old('name', $brand->name ?? '') }}"
-                       placeholder="e.g. Sony, Apple, Nike" required maxlength="255"
-                       oninput="autoSlug(this.value)">
+                  <input type="text" id="name" name="name"
+                      class="form-input @error('name') is-invalid @enderror"
+                      value="{{ old('name', $brand->name ?? '') }}"
+                      placeholder="{{ __('messages.example_brands') }}" required maxlength="255"
+                      oninput="autoSlug(this.value)">
                 @error('name')<span class="form-error">{{ $message }}</span>@enderror
             </div>
 
@@ -72,10 +72,10 @@
                     Slug <span class="form-label-optional">(auto-generated if blank)</span>
                 </label>
                 <div style="position:relative;">
-                    <input type="text" id="slug" name="slug"
-                           class="form-input @error('slug') is-invalid @enderror"
-                           value="{{ old('slug', $brand->slug ?? '') }}"
-                           placeholder="e.g. sony" style="padding-left:2.75rem;" maxlength="255">
+                          <input type="text" id="slug" name="slug"
+                              class="form-input @error('slug') is-invalid @enderror"
+                              value="{{ old('slug', $brand->slug ?? '') }}"
+                              placeholder="{{ __('messages.example_slug') }}" style="padding-left:2.75rem;" maxlength="255">
                     <span style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--muted-foreground);font-size:0.875rem;">/</span>
                 </div>
                 @error('slug')<span class="form-error">{{ $message }}</span>@enderror
@@ -101,7 +101,7 @@
                 <div class="logo-drop-zone" onclick="document.getElementById('logo-input').click()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                     <p style="font-size:0.875rem; color:var(--muted-foreground); margin-bottom:0.25rem;">
-                        {{ isset($brand) && $brand->logo ? 'Click to replace' : 'Click to upload' }}
+                        {{ __('messages.click_drag_upload') }}
                     </p>
                     <p style="font-size:0.75rem; color:var(--muted-foreground);">PNG, JPG, WebP, SVG · Max 2MB</p>
                     <input type="file" id="logo-input" name="logo" accept="image/*" style="display:none;" onchange="previewLogo(this)">
@@ -126,8 +126,8 @@
                                {{ old('status', $brand->status ?? true) ? 'checked' : '' }}>
                         <span class="toggle-slider"></span>
                     </label>
-                    <span style="font-size:0.875rem; color:var(--muted-foreground);" id="status-label">
-                        {{ old('status', $brand->status ?? true) ? 'Active' : 'Inactive' }}
+                    <span style="font-size:0.875rem; color:var(--muted-foreground);" id="status-label" data-active="{{ __('messages.active') }}" data-inactive="{{ __('messages.inactive') }}">
+                        {{ old('status', $brand->status ?? true) ? __('messages.active') : __('messages.inactive') }}
                     </span>
                 </div>
                 <p class="form-hint">Inactive brands are hidden from product filters.</p>
@@ -135,10 +135,10 @@
 
         </div>
         <div class="card-footer" style="display:flex; gap:0.625rem; justify-content:flex-end;">
-            <a href="{{ route('brands.index') }}" class="btn btn-secondary">Cancel</a>
+            <a href="{{ route('brands.index') }}" class="btn btn-secondary">{{ __('messages.cancel') }}</a>
             <button type="submit" class="btn btn-primary">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                {{ $method === 'PUT' ? 'Update Brand' : 'Create Brand' }}
+                {{ $method === 'PUT' ? __('messages.update_brand') : __('messages.create_brand') }}
             </button>
         </div>
     </div>
@@ -172,7 +172,7 @@ function previewLogo(input) {
 const statusToggle = document.getElementById('status-toggle');
 const statusLabel  = document.getElementById('status-label');
 statusToggle.addEventListener('change', () => {
-    statusLabel.textContent = statusToggle.checked ? 'Active' : 'Inactive';
+    statusLabel.textContent = statusToggle.checked ? statusLabel.dataset.active : statusLabel.dataset.inactive;
 });
 </script>
 @endpush

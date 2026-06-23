@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Models\Review;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\OrderItem;
@@ -86,7 +87,7 @@ class AppServiceProvider extends ServiceProvider
         $totalOrders = (clone $ordersQuery)->count();
         $totalRevenue = (float) (clone $ordersQuery)->where('status', '!=', 'cancelled')->sum('total_amount');
         $pendingOrders = (clone $ordersQuery)->where('status', 'pending')->count();
-        
+
         $totalProducts = Product::count();
         $totalCustomers = User::whereHas('roles', function ($q) {
             $q->where('slug', 'customer');
@@ -317,30 +318,28 @@ class AppServiceProvider extends ServiceProvider
      */
     private function buildLatestReviews(): Collection
     {
-        $sampleProducts = Product::take(4)->get();
-        $mockComments = [
-            'Absolutely love the quality! Fits perfectly and looks great.',
-            'Great performance and build quality. Highly recommended!',
-            'Very comfortable and durable. Exceeded my expectations.',
-            'Nice design, though shipping took a bit longer than expected.',
-        ];
-        $mockNames = ['Sarah Jenkins', 'David Miller', 'Emily Watson', 'James Smith'];
-        $mockRatings = [5, 4, 5, 4];
-        $mockTimes = ['2 hours ago', '5 hours ago', '1 day ago', '2 days ago'];
+        $reviews = Review::with(['user', 'product'])
+            ->latest()
+            ->take(5)
+            ->get()
+            ->map(function (Review $review) {
+                $user = $review->user;
+                $product = $review->product;
 
-        $reviews = collect();
-        for ($i = 0; $i < 4; $i++) {
-            $product = $sampleProducts->get($i);
-            $reviews->push([
-                'customer_name' => $mockNames[$i],
-                'product_name' => $product ? $product->name : 'Premium Product ' . ($i + 1),
-                'rating' => $mockRatings[$i],
-                'comment' => $mockComments[$i],
-                'time_ago' => $mockTimes[$i],
-                'avatar_letter' => substr($mockNames[$i], 0, 1),
-                'product_image' => $product?->thumbnail ? asset('storage/' . $product->thumbnail) : null,
-            ]);
-        }
+                $customerName = $user?->name ?? ($user?->email ?? 'Guest');
+                $avatarLetter = strtoupper(substr($customerName, 0, 1));
+
+                return [
+                    'customer_name' => $customerName,
+                    'product_name' => $product?->name ?? 'Unknown Product',
+                    'rating' => (int) $review->rating,
+                    'comment' => $review->comment,
+                    'time_ago' => $review->created_at ? $review->created_at->diffForHumans() : '—',
+                    'avatar_letter' => $avatarLetter,
+                    'product_image' => $product?->thumbnail ? asset('storage/' . $product->thumbnail) : null,
+                ];
+            });
+
         return $reviews;
     }
 
@@ -354,8 +353,8 @@ class AppServiceProvider extends ServiceProvider
             ->take(6)
             ->get()
             ->map(function ($order) {
-                $shippingAddress = is_array($order->shipping_address) 
-                    ? $order->shipping_address 
+                $shippingAddress = is_array($order->shipping_address)
+                    ? $order->shipping_address
                     : json_decode($order->shipping_address, true);
 
                 $transactionId = $shippingAddress['transaction_id'] ?? null;

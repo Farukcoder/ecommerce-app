@@ -27,7 +27,7 @@
                         <label class="form-label">Currency</label>
                         <select id="td-inv-currency" class="form-select">
                             <option value="$" selected>$ (USD)</option>
-                            <option value="৳">৳ (BDT)</option>
+                            <option value="৳">{{ __('messages.currency_bdt') }}</option>
                             <option value="€">€ (EUR)</option>
                             <option value="£">£ (GBP)</option>
                         </select>

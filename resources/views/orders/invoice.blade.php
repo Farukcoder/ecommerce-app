@@ -31,20 +31,20 @@
         <tr>
             <td style="vertical-align:middle;">
                 @if(!empty($settings?->system_logo_white_pdf_source))
-                    <img src="{{ $settings->system_logo_white_pdf_source }}" alt="Logo" style="height:48px; display:block; margin-bottom:6px;">
+                    <img src="{{ $settings->system_logo_white_pdf_source }}" alt="{{ __('messages.logo_alt') }}" style="height:48px; display:block; margin-bottom:6px;">
                 @endif
             </td>
             <td style="vertical-align:middle; text-align:right; width:260px; font-size:12px; color:#374151;">
-                <div style="font-size:16px; font-weight:700; margin-bottom:6px;">Invoice</div>
-                <div>Invoice #: {{ $order->order_number }}</div>
-                <div>Invoice Date: {{ $issuedAt->format('M d, Y') }}</div>
-                <div>Due Date: {{ $dueAt->format('M d, Y') }}</div>
+                <div style="font-size:16px; font-weight:700; margin-bottom:6px;">{{ __('messages.invoice') }}</div>
+                <div>{{ __('messages.invoice_number') }} {{ $order->order_number }}</div>
+                <div>{{ __('messages.invoice_date') }} {{ $issuedAt->format('M d, Y') }}</div>
+                <div>{{ __('messages.due_date') }} {{ $dueAt->format('M d, Y') }}</div>
             </td>
         </tr>
     </table>
 
     <div class="card">
-        <strong>Bill To</strong>
+        <strong>{{ __('messages.bill_to') }}</strong>
         <div>{{ $order->customer?->name ?? data_get($order->shipping_address, 'name') }}</div>
         <div>{{ data_get($order->shipping_address, 'address') }}</div>
         <div>{{ data_get($order->shipping_address, 'area') }}, {{ data_get($order->shipping_address, 'city') }} {{ data_get($order->shipping_address, 'zip') }}</div>
@@ -54,11 +54,11 @@
     <table>
         <thead>
             <tr>
-                <th>Product</th>
-                <th>SKU</th>
-                <th>Qty</th>
-                <th>Unit Price</th>
-                <th>Total</th>
+                <th>{{ __('messages.product') }}</th>
+                <th>{{ __('messages.sku') }}</th>
+                <th>{{ __('messages.qty') }}</th>
+                <th>{{ __('messages.unit_price') }}</th>
+                <th>{{ __('messages.total') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -77,38 +77,38 @@
     <div class="card" style="margin-top: 16px;">
         <table class="totals">
             <tr>
-                <td>Subtotal</td>
+                <td>{{ __('messages.subtotal') }}</td>
                 <td style="text-align:right;">@money($order->subtotal)</td>
             </tr>
             <tr>
-                <td>Discount</td>
+                <td>{{ __('messages.discount') }}</td>
                 <td style="text-align:right;">@money($order->discount_amount)</td>
             </tr>
             <tr>
-                <td>Shipping</td>
+                <td>{{ __('messages.shipping') }}</td>
                 <td style="text-align:right;">@money($order->shipping_charge)</td>
             </tr>
             <tr>
-                <td>Tax</td>
+                <td>{{ __('messages.tax') }}</td>
                 <td style="text-align:right;">@money($order->tax_amount)</td>
             </tr>
             <tr>
-                <td>Grand Total</td>
+                <td>{{ __('messages.grand_total') }}</td>
                 <td style="text-align:right;">@money($order->total_amount)</td>
             </tr>
         </table>
         <div style="margin-top: 12px; font-size: 13px;">
-            Payment Method: {{ strtoupper($order->payment_method ?? 'N/A') }}<br>
-            Payment Status: {{ ucfirst($order->payment_status) }}
+            {{ __('messages.payment_method_label') }} {{ strtoupper($order->payment_method ?? 'N/A') }}<br>
+            {{ __('messages.payment_status_label') }} {{ ucfirst($order->payment_status) }}
         </div>
     </div>
 
     <div class="footer">
-        Thank you for your purchase. Please keep this invoice for your records. Returns are accepted within 7 days with original packaging.
+        {{ __('messages.invoice_thank_you') }}
     </div>
 
     <div class="print-actions" style="margin-top: 16px;">
-        <button onclick="window.print()" style="padding: 8px 14px; border-radius: 8px; border: 1px solid #e5e7eb; background: #111; color: #fff; cursor: pointer;">Print</button>
+        <button onclick="window.print()" style="padding: 8px 14px; border-radius: 8px; border: 1px solid #e5e7eb; background: #111; color: #fff; cursor: pointer;">{{ __('messages.print_button') }}</button>
     </div>
 </div>
 </body>

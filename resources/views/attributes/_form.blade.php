@@ -66,7 +66,7 @@
                 <input type="text" id="name" name="name"
                        class="form-input @error('name') is-invalid @enderror"
                        value="{{ old('name', $attribute->name ?? '') }}"
-                       placeholder="e.g. Size, Color, Material" required maxlength="255">
+                       placeholder="{{ __('messages.example_attributes') }}" required maxlength="255">
                 @error('name')<span class="form-error">{{ $message }}</span>@enderror
                 <p class="form-hint">A short, descriptive name. Must be unique across all attributes.</p>
             </div>
@@ -87,7 +87,7 @@
                             </span>
                         @endif
                     @endforeach
-                    <input type="text" id="value-input" placeholder="Type a value and press Enter…" onkeydown="addValue(event)">
+                    <input type="text" id="value-input" placeholder="{{ __('messages.attribute_value_placeholder') }}" onkeydown="addValue(event)">
                 </div>
                 @error('values.*')<span class="form-error">{{ $message }}</span>@enderror
                 <p class="form-hint">Press <kbd>Enter</kbd> or <kbd>,</kbd> to add. Click ✕ to remove.</p>

@@ -80,12 +80,12 @@
             <div class="grid-2">
                 <div class="form-group">
                     <label for="name" class="form-label">Name (English) <span style="color:var(--destructive);">*</span></label>
-                    <input type="text" id="name" name="name" class="form-input @error('name') is-invalid @enderror" value="{{ old('name', $location->name) }}" placeholder="e.g. Mirpur" required maxlength="255">
+                    <input type="text" id="name" name="name" class="form-input @error('name') is-invalid @enderror" value="{{ old('name', $location->name) }}" placeholder="{{ __('messages.location_en_example') }}" required maxlength="255">
                     @error('name')<span class="form-error">{{ $message }}</span>@enderror
                 </div>
                 <div class="form-group">
                     <label for="bn_name" class="form-label">Name (Bengali) <span style="color:var(--destructive);">*</span></label>
-                    <input type="text" id="bn_name" name="bn_name" class="form-input @error('bn_name') is-invalid @enderror" value="{{ old('bn_name', $location->bn_name) }}" placeholder="e.g. মিরপুর" required maxlength="255">
+                    <input type="text" id="bn_name" name="bn_name" class="form-input @error('bn_name') is-invalid @enderror" value="{{ old('bn_name', $location->bn_name) }}" placeholder="{{ __('messages.location_bn_example') }}" required maxlength="255">
                     @error('bn_name')<span class="form-error">{{ $message }}</span>@enderror
                 </div>
             </div>
@@ -177,24 +177,24 @@ function filterDistricts(divisionId) {
     const distSelect = document.getElementById('chain-district');
     if (!distSelect) return;
     const currentValue = distSelect.value;
-    
+
     // Clear options
     distSelect.innerHTML = '';
-    
+
     // Filter
     const filtered = districtOptions.filter(opt => {
         return opt.value === '' || !divisionId || opt.dataset.divisionId === divisionId;
     });
-    
+
     filtered.forEach(opt => distSelect.appendChild(opt));
-    
+
     // Restore or reset
     if (filtered.some(opt => opt.value === currentValue)) {
         distSelect.value = currentValue;
     } else {
         distSelect.value = '';
     }
-    
+
     // Cascade
     filterUpazilas(distSelect.value);
 }
@@ -205,10 +205,10 @@ function filterUpazilas(districtId) {
     const currentValue = upzSelect.value;
     const divSelect = document.getElementById('chain-division');
     const divisionId = divSelect ? divSelect.value : '';
-    
+
     // Clear options
     upzSelect.innerHTML = '';
-    
+
     // Filter
     const filtered = upazilaOptions.filter(opt => {
         if (opt.value === '') return true;
@@ -216,9 +216,9 @@ function filterUpazilas(districtId) {
         if (divisionId) return opt.dataset.divisionId === divisionId;
         return true;
     });
-    
+
     filtered.forEach(opt => upzSelect.appendChild(opt));
-    
+
     // Restore or reset
     if (filtered.some(opt => opt.value === currentValue)) {
         upzSelect.value = currentValue;
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupNamesAndRequired(type);
 
     // Eagerly set selections based on editing location values or old inputs
-    const oldDivId = "{{ old('division_id') ?: old('temp_division_id') }}" || 
+    const oldDivId = "{{ old('division_id') ?: old('temp_division_id') }}" ||
                      "{{ ($type === 'district' ? $location->division_id : ($type === 'upazila' ? $location->district->division_id : ($type === 'union' ? $location->upazila->district->division_id : ''))) }}";
 
     const oldDistId = "{{ old('district_id') ?: old('temp_district_id') }}" ||

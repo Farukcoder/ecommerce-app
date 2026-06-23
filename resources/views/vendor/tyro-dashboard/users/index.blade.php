@@ -33,7 +33,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
-                    <input type="text" name="search" class="form-input" placeholder="Search users..." value="{{ $filters['search'] ?? '' }}">
+                    <input type="text" name="search" class="form-input" placeholder="{{ __('messages.search_users') }}" value="{{ $filters['search'] ?? '' }}">
                 </div>
                 <div class="filter-group">
                     <label class="filter-label">Role:</label>
@@ -48,8 +48,8 @@
                     <label class="filter-label">Status:</label>
                     <select name="status" class="form-select" style="min-width: 130px;">
                         <option value="">All Status</option>
-                        <option value="active" {{ ($filters['status'] ?? '') === 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="suspended" {{ ($filters['status'] ?? '') === 'suspended' ? 'selected' : '' }}>Suspended</option>
+                        <option value="active" {{ ($filters['status'] ?? '') === 'active' ? 'selected' : '' }}>{{ __('messages.active') }}</option>
+                        <option value="suspended" {{ ($filters['status'] ?? '') === 'suspended' ? 'selected' : '' }}>{{ __('messages.suspended') }}</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-secondary">Filter</button>
@@ -104,9 +104,9 @@
                     </td>
                     <td>
                         @if(method_exists($listUser, 'isSuspended') && $listUser->isSuspended())
-                            <span class="badge badge-danger">Suspended</span>
+                            <span class="badge badge-danger">{{ __('messages.suspended') }}</span>
                         @else
-                            <span class="badge badge-success">Active</span>
+                            <span class="badge badge-success">{{ __('messages.active') }}</span>
                         @endif
                     </td>
                     <td>{{ $listUser->created_at->format('M d, Y') }}</td>

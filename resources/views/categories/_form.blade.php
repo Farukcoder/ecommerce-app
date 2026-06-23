@@ -57,11 +57,11 @@
                 <label for="name" class="form-label">
                     Category Name <span style="color:var(--destructive);">*</span>
                 </label>
-                <input type="text" id="name" name="name"
-                       class="form-input @error('name') is-invalid @enderror"
-                       value="{{ old('name', $category->name ?? '') }}"
-                       placeholder="e.g. Electronics, Clothing, Books" required maxlength="255"
-                       oninput="autoSlug(this.value)">
+                  <input type="text" id="name" name="name"
+                      class="form-input @error('name') is-invalid @enderror"
+                      value="{{ old('name', $category->name ?? '') }}"
+                      placeholder="{{ __('messages.example_categories') }}" required maxlength="255"
+                      oninput="autoSlug(this.value)">
                 @error('name')<span class="form-error">{{ $message }}</span>@enderror
             </div>
 
@@ -71,10 +71,10 @@
                     Slug <span class="form-label-optional">(auto-generated if blank)</span>
                 </label>
                 <div style="position:relative;">
-                    <input type="text" id="slug" name="slug"
-                           class="form-input @error('slug') is-invalid @enderror"
-                           value="{{ old('slug', $category->slug ?? '') }}"
-                           placeholder="e.g. electronics" style="padding-left:2.75rem;" maxlength="255">
+                          <input type="text" id="slug" name="slug"
+                              class="form-input @error('slug') is-invalid @enderror"
+                              value="{{ old('slug', $category->slug ?? '') }}"
+                              placeholder="{{ __('messages.example_slug') }}" style="padding-left:2.75rem;" maxlength="255">
                     <span style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--muted-foreground);font-size:0.875rem;">/</span>
                 </div>
                 @error('slug')<span class="form-error">{{ $message }}</span>@enderror
@@ -100,7 +100,7 @@
                 <div class="image-drop-zone" onclick="document.getElementById('image-input').click()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                     <p style="font-size:0.875rem; color:var(--muted-foreground); margin-bottom:0.25rem;">
-                        {{ isset($category) && $category->image ? 'Click to replace' : 'Click to upload' }}
+                        {{ __('messages.click_drag_upload') }}
                     </p>
                     <p style="font-size:0.75rem; color:var(--muted-foreground);">PNG, JPG, WebP · Max 2MB</p>
                     <input type="file" id="image-input" name="image" accept="image/*" style="display:none;" onchange="previewImage(this)">
@@ -125,8 +125,8 @@
                                {{ old('status', $category->status ?? true) ? 'checked' : '' }}>
                         <span class="toggle-slider"></span>
                     </label>
-                    <span style="font-size:0.875rem; color:var(--muted-foreground);" id="status-label">
-                        {{ old('status', $category->status ?? true) ? 'Active' : 'Inactive' }}
+                    <span style="font-size:0.875rem; color:var(--muted-foreground);" id="status-label" data-active="{{ __('messages.active') }}" data-inactive="{{ __('messages.inactive') }}">
+                        {{ old('status', $category->status ?? true) ? __('messages.active') : __('messages.inactive') }}
                     </span>
                 </div>
                 <p class="form-hint">Inactive categories are hidden from product filters.</p>
@@ -171,7 +171,7 @@ function previewImage(input) {
 const statusToggle = document.getElementById('status-toggle');
 const statusLabel  = document.getElementById('status-label');
 statusToggle.addEventListener('change', () => {
-    statusLabel.textContent = statusToggle.checked ? 'Active' : 'Inactive';
+    statusLabel.textContent = statusToggle.checked ? statusLabel.dataset.active : statusLabel.dataset.inactive;
 });
 </script>
 @endpush
