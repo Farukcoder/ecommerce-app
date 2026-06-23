@@ -2,6 +2,46 @@
 @include('tyro-dashboard::partials.shadcn-theme')
 
 <style>
+    @font-face {
+        font-family: 'Hind Siliguri';
+        src: url('/fonts/HindSiliguri-Light.ttf') format('truetype');
+        font-weight: 300;
+        font-style: normal;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: 'Hind Siliguri';
+        src: url('/fonts/HindSiliguri-Regular.ttf') format('truetype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: 'Hind Siliguri';
+        src: url('/fonts/HindSiliguri-Medium.ttf') format('truetype');
+        font-weight: 500;
+        font-style: normal;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: 'Hind Siliguri';
+        src: url('/fonts/HindSiliguri-SemiBold.ttf') format('truetype');
+        font-weight: 600;
+        font-style: normal;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: 'Hind Siliguri';
+        src: url('/fonts/HindSiliguri-Bold.ttf') format('truetype');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+    }
+
     :root {
         @if($sidebar_bg = config('tyro-dashboard.branding.sidebar_bg'))
             --sidebar: {{ $sidebar_bg }} !important;
@@ -59,7 +99,7 @@
     }
 
     body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        font-family: 'Hind Siliguri', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         background-color: var(--muted);
         min-height: 100vh;
         line-height: 1.6;
