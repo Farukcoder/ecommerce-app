@@ -2,19 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\Auditable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class ProductStock extends Model
 {
-    use Auditable;
+    use Auditable, HasFactory;
 
     protected $fillable = [
         'product_id',
         'color_id',
         'attribute_value_id',
         'sku',
-        'quantity'
+        'quantity',
     ];
 
     protected $casts = [
@@ -59,8 +60,10 @@ class ProductStock extends Model
     {
         if ($this->quantity >= $quantity) {
             $this->update(['quantity' => $this->quantity - $quantity]);
+
             return true;
         }
+
         return false;
     }
 

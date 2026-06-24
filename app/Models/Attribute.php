@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\Auditable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Attribute extends Model
 {
-    use Auditable;
+    use Auditable, HasFactory;
 
     protected $fillable = ['name'];
 

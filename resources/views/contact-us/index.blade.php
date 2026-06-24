@@ -1,19 +1,19 @@
 @extends('tyro-dashboard::layouts.user')
 
-@section('title', 'Contact Us')
+@section('title', __('messages.contact_us_page_title'))
 
 @section('breadcrumb')
-<a href="{{ route($dashboardRoute::name('index')) }}">Dashboard</a>
+<a href="{{ route($dashboardRoute::name('index')) }}">{{ __('messages.dashboard') }}</a>
 <span class="breadcrumb-separator">/</span>
-<span>Contact Us</span>
+<span>{{ __('messages.contact_us_page_title') }}</span>
 @endsection
 
 @section('content')
 <div class="page-header">
     <div class="page-header-row">
         <div>
-            <h1 class="page-title">Contact Us</h1>
-            <p class="page-description">General inquiries submitted from the website contact form.</p>
+            <h1 class="page-title">{{ __('messages.contact_us_page_title') }}</h1>
+            <p class="page-description">{{ __('messages.contact_us_description') }}</p>
         </div>
     </div>
 </div>
@@ -25,25 +25,25 @@
 <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin-bottom: 1.5rem;">
     <div class="stat-card">
         <div class="stat-content">
-            <div class="stat-label">New</div>
+            <div class="stat-label">{{ __('messages.new') }}</div>
             <div class="stat-value" style="font-size:1.5rem;">{{ $summary['new'] }}</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-content">
-            <div class="stat-label">Read</div>
+            <div class="stat-label">{{ __('messages.read') }}</div>
             <div class="stat-value" style="font-size:1.5rem;">{{ $summary['read'] }}</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-content">
-            <div class="stat-label">Replied</div>
+            <div class="stat-label">{{ __('messages.replied') }}</div>
             <div class="stat-value" style="font-size:1.5rem;">{{ $summary['replied'] }}</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-content">
-            <div class="stat-label">Today</div>
+            <div class="stat-label">{{ __('messages.today') }}</div>
             <div class="stat-value" style="font-size:1.5rem;">{{ $summary['today'] }}</div>
         </div>
     </div>
@@ -57,7 +57,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
-                    <input type="text" name="search" class="form-input" placeholder="Search name, email, phone, message" value="{{ $filters['search'] ?? '' }}">
+                    <input type="text" name="search" class="form-input" placeholder="{{ __('messages.search_contact_placeholder') }}" value="{{ $filters['search'] ?? '' }}">
                 </div>
                 <div class="filter-group">
                     <label class="filter-label">Status:</label>
@@ -76,9 +76,9 @@
                     <label class="filter-label">To:</label>
                     <input type="date" name="date_to" class="form-input" value="{{ $filters['date_to'] ?? '' }}">
                 </div>
-                <button type="submit" class="btn btn-secondary">Filter</button>
+                <button type="submit" class="btn btn-secondary">{{ __('messages.filter') }}</button>
                 @if(array_filter($filters))
-                    <a href="{{ route('contact-us.index') }}" class="btn btn-ghost">Clear</a>
+                    <a href="{{ route('contact-us.index') }}" class="btn btn-ghost">{{ __('messages.clear') }}</a>
                 @endif
             </div>
         </form>
@@ -91,11 +91,11 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>Contact</th>
-                    <th>Message</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th style="text-align:right;">Actions</th>
+                    <th>{{ __('messages.contact') }}</th>
+                    <th>{{ __('messages.message') }}</th>
+                    <th>{{ __('messages.date') }}</th>
+                    <th>{{ __('messages.status') }}</th>
+                    <th style="text-align:right;">{{ __('messages.actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -124,7 +124,7 @@
                             </span>
                         </td>
                         <td style="text-align:right;">
-                            <a href="{{ route('contact-us.show', $item) }}" class="btn btn-sm btn-secondary">View</a>
+                            <a href="{{ route('contact-us.show', $item) }}" class="btn btn-sm btn-secondary">{{ __('messages.view') }}</a>
                         </td>
                     </tr>
                 @endforeach
@@ -140,16 +140,16 @@
         <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
         </svg>
-        <h3 class="empty-state-title">No contact messages yet</h3>
+        <h3 class="empty-state-title">{{ __('messages.no_contact_messages') }}</h3>
         <p class="empty-state-description">
             @if(array_filter($filters))
-                No messages match your filters.
+                {{ __('messages.no_messages_match') }}
             @else
-                Messages from the website contact form will appear here.
+                {{ __('messages.messages_will_appear') }}
             @endif
         </p>
         @if(array_filter($filters))
-            <a href="{{ route('contact-us.index') }}" class="btn btn-secondary">Clear Filters</a>
+            <a href="{{ route('contact-us.index') }}" class="btn btn-secondary">{{ __('messages.clear_filters') }}</a>
         @endif
     </div>
     @endif

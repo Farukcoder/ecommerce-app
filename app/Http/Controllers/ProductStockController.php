@@ -6,7 +6,10 @@ use App\Models\AttributeValue;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\HeaderSetting;
+use App\Models\PriceHistory;
 use App\Models\Product;
+use App\Models\ProductStock;
+use App\Models\StockLog;
 use App\Models\SystemSetting;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -44,8 +47,8 @@ class ProductStockController extends Controller
             ->flatMap(function (Product $product) {
                 return $product->stocks->map(function ($stock) use ($product) {
                     $variantLabel = $stock->attributeValue?->attribute?->name
-                        ? $stock->attributeValue->attribute->name . ': ' . $stock->attributeValue->value
-                        : ($stock->attributeValue?->value ?? ($stock->sku ?: 'Variant #' . $stock->id));
+                        ? $stock->attributeValue->attribute->name.': '.$stock->attributeValue->value
+                        : ($stock->attributeValue?->value ?? ($stock->sku ?: 'Variant #'.$stock->id));
 
                     return [
                         'id' => $stock->attribute_value_id ?: $stock->id,
@@ -279,6 +282,266 @@ class ProductStockController extends Controller
             fclose($output);
         }, 'product-inventory.csv', [
             'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
+    public function updateStock(Request $request, Product $product)
+    {
+        $request->validate([
+            'quantity' => 'required|integer|min:1',
+            'action' => 'required|in:increase,decrease',
+        ]);
+
+        $quantity = $request->integer('quantity');
+        $action = $request->string('action');
+
+        $stock = $product->stocks()->first();
+
+        if (! $stock) {
+            return response()->json(['success' => false, 'message' => __('messages.no_stock_found')], 404);
+        }
+
+        if ($action === 'decrease' && $stock->quantity < $quantity) {
+            return response()->json(['success' => false, 'message' => __('messages.insufficient_stock')], 400);
+        }
+
+        if ($action === 'increase') {
+            $stock->increaseStock($quantity);
+        } else {
+            $stock->reduceStock($quantity);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => __('messages.stock_updated'),
+            'new_quantity' => $stock->quantity,
+        ]);
+    }
+
+    public function stockDetails(Product $product)
+    {
+        try {
+            $currentStock = (int) $product->stocks()->sum('quantity');
+            $productPrice = (float) $product->price;
+
+            $variants = $product->stocks()->with(['attributeValue.attribute'])->get()->map(function ($stock) use ($productPrice) {
+                $variantLabel = $stock->attributeValue?->attribute?->name
+                    ? $stock->attributeValue->attribute->name.': '.$stock->attributeValue->value
+                    : ($stock->attributeValue?->value ?? ($stock->sku ?: 'Variant #'.$stock->id));
+
+                return [
+                    'id' => $stock->id,
+                    'name' => $variantLabel,
+                    'sku' => $stock->sku,
+                    'quantity' => (int) $stock->quantity,
+                    'price' => $productPrice,
+                    'attribute_value_id' => $stock->attribute_value_id,
+                ];
+            });
+
+            $stockHistory = StockLog::where('product_id', $product->id)
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get()
+                ->map(function ($log) {
+                    return [
+                        'date' => $log->created_at->format('Y-m-d H:i'),
+                        'quantity' => $log->quantity,
+                        'type' => $log->change_type,
+                    ];
+                });
+
+            // Get all available attribute values for variant selection
+            $attributeValues = AttributeValue::with('attribute:id,name')
+                ->select('id', 'attribute_id', 'value')
+                ->orderBy('attribute_id')
+                ->orderBy('value')
+                ->get()
+                ->map(function ($value) {
+                    return [
+                        'id' => $value->id,
+                        'attribute' => [
+                            'id' => $value->attribute?->id,
+                            'name' => $value->attribute?->name,
+                        ],
+                        'value' => $value->value,
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'product' => [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'sku' => $product->sku,
+                    'price' => (float) $product->price,
+                ],
+                'current_stock' => $currentStock,
+                'variants' => $variants,
+                'attribute_values' => $attributeValues,
+                'stock_history' => $stockHistory,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ], 500);
+        }
+    }
+
+    public function addStock(Request $request)
+    {
+        $request->validate([
+            'variants' => 'required|array',
+            'variants.*.stock_id' => 'required|exists:product_stocks,id',
+            'variants.*.quantity' => 'required|integer|min:0',
+            'variants.*.price' => 'required|numeric|min:0',
+            'variants.*.date' => 'required|date',
+            'note' => 'nullable|string',
+        ]);
+
+        $note = $request->string('note');
+        $updatedCount = 0;
+
+        foreach ($request->input('variants') as $variantData) {
+            $stock = ProductStock::find($variantData['stock_id']);
+            if (! $stock) {
+                continue;
+            }
+
+            $newQuantity = (int) $variantData['quantity'];
+            $newPrice = (float) $variantData['price'];
+            $date = $variantData['date'];
+            $oldQuantity = $stock->quantity;
+
+            // Log stock change if quantity changed
+            if ($newQuantity !== $oldQuantity) {
+                $difference = $newQuantity - $oldQuantity;
+                $changeType = $difference > 0 ? 'addition' : 'reduction';
+
+                StockLog::create([
+                    'product_id' => $stock->product_id,
+                    'product_stock_id' => $stock->id,
+                    'quantity' => abs($difference),
+                    'change_type' => $changeType,
+                    'note' => $note,
+                    'created_by' => auth()->id(),
+                    'created_at' => $date,
+                ]);
+
+                $stock->update(['quantity' => $newQuantity]);
+            }
+
+            // Track price change if different
+            $product = $stock->product;
+            if (abs($newPrice - (float) $product->price) > 0.01) {
+                PriceHistory::create([
+                    'product_id' => $product->id,
+                    'product_stock_id' => $stock->id,
+                    'old_price' => $product->price,
+                    'new_price' => $newPrice,
+                    'changed_by' => auth()->id(),
+                    'note' => $note,
+                    'created_at' => $date,
+                ]);
+
+                // Update product price
+                $product->update([
+                    'base_price' => $newPrice,
+                    'sale_price' => null,
+                ]);
+            }
+
+            $updatedCount++;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => __('messages.variants_updated_successfully', ['count' => $updatedCount]),
+        ]);
+    }
+
+    public function createStock(Request $request)
+    {
+        // Validate unique SKU separately to handle the logic better
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'color_id' => 'nullable|exists:colors,id',
+            'attribute_value_id' => 'nullable|exists:attribute_values,id',
+            'sku' => 'required|string',
+            'quantity' => 'required|integer|min:0',
+            'price' => 'required|numeric|min:0',
+            'date' => 'required|date',
+            'note' => 'nullable|string',
+        ]);
+
+        $product = Product::find($request->input('product_id'));
+        if (! $product) {
+            return response()->json(['success' => false, 'message' => __('messages.product_not_found')], 404);
+        }
+
+        $sku = $request->input('sku');
+        $attributeValueId = $request->input('attribute_value_id');
+        $newQuantity = (int) $request->input('quantity');
+        $newPrice = (float) $request->input('price');
+        $date = $request->input('date');
+        $note = $request->input('note');
+
+        // Check if stock with this SKU already exists
+        $existingStock = ProductStock::where('sku', $sku)->first();
+
+        if ($existingStock) {
+            // SKU already exists - return validation error for duplicate
+            return response()->json([
+                'success' => false,
+                'message' => __('messages.sku_already_exists'),
+                'errors' => ['sku' => [__('messages.sku_already_exists')]],
+            ], 422);
+        }
+
+        // Create new stock entry
+        $stock = ProductStock::create([
+            'product_id' => $request->input('product_id'),
+            'color_id' => $request->input('color_id'),
+            'attribute_value_id' => $attributeValueId,
+            'sku' => $sku,
+            'quantity' => $newQuantity,
+        ]);
+
+        // Log stock addition
+        StockLog::create([
+            'product_id' => $stock->product_id,
+            'product_stock_id' => $stock->id,
+            'quantity' => $newQuantity,
+            'change_type' => 'addition',
+            'note' => $note,
+            'created_by' => auth()->id(),
+            'created_at' => $date,
+        ]);
+
+        // Track initial price if different from product price
+        if (abs($newPrice - (float) $product->price) > 0.01) {
+            PriceHistory::create([
+                'product_id' => $product->id,
+                'product_stock_id' => $stock->id,
+                'old_price' => (float) $product->price,
+                'new_price' => $newPrice,
+                'changed_by' => auth()->id(),
+                'note' => $note,
+                'created_at' => $date,
+            ]);
+
+            $product->update([
+                'base_price' => $newPrice,
+                'sale_price' => null,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => __('messages.stock_added_successfully'),
         ]);
     }
 }

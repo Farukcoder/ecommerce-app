@@ -1,19 +1,19 @@
 @extends('tyro-dashboard::layouts.user')
 
-@section('title', 'Support & Communication')
+@section('title', __('messages.support_communication_page_title'))
 
 @section('breadcrumb')
-<a href="{{ route($dashboardRoute::name('index')) }}">Dashboard</a>
+<a href="{{ route($dashboardRoute::name('index')) }}">{{ __('messages.dashboard') }}</a>
 <span class="breadcrumb-separator">/</span>
-<span>Support & Communication</span>
+<span>{{ __('messages.support_communication_page_title') }}</span>
 @endsection
 
 @section('content')
 <div class="page-header">
     <div class="page-header-row">
         <div>
-            <h1 class="page-title">Support & Communication</h1>
-            <p class="page-description">Support tickets with subjects and order references from the website.</p>
+            <h1 class="page-title">{{ __('messages.support_communication_page_title') }}</h1>
+            <p class="page-description">{{ __('messages.support_communication_description') }}</p>
         </div>
     </div>
 </div>
@@ -25,19 +25,19 @@
 <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin-bottom: 1.5rem;">
     <div class="stat-card">
         <div class="stat-content">
-            <div class="stat-label">Open</div>
+            <div class="stat-label">{{ __('messages.open') }}</div>
             <div class="stat-value" style="font-size:1.5rem;">{{ $summary['open'] }}</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-content">
-            <div class="stat-label">In Progress</div>
+            <div class="stat-label">{{ __('messages.in_progress') }}</div>
             <div class="stat-value" style="font-size:1.5rem;">{{ $summary['in_progress'] }}</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-content">
-            <div class="stat-label">Resolved</div>
+            <div class="stat-label">{{ __('messages.resolved') }}</div>
             <div class="stat-value" style="font-size:1.5rem;">{{ $summary['resolved'] }}</div>
         </div>
     </div>
@@ -57,7 +57,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
-                    <input type="text" name="search" class="form-input" placeholder="Search ticket #, name, email, phone, order" value="{{ $filters['search'] ?? '' }}">
+                    <input type="text" name="search" class="form-input" placeholder="{{ __('messages.search_ticket_placeholder') }}" value="{{ $filters['search'] ?? '' }}">
                 </div>
                 <div class="filter-group">
                     <label class="filter-label">Status:</label>
@@ -85,9 +85,9 @@
                     <label class="filter-label">To:</label>
                     <input type="date" name="date_to" class="form-input" value="{{ $filters['date_to'] ?? '' }}">
                 </div>
-                <button type="submit" class="btn btn-secondary">Filter</button>
+                <button type="submit" class="btn btn-secondary">{{ __('messages.filter') }}</button>
                 @if(array_filter($filters))
-                    <a href="{{ route('support-tickets.index') }}" class="btn btn-ghost">Clear</a>
+                    <a href="{{ route('support-tickets.index') }}" class="btn btn-ghost">{{ __('messages.clear') }}</a>
                 @endif
             </div>
         </form>
@@ -101,12 +101,12 @@
             <thead>
                 <tr>
                     <th>Ticket #</th>
-                    <th>Contact</th>
-                    <th>Subject</th>
-                    <th>Order</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th style="text-align:right;">Actions</th>
+                    <th>{{ __('messages.contact') }}</th>
+                    <th>{{ __('messages.subject') }}</th>
+                    <th>{{ __('messages.order') }}</th>
+                    <th>{{ __('messages.date') }}</th>
+                    <th>{{ __('messages.status') }}</th>
+                    <th style="text-align:right;">{{ __('messages.actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -135,7 +135,7 @@
                             </span>
                         </td>
                         <td style="text-align:right;">
-                            <a href="{{ route('support-tickets.show', $ticket) }}" class="btn btn-sm btn-secondary">View</a>
+                            <a href="{{ route('support-tickets.show', $ticket) }}" class="btn btn-sm btn-secondary">{{ __('messages.view') }}</a>
                         </td>
                     </tr>
                 @endforeach
@@ -151,16 +151,16 @@
         <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
         </svg>
-        <h3 class="empty-state-title">No support tickets yet</h3>
+        <h3 class="empty-state-title">{{ __('messages.no_support_tickets') }}</h3>
         <p class="empty-state-description">
             @if(array_filter($filters))
-                No tickets match your filters.
+                {{ __('messages.no_tickets_match') }}
             @else
-                Support tickets from the website will appear here.
+                {{ __('messages.tickets_will_appear') }}
             @endif
         </p>
         @if(array_filter($filters))
-            <a href="{{ route('support-tickets.index') }}" class="btn btn-secondary">Clear Filters</a>
+            <a href="{{ route('support-tickets.index') }}" class="btn btn-secondary">{{ __('messages.clear_filters') }}</a>
         @endif
     </div>
     @endif

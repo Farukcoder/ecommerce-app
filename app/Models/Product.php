@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\Auditable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    use HasUuids, Auditable;
+    use Auditable, HasFactory, HasUuids;
 
     protected $fillable = [
         'brand_id',
@@ -25,7 +26,7 @@ class Product extends Model
         'discount_type',
         'discount_value',
         'featured',
-        'status'
+        'status',
     ];
 
     protected $casts = [

@@ -1,11 +1,11 @@
 @extends('tyro-dashboard::layouts.user')
 
-@section('title', 'Orders')
+@section('title', __('messages.orders_page_title'))
 
 @section('breadcrumb')
-<a href="{{ route($dashboardRoute::name('index')) }}">Dashboard</a>
+<a href="{{ route($dashboardRoute::name('index')) }}">{{ __('messages.dashboard') }}</a>
 <span class="breadcrumb-separator">/</span>
-<span>Orders</span>
+<span>{{ __('messages.orders_page_title') }}</span>
 @endsection
 
 @section('content')
@@ -94,7 +94,7 @@
                     <label class="filter-label">{{ __('messages.to_label') }}</label>
                     <input type="text" name="date_to" class="form-input" value="{{ $filters['date_to'] ?? '' }}" data-calendar-field data-placeholder="{{ __('messages.pick_end_date') }}" autocomplete="off">
                 </div>
-                <button type="submit" class="btn btn-secondary">{{ __('messages.filter_button') }}</button>
+                <button type="submit" class="btn btn-secondary">{{ __('messages.filter') }}</button>
                 @if(array_filter($filters))
                     <a href="{{ route('orders.index') }}" class="btn btn-ghost">{{ __('messages.clear_button') }}</a>
                 @endif

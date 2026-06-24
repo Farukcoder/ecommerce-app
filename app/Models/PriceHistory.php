@@ -4,23 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class StockLog extends Model
+class PriceHistory extends Model
 {
+    protected $table = 'price_history';
+
     const UPDATED_AT = null;
 
     protected $fillable = [
         'product_id',
         'product_stock_id',
-        'order_id',
-        'quantity',
-        'change_type',
+        'old_price',
+        'new_price',
+        'changed_by',
         'note',
-        'created_by',
         'created_at',
     ];
 
     protected $casts = [
-        'quantity' => 'integer',
+        'old_price' => 'decimal:2',
+        'new_price' => 'decimal:2',
         'created_at' => 'datetime',
     ];
 
@@ -34,13 +36,8 @@ class StockLog extends Model
         return $this->belongsTo(ProductStock::class);
     }
 
-    public function order()
+    public function changedBy()
     {
-        return $this->belongsTo(Order::class);
-    }
-
-    public function createdBy()
-    {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'changed_by');
     }
 }

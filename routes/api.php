@@ -1,18 +1,19 @@
 <?php
 
-use App\Http\Controllers\Api\BrandController;
-use App\Http\Controllers\Api\CategoryController;
-use App\Http\Controllers\Api\CustomerAuthController;
-use App\Http\Controllers\Api\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Api\Admin\RefundController as AdminRefundController;
-use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\BrandController;
+use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ContactUsController;
+use App\Http\Controllers\Api\Customer\CustomerAddressController;
+use App\Http\Controllers\Api\Customer\OrderController as CustomerOrderController;
+use App\Http\Controllers\Api\Customer\ReviewController as CustomerReviewController;
+use App\Http\Controllers\Api\CustomerAuthController;
+use App\Http\Controllers\Api\LocationController;
+use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\SupportTicketController;
 use App\Http\Controllers\Api\SystemSettingController;
-use App\Http\Controllers\Api\Customer\ReviewController as CustomerReviewController;
-use App\Http\Controllers\Api\LocationController;
-use App\Http\Controllers\Api\Customer\CustomerAddressController;
+use App\Models\AttributeValue;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -40,6 +41,11 @@ Route::prefix('home')->name('home.')->group(function () {
     Route::get('/districts', [LocationController::class, 'districts'])->name('locations.districts');
     Route::get('/upazilas', [LocationController::class, 'upazilas'])->name('locations.upazilas');
     Route::get('/unions', [LocationController::class, 'unions'])->name('locations.unions');
+
+    // Stock management helper routes
+    Route::get('/attributes', function () {
+        return response()->json(['attributes' => AttributeValue::with('attribute:id,name')->select('id', 'attribute_id', 'value')->orderBy('value')->get()]);
+    });
 });
 
 Route::prefix('customer')->name('customer.')->group(function () {
