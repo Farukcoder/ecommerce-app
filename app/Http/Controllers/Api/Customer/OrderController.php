@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\User;
+use App\Notifications\OrderPlaced;
 use App\Services\CustomerCheckoutService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,9 +13,7 @@ use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
 {
-    public function __construct(private readonly CustomerCheckoutService $checkoutService)
-    {
-    }
+    public function __construct(private readonly CustomerCheckoutService $checkoutService) {}
 
     public function options(): JsonResponse
     {
@@ -101,6 +100,8 @@ class OrderController extends Controller
         ]);
 
         $order = $this->checkoutService->placeOrder($customer, $data);
+
+        $customer->notify(new OrderPlaced($order));
 
         return response()->json([
             'message' => 'Order placed successfully.',

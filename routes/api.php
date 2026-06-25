@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ContactUsController;
 use App\Http\Controllers\Api\Customer\CustomerAddressController;
+use App\Http\Controllers\Api\Customer\NotificationController as CustomerNotificationController;
 use App\Http\Controllers\Api\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Api\Customer\ReviewController as CustomerReviewController;
 use App\Http\Controllers\Api\CustomerAuthController;
@@ -80,6 +81,11 @@ Route::prefix('customer')->name('customer.')->group(function () {
         Route::put('/addresses/{address}', [CustomerAddressController::class, 'update'])->name('addresses.update');
         Route::delete('/addresses/{address}', [CustomerAddressController::class, 'destroy'])->name('addresses.destroy');
         Route::patch('/addresses/{address}/default', [CustomerAddressController::class, 'setDefault'])->name('addresses.setDefault');
+
+        // Notification routes
+        Route::get('/notifications', [CustomerNotificationController::class, 'index'])->name('notifications.index');
+        Route::patch('/notifications/read-all', [CustomerNotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
+        Route::patch('/notifications/{notificationId}/read', [CustomerNotificationController::class, 'markAsRead'])->name('notifications.read');
     });
 });
 

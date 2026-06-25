@@ -372,7 +372,7 @@
                             <td>
                                 <div style="font-weight:600; color:var(--foreground);">@money((float) $product->price)</div>
                             </td>
-                            <td style="text-align:right;">
+                            <td style="text-align:right;" onclick="event.stopPropagation()">
                                 <div style="display:inline-flex; gap:0.5rem; flex-wrap:wrap; justify-content:flex-end;">
                                     <a href="{{ route('products.edit', $product) }}" class="btn btn-sm btn-secondary">{{ __('messages.edit') }}</a>
                                     <form action="{{ route('products.destroy', $product) }}" method="POST" onsubmit="return confirm('{{ __('messages.delete_product_confirm') }}');" style="display:inline;">
