@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Customer\CustomerAddressController;
 use App\Http\Controllers\Api\Customer\NotificationController as CustomerNotificationController;
 use App\Http\Controllers\Api\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Api\Customer\ReviewController as CustomerReviewController;
+use App\Http\Controllers\Api\Customer\SslcommerzController;
 use App\Http\Controllers\Api\CustomerAuthController;
 use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\ProductController;
@@ -64,6 +65,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
 
         Route::get('/checkout/options', [CustomerOrderController::class, 'options'])->name('checkout.options');
         Route::post('/checkout/quote', [CustomerOrderController::class, 'quote'])->name('checkout.quote');
+        Route::post('/checkout/sslcommerz', [SslcommerzController::class, 'checkout'])->name('checkout.sslcommerz');
 
         Route::get('/orders', [CustomerOrderController::class, 'index'])->name('orders.index');
         Route::post('/orders', [CustomerOrderController::class, 'store'])->name('orders.store');

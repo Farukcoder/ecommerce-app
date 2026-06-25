@@ -9,6 +9,7 @@ use App\Models\User;
 use HasinHayder\Tyro\Models\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class CustomerCheckoutTest extends TestCase
@@ -54,7 +55,7 @@ class CustomerCheckoutTest extends TestCase
 
         $token = $customer->createToken('customer-api-token', ['customer'])->plainTextToken;
 
-        $headers = ['Authorization' => 'Bearer ' . $token];
+        $headers = ['Authorization' => 'Bearer '.$token];
 
         $quote = $this->withHeaders($headers)->postJson('/api/customer/checkout/quote', [
             'items' => [
@@ -111,6 +112,90 @@ class CustomerCheckoutTest extends TestCase
         $this->assertDatabaseHas('product_stocks', [
             'product_id' => $product->id,
             'quantity' => 4,
+        ]);
+    }
+
+    public function test_customer_can_initiate_sslcommerz_checkout(): void
+    {
+        config([
+            'sslcommerz.store.id' => 'test_store_id',
+            'sslcommerz.store.password' => 'test_store_password',
+            'sslcommerz.sandbox' => true,
+            'sslcommerz.route.success' => 'sslc.success',
+            'sslcommerz.route.failure' => 'sslc.failure',
+            'sslcommerz.route.cancel' => 'sslc.cancel',
+            'sslcommerz.route.ipn' => 'sslc.ipn',
+        ]);
+
+        Http::fake([
+            'https://sandbox.sslcommerz.com/gwprocess/v4/api.php' => Http::response([
+                'status' => 'SUCCESS',
+                'GatewayPageURL' => 'https://sandbox.sslcommerz.com/gwprocess/v4/gw.php?token=test',
+            ], 200),
+        ]);
+
+        $customerRole = Role::firstOrCreate([
+            'slug' => 'customer',
+        ], [
+            'name' => 'Customer',
+        ]);
+
+        $customer = User::factory()->create([
+            'email' => 'buyer2@example.com',
+            'password' => Hash::make('Password123!'),
+        ]);
+        $customer->assignRole($customerRole);
+
+        $brand = Brand::create([
+            'name' => 'Nova',
+            'slug' => 'nova',
+            'status' => true,
+        ]);
+
+        $product = Product::create([
+            'brand_id' => $brand->id,
+            'name' => 'Steering Wheel Cover',
+            'slug' => 'steering-wheel-cover',
+            'sku' => 'SWC-001',
+            'base_price' => 35889,
+            'sale_price' => null,
+            'featured' => true,
+            'status' => 'Published',
+        ]);
+
+        ProductStock::create([
+            'product_id' => $product->id,
+            'sku' => 'SWC-001-A',
+            'quantity' => 5,
+        ]);
+
+        $token = $customer->createToken('customer-api-token', ['customer'])->plainTextToken;
+        $headers = ['Authorization' => 'Bearer '.$token];
+
+        $response = $this->withHeaders($headers)->postJson('/api/customer/checkout/sslcommerz', [
+            'items' => [
+                ['product_id' => $product->id, 'quantity' => 1],
+            ],
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'email' => 'john@example.com',
+            'phone' => '+8801XXXX-XXXXXX',
+            'address' => '123 Main Street',
+            'city' => 'Dhaka',
+            'division' => 'Dhaka',
+            'zip' => '1205',
+            'country' => 'Bangladesh',
+            'note' => 'Please call before delivery.',
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('gateway_url', 'https://sandbox.sslcommerz.com/gwprocess/v4/gw.php?token=test')
+            ->assertJsonStructure(['gateway_url', 'order_id']);
+
+        $this->assertDatabaseHas('orders', [
+            'customer_id' => $customer->id,
+            'payment_method' => 'card',
+            'payment_status' => 'unpaid',
         ]);
     }
 }

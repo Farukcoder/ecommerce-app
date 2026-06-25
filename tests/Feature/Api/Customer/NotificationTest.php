@@ -11,6 +11,7 @@ use HasinHayder\Tyro\Models\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
@@ -72,6 +73,23 @@ class NotificationTest extends TestCase
         $notification = DatabaseNotification::where('notifiable_id', $customer->id)->first();
         $this->assertEquals('order_placed', $notification->data['type']);
         $this->assertStringContainsString('ORD-', $notification->data['order_number']);
+    }
+
+    public function test_placing_order_sends_order_placed_mail_notification(): void
+    {
+        Notification::fake();
+
+        ['customer' => $customer, 'product' => $product, 'token' => $token] = $this->makeCustomerWithProduct();
+
+        $this->placeOrder($token, $product->id)->assertCreated();
+
+        Notification::assertSentTo(
+            $customer,
+            OrderPlaced::class,
+            function ($notification, $channels) {
+                return in_array('mail', $channels, true) && in_array('database', $channels, true);
+            }
+        );
     }
 
     public function test_customer_can_list_notifications(): void

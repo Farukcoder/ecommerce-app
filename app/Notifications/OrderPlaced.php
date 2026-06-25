@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class OrderPlaced extends Notification
@@ -19,7 +20,21 @@ class OrderPlaced extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'mail'];
+    }
+
+    /**
+     * Get the mail representation of the notification.
+     */
+    public function toMail(object $notifiable): MailMessage
+    {
+        return (new MailMessage)
+            ->subject('Order Placed: '.$this->order->order_number)
+            ->greeting('Hello '.($notifiable->name ?? 'Customer').',')
+            ->line('Your order has been placed successfully.')
+            ->line('Order number: '.$this->order->order_number)
+            ->line('Total amount: '.number_format((float) $this->order->total_amount, 2))
+            ->line('We will notify you when your order status changes.');
     }
 
     /**

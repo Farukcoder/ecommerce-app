@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Customer\SslcommerzController;
 use App\Http\Controllers\AttributeController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CategoryController;
@@ -14,10 +15,19 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\SystemSettingController;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect()->route('dashboard.products');
+});
+
+// SSLCommerz callback routes
+Route::withoutMiddleware([PreventRequestForgery::class])->group(function () {
+    Route::match(['get', 'post'], '/sslcommerz/success', [SslcommerzController::class, 'success'])->name('sslc.success');
+    Route::match(['get', 'post'], '/sslcommerz/failure', [SslcommerzController::class, 'failure'])->name('sslc.failure');
+    Route::match(['get', 'post'], '/sslcommerz/cancel', [SslcommerzController::class, 'cancel'])->name('sslc.cancel');
+    Route::post('/sslcommerz/ipn', [SslcommerzController::class, 'ipn'])->name('sslc.ipn');
 });
 
 // Redirect old dashboard.products URL to the real product index
