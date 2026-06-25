@@ -19,7 +19,7 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return redirect()->route('dashboard.products');
+    return redirect()->route('tyro-login.login');
 });
 
 // SSLCommerz callback routes

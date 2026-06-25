@@ -66,6 +66,17 @@
         </button>
 
         <!-- Notification Bell -->
+        @php
+            $showTopbarNotifBell = false;
+
+            if (method_exists($user, 'hasRole') && $user->hasRole('user')) {
+                $showTopbarNotifBell = true;
+            } elseif (method_exists($user, 'roles') && $user->roles()->where('slug', 'user')->exists()) {
+                $showTopbarNotifBell = true;
+            }
+        @endphp
+
+        @if($showTopbarNotifBell)
         <div class="notif-dropdown" id="notifDropdown" style="position: relative;">
             <button type="button" class="topbar-btn notif-bell-btn" id="notifBellBtn"
                 onclick="toggleNotifDropdown()" aria-label="Notifications"
@@ -206,6 +217,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <style>
             .notif-bell-btn:focus-visible { outline: none; }
