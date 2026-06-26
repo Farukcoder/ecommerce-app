@@ -102,13 +102,7 @@ class SslcommerzController extends Controller
         }
 
         if ($order->payment_status === 'paid') {
-            return view('sslcommerz.result', [
-                'status' => 'success',
-                'title' => 'Payment already recorded',
-                'message' => 'Your payment has already been processed successfully.',
-                'buttonUrl' => config('app.url', url('/')),
-                'buttonText' => 'Continue Shopping',
-            ]);
+            return $this->redirectToFrontendSuccess($order->order_number);
         }
 
         if (! Sslcommerz::validatePayment($request->all(), $transactionId, $order->total_amount)) {
@@ -132,35 +126,37 @@ class SslcommerzController extends Controller
 
         $order->customer?->notify(new OrderPlaced($order));
 
-        return view('sslcommerz.result', [
-            'status' => 'success',
-            'title' => 'Payment Successful',
-            'message' => 'Your order has been confirmed and payment was successful. Thank you for shopping with us!',
-            'buttonUrl' => config('app.url', url('/')),
-            'buttonText' => 'Continue Shopping',
-        ]);
+        return $this->redirectToFrontendSuccess($order->order_number);
+    }
+
+    private function redirectToFrontendSuccess(string $orderNumber)
+    {
+        return $this->redirectToFrontend('payment-success', $orderNumber);
+    }
+
+    private function redirectToFrontend(string $path, ?string $orderNumber = null)
+    {
+        $frontendUrl = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:3000')), '/');
+        $query = [];
+
+        if ($orderNumber) {
+            $query['order_number'] = $orderNumber;
+        }
+
+        $queryString = $query ? '?'.http_build_query($query) : '';
+        $targetUrl = sprintf('%s/%s%s', $frontendUrl, trim($path, '/'), $queryString);
+
+        return redirect()->away($targetUrl);
     }
 
     public function failure(Request $request)
     {
-        return view('sslcommerz.result', [
-            'status' => 'error',
-            'title' => 'Payment Failed',
-            'message' => 'The payment was not completed. Please try again or choose another payment method.',
-            'buttonUrl' => config('app.url', url('/')),
-            'buttonText' => 'Continue Shopping',
-        ]);
+        return $this->redirectToFrontend('payment-failed', $request->input('tran_id'));
     }
 
     public function cancel(Request $request)
     {
-        return view('sslcommerz.result', [
-            'status' => 'warning',
-            'title' => 'Payment Cancelled',
-            'message' => 'You cancelled the payment process. You can continue shopping or try again later.',
-            'buttonUrl' => config('app.url', url('/')),
-            'buttonText' => 'Continue Shopping',
-        ]);
+        return $this->redirectToFrontend('payment-cancelled', $request->input('tran_id'));
     }
 
     public function ipn(Request $request)
