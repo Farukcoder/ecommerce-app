@@ -13,6 +13,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductStockController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SalesReportController;
+use App\Http\Controllers\ShippingCostController;
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\SystemSettingController;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -155,4 +156,12 @@ Route::middleware(['auth'])->prefix('dashboard')->name('locations.')->group(func
     Route::get('/locations/{type}/{id}/edit', [LocationController::class, 'edit'])->name('edit');
     Route::put('/locations/{type}/{id}', [LocationController::class, 'update'])->name('update');
     Route::delete('/locations/{type}/{id}', [LocationController::class, 'destroy'])->name('destroy');
+});
+
+// Shipping Cost routes
+Route::middleware(['auth'])->prefix('dashboard')->name('shipping-costs.')->group(function () {
+    Route::get('/shipping-costs', [ShippingCostController::class, 'index'])->name('index');
+    Route::post('/shipping-costs/system-settings', [ShippingCostController::class, 'updateSystemSettings'])->name('system-settings.update');
+    Route::post('/shipping-costs/districts/{district}', [ShippingCostController::class, 'updateDistrictCost'])->name('districts.update');
+    Route::post('/shipping-costs/divisions/{division}/make-free', [ShippingCostController::class, 'makeDivisionFree'])->name('divisions.make-free');
 });

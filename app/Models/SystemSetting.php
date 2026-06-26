@@ -51,6 +51,8 @@ class SystemSetting extends Model
         'available_currencies',
         'default_locale',
         'available_locales',
+        'free_shipping_for_everyone',
+        'default_shipping_rate',
     ];
 
     protected $casts = [
@@ -60,6 +62,8 @@ class SystemSetting extends Model
         'available_currencies' => 'array',
         'available_locales' => 'array',
         'currency_decimal_places' => 'integer',
+        'free_shipping_for_everyone' => 'boolean',
+        'default_shipping_rate' => 'decimal:2',
     ];
 
     protected static function booted(): void
