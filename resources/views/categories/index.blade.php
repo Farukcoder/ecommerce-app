@@ -66,18 +66,20 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th style="width:60px;">ID</th>
                     <th style="width:80px;">{{ __('messages.image') }}</th>
                     <th>{{ __('messages.product_name') }}</th>
                     <th>{{ __('messages.slug') }}</th>
-                    <th style="width:120px;">{{ __('messages.products') }}</th>
-                    <th style="width:120px;">{{ __('messages.status') }}</th>
-                    <th style="width:160px;">{{ __('messages.created') }}</th>
+                    <th style="width:80px;">{{ __('messages.products') }}</th>
+                    <th style="width:80px;">{{ __('messages.status') }}</th>
+                    <th style="width:60px;">{{ __('messages.created') }}</th>
                     <th style="text-align:right; width:120px;">{{ __('messages.actions') }}</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($categories as $category)
                 <tr>
+                    <td>{{ $category->id }}</td>
                     <td>
                         <div style="width:44px; height:44px; border-radius:8px; background:var(--muted); border:1px solid var(--border); flex-shrink:0; display:flex; align-items:center; justify-content:center; color:var(--muted-foreground); overflow:hidden;">
                             @if($category->image)

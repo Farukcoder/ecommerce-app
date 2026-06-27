@@ -66,6 +66,7 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th style="width:60px;">ID</th>
                     <th style="width:80px;">{{ __('messages.logo') }}</th>
                     <th>{{ __('messages.product_name') }}</th>
                     <th>{{ __('messages.slug') }}</th>
@@ -78,6 +79,7 @@
             <tbody>
                 @foreach($brands as $brand)
                 <tr>
+                    <td>{{ $brand->id }}</td>
                     <td>
                         <div style="width:44px; height:44px; border-radius:8px; background:var(--muted); border:1px solid var(--border); flex-shrink:0; display:flex; align-items:center; justify-content:center; color:var(--muted-foreground); overflow:hidden;">
                             @if($brand->logo)

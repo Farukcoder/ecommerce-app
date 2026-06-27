@@ -26,6 +26,8 @@ class CategoryController extends Controller
         if (($status = $request->get('status')) !== null && $status !== '') {
             $query->where('status', (bool) $status);
         }
+        
+        $query->orderBy('id', 'asc');
 
         $categories = $query->latest()->paginate(15)->withQueryString();
         $filters    = $request->only(['search', 'status']);

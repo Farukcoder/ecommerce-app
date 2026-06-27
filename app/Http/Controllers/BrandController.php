@@ -27,6 +27,8 @@ class BrandController extends Controller
             $query->where('status', (bool) $status);
         }
 
+        $query->orderBy('id', 'asc');
+
         $brands  = $query->latest()->paginate(15)->withQueryString();
         $filters = $request->only(['search', 'status']);
 
