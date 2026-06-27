@@ -16,10 +16,12 @@ class ProductStock extends Model
         'attribute_value_id',
         'sku',
         'quantity',
+        'price',
     ];
 
     protected $casts = [
         'quantity' => 'integer',
+        'price' => 'decimal:2',
     ];
 
     public function product()

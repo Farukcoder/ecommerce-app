@@ -91,7 +91,10 @@ class ProductService
                     'color_id' => null,
                     'attribute_value_id' => null,
                 ],
-                ['quantity' => 0]
+                [
+                    'quantity' => 0,
+                    'price' => (float) $product->base_price,
+                ]
             );
             return;
         }
@@ -109,6 +112,7 @@ class ProductService
                 ],
                 [
                     'quantity' => max(0, (int) ($variant['quantity'] ?? 0)),
+                    'price' => isset($variant['price']) ? (float) $variant['price'] : (float) $product->base_price,
                     'color_id' => $variant['color_id'] ?? null,
                     'attribute_value_id' => $variant['attribute_value_id'] ?? null,
                 ]
@@ -117,7 +121,6 @@ class ProductService
             $keepIds[] = $stock->id;
         }
 
-        // Remove stock rows that are no longer in the submitted set
         ProductStock::where('product_id', $product->id)
             ->whereNotIn('id', $keepIds)
             ->delete();

@@ -334,7 +334,7 @@ class ProductStockController extends Controller
                     'name' => $variantLabel,
                     'sku' => $stock->sku,
                     'quantity' => (int) $stock->quantity,
-                    'price' => $productPrice,
+                    'price' => (float) $stock->price,
                     'attribute_value_id' => $stock->attribute_value_id,
                 ];
             });
@@ -508,6 +508,7 @@ class ProductStockController extends Controller
             'attribute_value_id' => $attributeValueId,
             'sku' => $sku,
             'quantity' => $newQuantity,
+            'price' => $newPrice,
         ]);
 
         // Log stock addition

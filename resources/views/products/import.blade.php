@@ -71,6 +71,8 @@
                         <div>brand_id, category_ids (comma-separated IDs)</div>
                         <div>meta_title, meta_description</div>
                         <div>thumbnail_path, gallery_paths (comma-separated)</div>
+                        <div>stock_sku, stock_quantity, stock_price</div>
+                        <div>attribute_id, attribute_value_id, attribute_name, attribute_value</div>
                     </div>
                 </div>
             </div>

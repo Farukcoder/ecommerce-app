@@ -108,6 +108,13 @@ class ProductController extends Controller
             'meta_description',
             'thumbnail_path',
             'gallery_paths',
+            'stock_sku',
+            'stock_quantity',
+            'stock_price',
+            'attribute_id',
+            'attribute_value_id',
+            'attribute_name',
+            'attribute_value',
         ];
 
         $rows = [
@@ -129,6 +136,13 @@ class ProductController extends Controller
                 'Meta description sample',
                 'images/sample-thumb.jpg',
                 'images/sample-1.jpg,images/sample-2.jpg',
+                'SKU-1001-S',
+                '10',
+                '1200',
+                '',
+                '',
+                'Size',
+                'Small',
             ],
         ];
 
@@ -149,6 +163,7 @@ class ProductController extends Controller
      */
     public function importStore(Request $request)
     {
+
         $request->validate([
             'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
             'base_path' => ['nullable', 'string', 'max:500'],
@@ -166,7 +181,7 @@ class ProductController extends Controller
         }
 
         $errors = [];
-        $preparedRows = [];
+        $preparedProducts = [];
 
         foreach ($rows as $rowIndex => $row) {
             $rowNumber = $rowIndex + 2;
@@ -190,6 +205,13 @@ class ProductController extends Controller
                 'meta_description' => ['nullable', 'string', 'max:500'],
                 'thumbnail_path' => ['nullable', 'string'],
                 'gallery_paths' => ['nullable', 'string'],
+                'stock_sku' => ['nullable', 'string', 'max:100'],
+                'stock_quantity' => ['nullable', 'numeric', 'min:0'],
+                'stock_price' => ['nullable', 'numeric', 'min:0'],
+                'attribute_id' => ['nullable', 'exists:attributes,id'],
+                'attribute_value_id' => ['nullable', 'exists:attribute_values,id'],
+                'attribute_name' => ['nullable', 'string', 'max:255'],
+                'attribute_value' => ['nullable', 'string', 'max:255'],
             ]);
 
             if ($validator->fails()) {
@@ -197,58 +219,141 @@ class ProductController extends Controller
                 continue;
             }
 
-            $data['slug'] = $data['slug'] ?: $this->generateUniqueSlug($data['name']);
-            $data['status'] = $this->normalizeStatus($data['status'] ?? 'draft') ?? 'draft';
-            $data['featured'] = $this->normalizeBoolean($data['featured'] ?? false);
+            if (! empty($data['attribute_value_id']) && ! empty($data['attribute_id'])) {
+                $attributeValue = AttributeValue::find((int) $data['attribute_value_id']);
+                if ($attributeValue && $attributeValue->attribute_id !== (int) $data['attribute_id']) {
+                    $errors[] = "Row {$rowNumber}: Attribute value ID does not match attribute ID.";
+                    continue;
+                }
+            }
+
+            if (empty($data['attribute_value_id']) && (trim((string) ($data['attribute_name'] ?? '')) !== '' || trim((string) ($data['attribute_value'] ?? '')) !== '')) {
+                if (trim((string) ($data['attribute_name'] ?? '')) === '') {
+                    $errors[] = "Row {$rowNumber}: attribute_name is required when attribute_value is provided.";
+                    continue;
+                }
+
+                if (trim((string) ($data['attribute_value'] ?? '')) === '') {
+                    $errors[] = "Row {$rowNumber}: attribute_value is required when attribute_name is provided.";
+                    continue;
+                }
+            }
 
             $categoryIds = $this->parseCategoryIds($data['category_ids'] ?? '');
-            if (!empty($categoryIds)) {
+            if (! empty($categoryIds)) {
                 $found = Category::whereIn('id', $categoryIds)->pluck('id')->all();
                 $missing = array_diff($categoryIds, $found);
-                if (!empty($missing)) {
+                if (! empty($missing)) {
                     $errors[] = "Row {$rowNumber}: Unknown category IDs - " . implode(', ', $missing);
                     continue;
                 }
             }
 
             $thumbnailPath = trim((string) ($data['thumbnail_path'] ?? ''));
-            if ($thumbnailPath !== '' && !$this->importImageExists($thumbnailPath, $basePath)) {
+            if ($thumbnailPath !== '' && ! $this->importImageExists($thumbnailPath, $basePath)) {
                 $errors[] = "Row {$rowNumber}: Thumbnail path not found - {$thumbnailPath}";
                 continue;
             }
 
             $galleryPaths = $this->splitList($data['gallery_paths'] ?? '');
-            $missingGallery = array_filter($galleryPaths, fn ($path) => !$this->importImageExists($path, $basePath));
-            if (!empty($missingGallery)) {
+            $missingGallery = array_filter($galleryPaths, fn ($path) => ! $this->importImageExists($path, $basePath));
+            if (! empty($missingGallery)) {
                 $errors[] = "Row {$rowNumber}: Gallery paths not found - " . implode(', ', $missingGallery);
                 continue;
             }
 
-            $preparedRows[] = [
-                'data' => $data,
-                'category_ids' => $categoryIds,
-                'thumbnail_path' => $thumbnailPath,
-                'gallery_paths' => $galleryPaths,
+            $productKey = $this->normalizeImportProductKey($data);
+            if ($productKey === '') {
+                $errors[] = "Row {$rowNumber}: Each row must include a product name, SKU, or slug.";
+                continue;
+            }
+
+            if (! isset($preparedProducts[$productKey])) {
+                $preparedProducts[$productKey] = [
+                    'data' => [
+                        'name' => $data['name'],
+                        'slug' => $data['slug'] ?: '',
+                        'sku' => $data['sku'] ?: '',
+                        'short_description' => $data['short_description'] ?? null,
+                        'description' => $data['description'] ?? null,
+                        'base_price' => $data['base_price'],
+                        'sale_price' => $data['sale_price'] ?? null,
+                        'discount_type' => $data['discount_type'] ?? null,
+                        'discount_value' => $data['discount_value'] ?? null,
+                        'status' => $this->normalizeStatus($data['status'] ?? 'draft') ?? 'draft',
+                        'featured' => $this->normalizeBoolean($data['featured'] ?? false),
+                        'brand_id' => $data['brand_id'] ?? null,
+                        'meta_title' => $data['meta_title'] ?? null,
+                        'meta_description' => $data['meta_description'] ?? null,
+                    ],
+                    'category_ids' => $categoryIds,
+                    'thumbnail_path' => $thumbnailPath,
+                    'gallery_paths' => $galleryPaths,
+                    'variant_rows' => [],
+                ];
+            } else {
+                $preparedProducts[$productKey]['category_ids'] = array_values(array_unique(array_merge(
+                    $preparedProducts[$productKey]['category_ids'],
+                    $categoryIds
+                )));
+
+                if ($preparedProducts[$productKey]['thumbnail_path'] === '' && $thumbnailPath !== '') {
+                    $preparedProducts[$productKey]['thumbnail_path'] = $thumbnailPath;
+                }
+
+                $preparedProducts[$productKey]['gallery_paths'] = array_values(array_unique(array_merge(
+                    $preparedProducts[$productKey]['gallery_paths'],
+                    $galleryPaths
+                )));
+            }
+
+            $preparedProducts[$productKey]['variant_rows'][] = [
+                'stock_sku' => trim((string) ($data['stock_sku'] ?? '')),
+                'stock_quantity' => $data['stock_quantity'] !== '' ? $data['stock_quantity'] : null,
+                'stock_price' => $data['stock_price'] !== '' ? $data['stock_price'] : null,
+                'attribute_id' => $data['attribute_id'] ?? null,
+                'attribute_value_id' => $data['attribute_value_id'] ?? null,
+                'attribute_name' => trim((string) ($data['attribute_name'] ?? '')),
+                'attribute_value' => trim((string) ($data['attribute_value'] ?? '')),
             ];
         }
 
-        if (!empty($errors)) {
+        if (! empty($errors)) {
             return back()->with('import_errors', $errors)->withInput();
         }
 
-        DB::transaction(function () use ($preparedRows, $basePath) {
-            foreach ($preparedRows as $row) {
-                $data = $row['data'];
+        foreach ($preparedProducts as $key => $preparedProduct) {
+            $slug = trim((string) $preparedProduct['data']['slug']);
+            $sku = trim((string) $preparedProduct['data']['sku']);
+
+            if ($slug !== '' && Product::where('slug', $slug)->exists()) {
+                $errors[] = "Product slug already exists: {$slug}";
+            }
+
+            if ($sku !== '' && Product::where('sku', $sku)->exists()) {
+                $errors[] = "Product SKU already exists: {$sku}";
+            }
+
+            if (! empty($errors)) {
+                return back()->with('import_errors', $errors)->withInput();
+            }
+
+            $preparedProducts[$key]['data']['slug'] = $slug ?: $this->generateUniqueSlug($preparedProduct['data']['name']);
+        }
+
+        DB::transaction(function () use ($preparedProducts, $basePath) {
+            foreach ($preparedProducts as $preparedProduct) {
+                $data = $preparedProduct['data'];
 
                 $thumbnailStoredPath = null;
-                if ($row['thumbnail_path'] !== '') {
-                    $thumbnailStoredPath = $this->storeImportImage($row['thumbnail_path'], $basePath, 'products/thumbnails');
+                if ($preparedProduct['thumbnail_path'] !== '') {
+                    $thumbnailStoredPath = $this->storeImportImage($preparedProduct['thumbnail_path'], $basePath, 'products/thumbnails');
                 }
 
                 $product = Product::create([
                     'name' => $data['name'],
                     'slug' => $data['slug'],
-                    'sku' => $data['sku'] ?? null,
+                    'sku' => $data['sku'] ?: null,
                     'thumbnail' => $thumbnailStoredPath,
                     'short_description' => $data['short_description'] ?? null,
                     'description' => $data['description'] ?? null,
@@ -263,11 +368,11 @@ class ProductController extends Controller
                     'brand_id' => $data['brand_id'] ?? null,
                 ]);
 
-                if (!empty($row['category_ids'])) {
-                    $product->categories()->sync($row['category_ids']);
+                if (! empty($preparedProduct['category_ids'])) {
+                    $product->categories()->sync($preparedProduct['category_ids']);
                 }
 
-                foreach ($row['gallery_paths'] as $index => $path) {
+                foreach ($preparedProduct['gallery_paths'] as $index => $path) {
                     $storedPath = $this->storeImportImage($path, $basePath, 'products/gallery');
 
                     ProductImage::create([
@@ -275,6 +380,30 @@ class ProductController extends Controller
                         'image' => $storedPath,
                         'is_primary' => $index === 0,
                     ]);
+                }
+
+                $attributeValueIds = [];
+                foreach ($preparedProduct['variant_rows'] as $index => $variant) {
+                    $quantity = $variant['stock_quantity'] !== null ? max(0, (int) $variant['stock_quantity']) : 0;
+                    $price = $variant['stock_price'] !== null ? (float) $variant['stock_price'] : (float) $product->base_price;
+                    $sku = $variant['stock_sku'] ?: ($product->sku ? "{$product->sku}-V" . ($index + 1) : "PRD-{$product->id}-V" . ($index + 1));
+                    $attributeValueId = $this->resolveImportAttributeValueId($variant);
+
+                    if ($attributeValueId !== null) {
+                        $attributeValueIds[] = $attributeValueId;
+                    }
+
+                    ProductStock::create([
+                        'product_id' => $product->id,
+                        'attribute_value_id' => $attributeValueId,
+                        'sku' => $sku,
+                        'quantity' => $quantity,
+                        'price' => $price,
+                    ]);
+                }
+
+                if (! empty($attributeValueIds)) {
+                    $product->attributeValues()->sync(array_values(array_unique($attributeValueIds)));
                 }
             }
         });
@@ -451,7 +580,7 @@ class ProductController extends Controller
         if ($rows->isEmpty()) {
             ProductStock::updateOrCreate(
                 ['product_id' => $product->id, 'sku' => $product->sku ?: "PRD-{$product->id}"],
-                ['quantity' => 0]
+                ['quantity' => 0, 'price' => (float) $product->base_price]
             );
             return;
         }
@@ -464,7 +593,12 @@ class ProductController extends Controller
 
             $stock = ProductStock::updateOrCreate(
                 ['product_id' => $product->id, 'sku' => $sku],
-                ['quantity' => max(0, (int) ($variant['quantity'] ?? 0))]
+                [
+                    'quantity' => max(0, (int) ($variant['quantity'] ?? 0)),
+                    'price' => isset($variant['price']) ? (float) $variant['price'] : (float) $product->base_price,
+                    'color_id' => $variant['color_id'] ?? null,
+                    'attribute_value_id' => $variant['attribute_value_id'] ?? null,
+                ]
             );
 
             $keepIds[] = $stock->id;
@@ -609,6 +743,13 @@ class ProductController extends Controller
             'meta_description',
             'thumbnail_path',
             'gallery_paths',
+            'stock_sku',
+            'stock_quantity',
+            'stock_price',
+            'attribute_id',
+            'attribute_value_id',
+            'attribute_name',
+            'attribute_value',
         ];
 
         foreach ($headerRow as $col => $header) {
@@ -716,6 +857,48 @@ class ProductController extends Controller
         }
 
         return rtrim($basePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($path, '/\\');
+    }
+
+    private function resolveImportAttributeValueId(array $variant): ?int
+    {
+        if (! empty($variant['attribute_value_id'])) {
+            return (int) $variant['attribute_value_id'];
+        }
+
+        if (trim((string) ($variant['attribute_value'] ?? '')) === '') {
+            return null;
+        }
+
+        $attributeName = trim((string) ($variant['attribute_name'] ?? ''));
+        $attribute = null;
+
+        if (! empty($variant['attribute_id'])) {
+            $attribute = Attribute::find((int) $variant['attribute_id']);
+        }
+
+        if (! $attribute) {
+            $attribute = Attribute::firstOrCreate([
+                'name' => $attributeName,
+            ]);
+        }
+
+        $attributeValue = AttributeValue::firstOrCreate([
+            'attribute_id' => $attribute->id,
+            'value' => trim((string) $variant['attribute_value']),
+        ]);
+
+        return $attributeValue->id;
+    }
+
+    private function normalizeImportProductKey(array $data): string
+    {
+        $key = trim((string) ($data['slug'] ?? '')) ?: trim((string) ($data['sku'] ?? ''));
+
+        if ($key === '') {
+            return strtolower(trim((string) ($data['name'] ?? '')));
+        }
+
+        return strtolower($key);
     }
 
     private function isAbsolutePath(string $path): bool
