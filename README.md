@@ -29,6 +29,87 @@ In addition, [Laracasts](https://laracasts.com) contains thousands of video tuto
 
 You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
 
+## Project Setup Guide
+
+This project is a Laravel application with a Vite-based frontend. To set it up locally, follow the steps below:
+
+### 1. Prerequisites
+Make sure your machine has:
+
+- PHP 8.3 or higher
+- Composer
+- Node.js and npm
+- MySQL/PostgreSQL or another supported database
+- Git
+
+### 2. Clone and install dependencies
+
+```bash
+git clone <your-repository-url>
+cd ecommerce-app
+composer install
+```
+
+### 3. Environment configuration
+Copy the sample environment file and configure your local database settings:
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+Then update the database values in the `.env` file:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=ecommerce_app
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+### 4. Database setup
+Run the migrations and seed the database if needed:
+
+```bash
+php artisan migrate
+php artisan db:seed
+php artisan db:import-locations
+```
+
+### 5. Build frontend assets
+
+```bash
+npm run build
+```
+
+### 6. Run the application
+Use the following command to start the app locally:
+
+```bash
+composer run dev
+```
+
+This will start the Laravel server, queue worker, and Vite development server.
+
+### 7. Useful commands
+
+```bash
+php artisan migrate:fresh --seed
+php artisan test
+php artisan storage:link
+php artisan queue:listen
+```
+
+### 8. AI / agent development setup
+If you want to use AI coding tools such as Laravel Boost, run:
+
+```bash
+composer require laravel/boost --dev
+php artisan boost:install
+```
+
 ## Agentic Development
 
 Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
