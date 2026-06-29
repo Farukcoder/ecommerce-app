@@ -95,6 +95,12 @@ class RolePermissionSeeder extends Seeder
                 'roles' => ['super-admin', 'admin'],
             ],
             [
+                'name' => 'Demo User',
+                'email' => env('SEED_USER_EMAIL', 'user@example.com'),
+                'password' => env('SEED_USER_PASSWORD', 'password'),
+                'roles' => ['user'],
+            ],
+            [
                 'name' => 'Demo Customer',
                 'email' => env('SEED_CUSTOMER_EMAIL', 'customer@example.com'),
                 'password' => env('SEED_CUSTOMER_PASSWORD', 'password'),
