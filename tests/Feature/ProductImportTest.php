@@ -26,8 +26,17 @@ class ProductImportTest extends TestCase
 
     public function test_bulk_import_creates_product_with_stock_and_attribute_values(): void
     {
-        $brand = Brand::factory()->create();
-        $category = Category::factory()->create();
+        $brand = Brand::create([
+            'name' => 'Test Brand',
+            'slug' => 'test-brand',
+            'status' => true,
+        ]);
+
+        $category = Category::create([
+            'name' => 'Test Category',
+            'slug' => 'test-category',
+            'status' => true,
+        ]);
 
         $csv = implode("\n", [
             'name,slug,sku,base_price,stock_sku,stock_quantity,stock_price,attribute_name,attribute_value,brand_id,category_ids',

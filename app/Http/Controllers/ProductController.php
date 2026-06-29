@@ -142,7 +142,7 @@ class ProductController extends Controller
                 '',
                 '',
                 'Size',
-                'Small',
+                'S',
             ],
         ];
 
@@ -165,7 +165,17 @@ class ProductController extends Controller
     {
 
         $request->validate([
-            'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
+            'file' => [
+                'required',
+                'file',
+                function ($attribute, $value, $fail) {
+                    $extension = strtolower((string) $value->getClientOriginalExtension());
+                    if (! in_array($extension, ['xlsx', 'xls', 'csv'], true)) {
+                        $fail('The '.$attribute.' must be a file of type: xlsx, xls, csv.');
+                    }
+                },
+                'mimetypes:text/csv,text/plain,application/csv,application/excel,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/octet-stream',
+            ],
             'base_path' => ['nullable', 'string', 'max:500'],
         ]);
 
@@ -856,7 +866,24 @@ class ProductController extends Controller
             return $path;
         }
 
-        return rtrim($basePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($path, '/\\');
+        $normalizedBasePath = rtrim($basePath, DIRECTORY_SEPARATOR);
+        $relativePath = ltrim($path, '/\\');
+
+        $candidates = [
+            $normalizedBasePath . DIRECTORY_SEPARATOR . $relativePath,
+        ];
+
+        if (str_contains($relativePath, DIRECTORY_SEPARATOR) || str_contains($relativePath, '/')) {
+            $candidates[] = $normalizedBasePath . DIRECTORY_SEPARATOR . basename($relativePath);
+        }
+
+        foreach ($candidates as $candidate) {
+            if (File::exists($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return $candidates[0] ?? '';
     }
 
     private function resolveImportAttributeValueId(array $variant): ?int
