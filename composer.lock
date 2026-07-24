@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "842b17e17e94b3c16cb2a4cc5734899d",
+    "content-hash": "655e6f5b807d17d5a5f797c7f1892d4d",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -923,6 +923,51 @@
                 }
             ],
             "time": "2025-03-06T22:45:56+00:00"
+        },
+        {
+            "name": "farukcoder/laravel-feature-heatmap",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Farukcoder/laravel-feature-usage.git",
+                "reference": "54ddcd61c52e8fa684bb5805845064d6ad1b6bc3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Farukcoder/laravel-feature-usage/zipball/54ddcd61c52e8fa684bb5805845064d6ad1b6bc3",
+                "reference": "54ddcd61c52e8fa684bb5805845064d6ad1b6bc3",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^2.0",
+                "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+                "php": "^8.1"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "Farukcoder\\FeatureHeatmap\\ComposerPlugin",
+                "laravel": {
+                    "providers": [
+                        "Farukcoder\\FeatureHeatmap\\FeatureHeatmapServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Farukcoder\\FeatureHeatmap\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Track which controllers/routes/features are used by which users, and visualize it as a heatmap.",
+            "support": {
+                "issues": "https://github.com/Farukcoder/laravel-feature-usage/issues",
+                "source": "https://github.com/Farukcoder/laravel-feature-usage/tree/v1.1.0"
+            },
+            "time": "2026-07-23T12:44:02+00:00"
         },
         {
             "name": "fruitcake/php-cors",
@@ -10456,12 +10501,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.3"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.6.0"
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
 }
