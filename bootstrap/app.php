@@ -5,6 +5,7 @@ use App\Http\Middleware\SetLocaleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\TrustProxies;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Trust all proxies — required for Render.com / any reverse-proxy host
+        // so Laravel correctly detects HTTPS from X-Forwarded-Proto header
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'requireAdmin' => RequireAdmin::class,
         ]);

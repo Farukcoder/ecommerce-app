@@ -30,7 +30,11 @@ services:
         generateValue: true   # Render auto-generates a secure random value
 
       - key: APP_URL
-        sync: false           # Set this in the Render dashboard to your Render URL
+        value: "https://nityodin-erkutir.onrender.com"   # ← your Render HTTPS URL
+
+      # Force HTTPS scheme — ensures Laravel generates https:// URLs behind proxy
+      - key: ASSET_URL
+        value: "https://nityodin-erkutir.onrender.com"
 
       # ── Database (auto-injected from the PostgreSQL service below) ───────────
       - key: DB_CONNECTION
