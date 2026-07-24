@@ -1,0 +1,186 @@
+# =============================================================================
+# render.yaml — Render.com Infrastructure as Code
+# Docs: https://render.com/docs/blueprint-spec
+# =============================================================================
+
+services:
+  # ── Web Application (Docker) ────────────────────────────────────────────────
+  - type: web
+    name: ecommerce-app
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    branch: main          # change to your deploy branch if needed
+    plan: starter         # free: free | starter: $7/mo | standard: $25/mo
+
+    healthCheckPath: /health
+
+    # Render injects PORT automatically; Nginx listens on 80
+    # No need to override PORT — Render routes external traffic → container :80
+
+    envVars:
+      # ── App ──────────────────────────────────────────────────────────────────
+      - key: APP_NAME
+        value: "Nityodiner Kutir"
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        generateValue: true   # Render auto-generates a secure random value
+
+      - key: APP_URL
+        sync: false           # Set this in the Render dashboard to your Render URL
+
+      # ── Database (auto-injected from the PostgreSQL service below) ───────────
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: ecommerce-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: ecommerce-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: ecommerce-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: ecommerce-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: ecommerce-db
+          property: password
+
+      # ── Cache / Session / Queue (database driver — no Redis needed) ──────────
+      - key: CACHE_STORE
+        value: database
+      - key: SESSION_DRIVER
+        value: database
+      - key: SESSION_LIFETIME
+        value: "120"
+      - key: QUEUE_CONNECTION
+        value: database
+
+      # ── Logging ───────────────────────────────────────────────────────────────
+      - key: LOG_CHANNEL
+        value: stderr        # stream logs to Render's log viewer
+      - key: LOG_LEVEL
+        value: error
+
+      # ── Filesystem ────────────────────────────────────────────────────────────
+      - key: FILESYSTEM_DISK
+        value: local
+
+      # ── Mail — set these in the Render dashboard ──────────────────────────────
+      - key: MAIL_MAILER
+        sync: false          # e.g. smtp, mailgun, ses, resend
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_PORT
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM_ADDRESS
+        sync: false
+      - key: MAIL_FROM_NAME
+        value: "Nityodiner Kutir"
+
+      # ── Tyro Dashboard ────────────────────────────────────────────────────────
+      - key: TYRO_LOGIN_LAYOUT
+        value: "split-left"
+      - key: TYRO_LOGIN_BACKGROUND_IMAGE
+        value: "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      - key: TYRO_LOGIN_REDIRECT_AFTER_LOGIN
+        value: "/dashboard"
+      - key: TYRO_LOGIN_REDIRECT_AFTER_REGISTER
+        value: "/login"
+      - key: TYRO_LOGIN_REDIRECT_AFTER_EMAIL_VERIFICATION
+        value: "/dashboard"
+      - key: TYRO_LOGIN_CAPTCHA_LOGIN
+        value: "true"
+      - key: TYRO_DASHBOARD_BRANDING_SIDEBAR_ACCORDION_COMPACT
+        value: "false"
+      - key: TYRO_DASHBOARD_APP_NAME
+        value: "Nityodiner Kutir"
+      - key: TYRO_DASHBOARD_SIDEBAR_BG
+        value: "#414143"
+      - key: TYRO_DASHBOARD_SIDEBAR_TEXT
+        value: "#f8fafc"
+      - key: TYRO_DASHBOARD_SIDEBAR_PRIMARY
+        value: "#48dcc0"
+      - key: TYRO_DASHBOARD_SIDEBAR_ACCENT
+        value: "#5a5a5c"
+      - key: TYRO_DASHBOARD_SIDEBAR_ACCENT_FOREGROUND
+        value: "#f8fafc"
+      - key: TYRO_DASHBOARD_SIDEBAR_HEADER_BORDER
+        value: "#5a5a5c"
+      - key: TYRO_DASHBOARD_DISABLE_EXAMPLES
+        value: "true"
+      - key: TYRO_DASHBOARD_ENABLE_PROFILE_PHOTO
+        value: "true"
+      - key: TYRO_LOGIN_PASSWORD_MAX_LENGTH
+        value: "30"
+      - key: TYRO_LOGIN_PASSWORD_REQUIRE_NUMBERS
+        value: "true"
+      - key: TYRO_LOGIN_PASSWORD_REQUIRE_SPECIAL_CHARS
+        value: "true"
+      - key: TYRO_LOGIN_PASSWORD_CHECK_COMMON
+        value: "true"
+      - key: TYRO_LOGIN_SHOW_ATTEMPTS_LEFT
+        value: "true"
+      - key: DELETE_PREVIOUS_ACCESS_TOKENS_ON_LOGIN
+        value: "true"
+      - key: TYRO_DISABLE_API
+        value: "true"
+      - key: TYRO_DISABLE_COMMANDS
+        value: "true"
+      - key: TYRO_LOGIN_REGISTRATION_ENABLED
+        value: "false"
+      - key: TYRO_LOGIN_SOCIAL_AUTO_REGISTER
+        value: "false"
+      - key: TYRO_LOGIN_EMAIL_OTP
+        value: "false"
+      - key: TYRO_LOGIN_EMAIL_VERIFY
+        value: "false"
+      - key: TYRO_LOGIN_EMAIL_WELCOME
+        value: "false"
+      - key: TYRO_LOGIN_EMAIL_MAGIC_LINK
+        value: "false"
+      - key: TYRO_DASHBOARD_ENABLE_INVITATION
+        value: "false"
+      - key: TYRO_DASHBOARD_ADMIN_BAR_ENABLED
+        value: "true"
+      - key: TYRO_DASHBOARD_COLLAPSIBLE_SIDEBAR
+        value: "false"
+      - key: TYRO_DASHBOARD_SIDEBAR_ACCORDION_COMPACT
+        value: "true"
+      - key: TYRO_DASHBOARD_SIDEBAR_ACCORDION_OPEN_SECTIONS
+        value: "3"
+
+      # ── SSLCommerz Payment Gateway — set in Render dashboard ─────────────────
+      - key: SSLCOMMERZ_STORE_ID
+        sync: false
+      - key: SSLCOMMERZ_STORE_PASSWORD
+        sync: false
+      - key: SSLCOMMERZ_IS_SANDBOX
+        value: "false"     # set to true for testing
+
+      # ── Seed credentials (optional — only needed if running seeders) ──────────
+      - key: SEED_ADMIN_EMAIL
+        sync: false
+      - key: SEED_ADMIN_PASSWORD
+        sync: false
+
+  # ── PostgreSQL Managed Database ─────────────────────────────────────────────
+databases:
+  - name: ecommerce-db
+    plan: free             # free: 1GB storage, 1 month TTL | starter: $7/mo
+    databaseName: ecommerce_app
+    user: ecommerce_user

@@ -1,0 +1,56 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Node
+node_modules
+
+# PHP vendor (rebuilt in Docker)
+vendor
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Local dev / IDE
+.vscode
+.idea
+.cursor
+.kilo
+.codex
+.ai
+.claude
+.gemini
+.agents
+*.code-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test / CI artefacts
+.phpunit.cache
+.phpunit.result.cache
+phpunit.xml
+
+# Built assets (rebuilt in Docker)
+public/hot
+public/storage
+
+# Storage logs/cache (ephemeral)
+storage/logs/*.log
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+
+# Docker files themselves (not needed inside image)
+docker
+Dockerfile
+docker-entrypoint.sh
+render.yaml
+
+# Docs
+README.md
+AGENTS.md
