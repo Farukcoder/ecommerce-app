@@ -105,6 +105,7 @@ RUN mkdir -p \
 
 # Run composer scripts now that the full app is in place
 RUN php artisan package:discover --ansi || true
+RUN php artisan storage:link || true
 
 # ── Entrypoint ────────────────────────────────────────────────────────────────
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
